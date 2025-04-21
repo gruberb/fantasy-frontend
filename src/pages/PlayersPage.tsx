@@ -9,7 +9,7 @@ const PlayersPage = () => {
   // State for filters
   const [searchTerm, setSearchTerm] = useState("");
   const [positionFilter, setPositionFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("name");
+  const [sortBy, setSortBy] = useState("points");
   const [groupByTeam, setGroupByTeam] = useState(true);
 
   // Fetch teams to get team names
@@ -89,6 +89,9 @@ const PlayersPage = () => {
           return a.teamName?.localeCompare(b.teamName || "") || 0;
         } else if (sortBy === "nhlTeam") {
           return (a.nhl_team || "").localeCompare(b.nhl_team || "");
+        } else if (sortBy === "points") {
+          // Sort descending by total_points
+          return b.total_points - a.total_points;
         }
         return 0;
       });
@@ -175,6 +178,7 @@ const PlayersPage = () => {
               value={sortBy}
               onChange={(e) => setSortBy(e.target.value)}
             >
+              <option value="points">Total Points</option>
               <option value="name">Player Name</option>
               <option value="position">Position</option>
               <option value="team">Fantasy Team</option>
@@ -243,7 +247,7 @@ const PlayersPage = () => {
               </span>
             </div>
 
-            <div className="bg-white rounded-lg shadow-md overflow-hidden">
+            <div className="bg-white rounded-lg shadow-md overflow-x-auto">
               <table className="min-w-full">
                 <thead className="bg-gray-100">
                   <tr>

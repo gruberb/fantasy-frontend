@@ -113,7 +113,7 @@ const HomePage = () => {
           <div className="bg-white rounded-lg shadow-md p-4">
             {games.slice(0, 2).map((game) => (
               <div key={game.id} className="mb-4 pb-4 border-b last:border-b-0">
-                <div className="grid grid-cols-7 items-center">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 items-center">
                   {/* Away team */}
                   <div className="col-span-3 text-right pr-4">
                     <div className="font-bold">{game.away_team}</div>

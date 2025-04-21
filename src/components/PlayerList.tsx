@@ -48,7 +48,7 @@ const PlayerList = ({
       {title && <h3 className="font-bold text-lg mb-2">{title}</h3>}
 
       <div
-        className={`bg-white rounded-lg shadow-md overflow-hidden ${maxHeight ? "overflow-y-auto" : ""}`}
+        className={`bg-white rounded-lg shadow-md overflow-hidden overflow-x-auto ${maxHeight ? "overflow-y-auto" : ""}`}
         style={{ maxHeight }}
       >
         <table className="min-w-full">

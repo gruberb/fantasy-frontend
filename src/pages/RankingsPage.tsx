@@ -74,7 +74,7 @@ const RankingsPage = () => {
       </div>
 
       {/* Rankings Table */}
-      <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="bg-white rounded-lg shadow-md overflow-x-auto">
         <table className="min-w-full">
           <thead className="bg-gray-100">
             <tr>

@@ -261,36 +261,41 @@ const GamesPage = () => {
                       <h3 className="font-bold text-lg mb-2">
                         {game.away_team} Players
                       </h3>
-                      <table className="min-w-full">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="py-1 px-2 text-left text-xs">
-                              Player
-                            </th>
-                            <th className="py-1 px-2 text-left text-xs">
-                              Position
-                            </th>
-                            <th className="py-1 px-2 text-left text-xs">
-                              Fantasy Team
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {game.away_team_players.map((player, idx) => (
-                            <tr key={idx} className="border-t hover:bg-gray-50">
-                              <td className="py-1 px-2 text-sm">
-                                {player.player_name}
-                              </td>
-                              <td className="py-1 px-2 text-sm">
-                                {player.position}
-                              </td>
-                              <td className="py-1 px-2 text-sm">
-                                {player.fantasy_team}
-                              </td>
+                      <div className="overflow-x-auto">
+                        <table className="min-w-full">
+                          <thead className="bg-gray-100">
+                            <tr>
+                              <th className="py-1 px-2 text-left text-xs">
+                                Player
+                              </th>
+                              <th className="py-1 px-2 text-left text-xs">
+                                Position
+                              </th>
+                              <th className="py-1 px-2 text-left text-xs">
+                                Fantasy Team
+                              </th>
                             </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                          </thead>
+                          <tbody>
+                            {game.away_team_players.map((player, idx) => (
+                              <tr
+                                key={idx}
+                                className="border-t hover:bg-gray-50"
+                              >
+                                <td className="py-1 px-2 text-sm">
+                                  {player.player_name}
+                                </td>
+                                <td className="py-1 px-2 text-sm">
+                                  {player.position}
+                                </td>
+                                <td className="py-1 px-2 text-sm">
+                                  {player.fantasy_team}
+                                </td>
+                              </tr>
+                            ))}
+                          </tbody>
+                        </table>
+                      </div>
                     </div>
 
                     {/* Home team players */}
