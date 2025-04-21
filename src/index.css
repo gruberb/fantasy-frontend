@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+/* Custom styles */
+body {
+    font-family:
+        "Inter",
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+}
+
+/* Custom utility classes */
+@layer components {
+    .card {
+        @apply bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300;
+    }
+
+    .btn {
+        @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+    }
+
+    .btn-primary {
+        @apply bg-blue-600 text-white hover:bg-blue-700;
+    }
+
+    .btn-secondary {
+        @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+    }
+}
