@@ -35,16 +35,15 @@ const formatDate = (date: Date) => {
 const GamesPage = () => {
   // State for date selector
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    // Try to match the server's timezone expectations
-    // Initially set to current date
-    return new Date().toISOString().split("T")[0];
+    return new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
   });
 
   // State for filters
   const [filterTeam, setFilterTeam] = useState<string>("all");
 
-  // Debug information
-  console.log("Selected date:", selectedDate);
+  const displayDate = new Date(selectedDate);
+  displayDate.setDate(displayDate.getDate() + 1); // Add one day
+  const formattedDisplayDate = formatDate(displayDate);
 
   // Fetch data for the selected date
   const {
@@ -54,14 +53,14 @@ const GamesPage = () => {
     refetch,
   } = useQuery({
     queryKey: ["games", selectedDate],
-    queryFn: () => api.getGames(selectedDate),
-    retry: 2,
+    queryFn: () => {
+      if (selectedDate === new Date().toISOString().split("T")[0]) {
+        return api.getTodaysGames();
+      }
+      return api.getGames(selectedDate);
+    },
+    retry: 1,
   });
-
-  useEffect(() => {
-    // Refetch when date changes
-    refetch();
-  }, [selectedDate, refetch]);
 
   // Loading state
   if (gamesLoading) {
@@ -91,11 +90,7 @@ const GamesPage = () => {
     );
   }
 
-  const { date, games, summary } = gamesData;
-
-  // Display date based on selection
-  const displayDate = new Date(selectedDate);
-  const formattedDisplayDate = formatDate(displayDate);
+  const { games, summary } = gamesData;
 
   // Get unique NHL teams playing on this date
   const teamsPlaying = summary.team_players_count.map((t) => t.nhl_team);
@@ -114,7 +109,7 @@ const GamesPage = () => {
     const dates = [];
     const today = new Date();
 
-    // Add dates from 7 days ago to 7 days ahead
+    // Add dates from 14 days ago to 14 days ahead
     for (let i = -14; i <= 14; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
@@ -142,7 +137,7 @@ const GamesPage = () => {
     <div>
       <h1 className="text-3xl font-bold mb-6">NHL Games</h1>
 
-      {/* Date selector */}
+      {/* Date selector with FIXED HEADER DATE */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <h2 className="text-xl font-medium mb-4 md:mb-0">
@@ -257,6 +252,7 @@ const GamesPage = () => {
         </div>
       </div>
 
+      {/* Rest of the component remains the same */}
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex flex-wrap gap-2">

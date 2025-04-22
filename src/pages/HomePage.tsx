@@ -31,19 +31,12 @@ const HomePage = () => {
     data: todaysGamesData,
     isLoading: gamesLoading,
     error: gamesError,
+    refetch: refetchGames,
   } = useQuery({
     queryKey: ["todaysGames"],
-    queryFn: () => {
-      console.log("Fetching today's games...");
-      return api.getTodaysGames();
-    },
-    retry: 2, // Retry failed requests twice
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    queryFn: () => api.getTodaysGames(),
+    retry: 1, // Only retry once to avoid excessive retries
   });
-
-  console.log("Today's games data:", todaysGamesData);
-  console.log("Games loading:", gamesLoading);
-  console.log("Games error:", gamesError);
 
   // Loading state - show partial content while loading
   if (teamsLoading && rankingsLoading && gamesLoading) {
@@ -90,7 +83,7 @@ const HomePage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg shadow-md p-4">
               <h3 className="text-lg font-bold mb-4">Top Teams</h3>
-              <RankingsTable rankings={rankings} title="" limit={7} />
+              <RankingsTable rankings={rankings} title="" limit={5} />
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-4">

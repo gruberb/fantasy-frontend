@@ -287,10 +287,18 @@ export const api = {
 
   // Get today's games (convenience method)
   async getTodaysGames(): Promise<GamesResponse> {
-    // Account for timezone offset (subtract one day to match server's Atlantic timezone)
-    const today = new Date();
-    today.setDate(today.getDate() - 1);
-    const dateStr = today.toISOString().split("T")[0]; // YYYY-MM-DD format
-    return this.getGames(dateStr);
+    // Use the direct endpoint for today's games
+    const mockGames: GamesResponse = {
+      date: new Date().toISOString().split("T")[0],
+      games: [],
+      summary: {
+        total_games: 0,
+        total_teams_playing: 0,
+        team_players_count: [],
+      },
+    };
+
+    // Use the specific todays-games endpoint without any date parameter
+    return fetchApi<GamesResponse>("todays-games", mockGames);
   },
 };
