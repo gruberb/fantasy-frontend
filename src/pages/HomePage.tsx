@@ -33,8 +33,17 @@ const HomePage = () => {
     error: gamesError,
   } = useQuery({
     queryKey: ["todaysGames"],
-    queryFn: api.getTodaysGames,
+    queryFn: () => {
+      console.log("Fetching today's games...");
+      return api.getTodaysGames();
+    },
+    retry: 2, // Retry failed requests twice
+    staleTime: 5 * 60 * 1000, // 5 minutes
   });
+
+  console.log("Today's games data:", todaysGamesData);
+  console.log("Games loading:", gamesLoading);
+  console.log("Games error:", gamesError);
 
   // Loading state - show partial content while loading
   if (teamsLoading && rankingsLoading && gamesLoading) {
@@ -104,49 +113,30 @@ const HomePage = () => {
         {gamesLoading ? (
           <LoadingSpinner message="Loading games..." />
         ) : gamesError ? (
-          <ErrorMessage message="Could not load today's games." />
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <ErrorMessage message="Could not load today's games." />
+            <div className="mt-4 text-center">
+              <Link
+                to="/games"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                View Games Calendar
+              </Link>
+            </div>
+          </div>
         ) : games.length === 0 ? (
           <div className="bg-white rounded-lg shadow-md p-6 text-center">
             <p className="text-gray-500">No games scheduled for today.</p>
+            <Link
+              to="/games"
+              className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              View Games Calendar
+            </Link>
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-md p-4">
-            {games.slice(0, 2).map((game) => (
-              <div key={game.id} className="mb-4 pb-4 border-b last:border-b-0">
-                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 lg:grid-cols-7 gap-4 items-center">
-                  {/* Away team */}
-                  <div className="col-span-3 text-right pr-4">
-                    <div className="font-bold">{game.away_team}</div>
-                    <div className="text-sm text-gray-600">
-                      {game.away_team_players.length} players
-                    </div>
-                  </div>
-
-                  {/* VS */}
-                  <div className="col-span-1 text-center font-bold">@</div>
-
-                  {/* Home team */}
-                  <div className="col-span-3 text-left pl-4">
-                    <div className="font-bold">{game.home_team}</div>
-                    <div className="text-sm text-gray-600">
-                      {game.home_team_players.length} players
-                    </div>
-                  </div>
-                </div>
-
-                <div className="mt-2 text-sm text-center text-gray-500">
-                  {game.venue} · {game.start_time.replace("UTC", "").trim()}
-                </div>
-              </div>
-            ))}
-
-            {games.length > 2 && (
-              <div className="text-center mt-4">
-                <Link to="/games" className="text-blue-600 hover:underline">
-                  + {games.length - 2} more games
-                </Link>
-              </div>
-            )}
+            <GamesList games={games} teams={teams || []} title="" limit={2} />
           </div>
         )}
       </section>

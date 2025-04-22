@@ -31,7 +31,7 @@ const PlayerList = ({
 
       // Then by jersey number
       if (a.jersey_number !== b.jersey_number) {
-        return a.jersey_number - b.jersey_number;
+        return (a.jersey_number || 0) - (b.jersey_number || 0);
       }
 
       // Finally by name
@@ -55,7 +55,7 @@ const PlayerList = ({
           <thead className="bg-gray-100">
             <tr>
               <th className="py-2 px-4 text-left">#</th>
-              <th className="py-2 px-4 text-left">Name</th>
+              <th className="py-2 px-4 text-left">Player</th>
               <th className="py-2 px-4 text-left">Position</th>
               {showTeam && <th className="py-2 px-4 text-left">Team</th>}
               <th className="py-2 px-4 text-left">Actions</th>
@@ -65,14 +65,44 @@ const PlayerList = ({
             {sortedPlayers.map((player) => (
               <tr key={player.id} className="border-t hover:bg-gray-50">
                 <td className="py-2 px-4">{player.jersey_number}</td>
-                <td className="py-2 px-4 font-medium">{player.name}</td>
+                <td className="py-2 px-4">
+                  <div className="flex items-center">
+                    {player.image_url ? (
+                      <img
+                        src={player.image_url}
+                        alt={player.name}
+                        className="w-10 h-10 object-cover rounded-full mr-3"
+                      />
+                    ) : (
+                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                        <span className="text-xs font-medium">
+                          {player.name.substring(0, 2).toUpperCase()}
+                        </span>
+                      </div>
+                    )}
+                    <span className="font-medium">{player.name}</span>
+                  </div>
+                </td>
                 <td className="py-2 px-4">{player.position}</td>
                 {showTeam && (
-                  <td className="py-2 px-4">{player.teamAbbreviation || ""}</td>
+                  <td className="py-2 px-4">
+                    <div className="flex items-center">
+                      {player.team_logo ? (
+                        <img
+                          src={player.team_logo}
+                          alt={player.nhl_team || ""}
+                          className="w-6 h-6 mr-2"
+                        />
+                      ) : null}
+                      <span>
+                        {player.nhl_team || player.teamAbbreviation || ""}
+                      </span>
+                    </div>
+                  </td>
                 )}
                 <td className="py-2 px-4">
                   <Link
-                    to={`/teams/${player.team_id}`}
+                    to={`/teams/${player.team_id || player.fantasy_team_id}`}
                     className="text-blue-600 hover:underline"
                   >
                     View Team

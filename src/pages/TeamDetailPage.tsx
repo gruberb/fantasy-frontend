@@ -102,11 +102,19 @@ const TeamDetailPage = () => {
 
       {/* Team Header */}
       <div className="flex items-center space-x-4 mb-8">
-        <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-full">
-          <span className="text-3xl font-bold text-gray-500">
-            {team.name.substring(0, 2).toUpperCase()}
-          </span>
-        </div>
+        {team.team_logo ? (
+          <img
+            src={team.team_logo}
+            alt={`${team.name} logo`}
+            className="w-24 h-24 object-contain"
+          />
+        ) : (
+          <div className="w-24 h-24 bg-gray-200 flex items-center justify-center rounded-full">
+            <span className="text-3xl font-bold text-gray-500">
+              {team.name.substring(0, 2).toUpperCase()}
+            </span>
+          </div>
+        )}
 
         <div>
           <h1 className="text-3xl font-bold">{team.name}</h1>
@@ -205,7 +213,7 @@ const TeamDetailPage = () => {
               <table className="min-w-full bg-white">
                 <thead className="bg-gray-100">
                   <tr>
-                    <th className="py-2 px-4 text-left">Name</th>
+                    <th className="py-2 px-4 text-left">Player</th>
                     <th className="py-2 px-4 text-left">Position</th>
                     <th className="py-2 px-4 text-left">NHL Team</th>
                     <th className="py-2 px-4 text-left">Goals</th>
@@ -216,9 +224,37 @@ const TeamDetailPage = () => {
                 <tbody>
                   {teamPoints.players.map((player, index) => (
                     <tr key={index} className="border-t hover:bg-gray-50">
-                      <td className="py-2 px-4">{player.name}</td>
+                      <td className="py-2 px-4">
+                        <div className="flex items-center">
+                          {player.image_url ? (
+                            <img
+                              src={player.image_url}
+                              alt={player.name}
+                              className="w-10 h-10 rounded-full mr-3 object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-xs font-medium">
+                                {player.name.substring(0, 2).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          <span>{player.name}</span>
+                        </div>
+                      </td>
                       <td className="py-2 px-4">{player.position}</td>
-                      <td className="py-2 px-4">{player.nhl_team}</td>
+                      <td className="py-2 px-4">
+                        <div className="flex items-center">
+                          {player.team_logo ? (
+                            <img
+                              src={player.team_logo}
+                              alt={`${player.nhl_team} logo`}
+                              className="w-6 h-6 mr-2"
+                            />
+                          ) : null}
+                          <span>{player.nhl_team}</span>
+                        </div>
+                      </td>
                       <td className="py-2 px-4">{player.goals}</td>
                       <td className="py-2 px-4">{player.assists}</td>
                       <td className="py-2 px-4">{player.total_points}</td>
@@ -271,7 +307,18 @@ const TeamDetailPage = () => {
                 <tbody>
                   {currentTeamBets.map((bet, index) => (
                     <tr key={index} className="border-t hover:bg-gray-50">
-                      <td className="py-2 px-4">{bet.nhl_team}</td>
+                      <td className="py-2 px-4">
+                        <div className="flex items-center">
+                          {bet.team_logo ? (
+                            <img
+                              src={bet.team_logo}
+                              alt={`${bet.nhl_team} logo`}
+                              className="w-6 h-6 mr-2"
+                            />
+                          ) : null}
+                          <span>{bet.nhl_team}</span>
+                        </div>
+                      </td>
                       <td className="py-2 px-4">{bet.num_players}</td>
                     </tr>
                   ))}

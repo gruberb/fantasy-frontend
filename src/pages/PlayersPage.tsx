@@ -262,9 +262,37 @@ const PlayersPage = () => {
                 <tbody>
                   {players.map((player, index) => (
                     <tr key={index} className="border-t hover:bg-gray-50">
-                      <td className="py-2 px-4 font-medium">{player.name}</td>
+                      <td className="py-2 px-4">
+                        <div className="flex items-center">
+                          {player.image_url ? (
+                            <img
+                              src={player.image_url}
+                              alt={player.name}
+                              className="w-10 h-10 rounded-full mr-3 object-cover"
+                            />
+                          ) : (
+                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                              <span className="text-xs font-medium">
+                                {player.name.substring(0, 2).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          <span className="font-medium">{player.name}</span>
+                        </div>
+                      </td>
                       <td className="py-2 px-4">{player.position}</td>
-                      <td className="py-2 px-4">{player.nhl_team}</td>
+                      <td className="py-2 px-4">
+                        <div className="flex items-center">
+                          {player.team_logo ? (
+                            <img
+                              src={player.team_logo}
+                              alt={`${player.nhl_team} logo`}
+                              className="w-6 h-6 mr-2"
+                            />
+                          ) : null}
+                          <span>{player.nhl_team}</span>
+                        </div>
+                      </td>
                       <td className="py-2 px-4">{player.goals}</td>
                       <td className="py-2 px-4">{player.assists}</td>
                       <td className="py-2 px-4">{player.total_points}</td>

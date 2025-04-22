@@ -1,9 +1,11 @@
 import { API_URL } from "../config";
 
-// Define API types based on ACTUAL response structure from your Rust server
+// Define API types based on response structure from your Rust server
 export interface Team {
   id: number;
   name: string;
+  abbreviation?: string;
+  team_logo?: string;
 }
 
 export interface PlayerStats {
@@ -13,6 +15,8 @@ export interface PlayerStats {
   goals: number;
   assists: number;
   total_points: number;
+  image_url?: string;
+  team_logo?: string;
 }
 
 export interface TeamPoints {
@@ -45,11 +49,15 @@ export interface Player {
   fantasy_team?: string;
   fantasy_team_id?: number;
   fantasy_team_name?: string;
+  image_url?: string;
+  team_logo?: string;
+  player_name?: string; // Alternative name field used in some responses
 }
 
 export interface TeamBet {
   nhl_team: string;
   num_players: number;
+  team_logo?: string;
 }
 
 export interface TeamBetsResponse {
@@ -66,6 +74,15 @@ export interface Game {
   venue: string;
   home_team_players: Player[];
   away_team_players: Player[];
+  home_team_logo?: string;
+  away_team_logo?: string;
+  home_score?: number | null;
+  away_score?: number | null;
+  home_team_id?: number;
+  away_team_id?: number;
+  status?: string;
+  game_state?: string;
+  period?: string;
 }
 
 export interface GamesResponse {
@@ -252,11 +269,11 @@ export const api = {
     return fetchApi<TeamBetsResponse[]>("team-bets", mockTeamBets);
   },
 
-  // Get today's games
-  async getTodaysGames(): Promise<GamesResponse> {
+  // Get games for a specific date
+  async getGames(date: string): Promise<GamesResponse> {
     // Mock response based on the structure seen in the API response
     const mockGames: GamesResponse = {
-      date: new Date().toISOString().split("T")[0],
+      date: date,
       games: [],
       summary: {
         total_games: 0,
@@ -265,6 +282,15 @@ export const api = {
       },
     };
 
-    return fetchApi<GamesResponse>("todays-games", mockGames);
+    return fetchApi<GamesResponse>(`games?date=${date}`, mockGames);
+  },
+
+  // Get today's games (convenience method)
+  async getTodaysGames(): Promise<GamesResponse> {
+    // Account for timezone offset (subtract one day to match server's Atlantic timezone)
+    const today = new Date();
+    today.setDate(today.getDate() - 1);
+    const dateStr = today.toISOString().split("T")[0]; // YYYY-MM-DD format
+    return this.getGames(dateStr);
   },
 };

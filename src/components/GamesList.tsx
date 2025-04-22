@@ -33,6 +33,7 @@ const getStatusClass = (status: string) => {
     case "FINAL":
       return "bg-gray-100 text-gray-800";
     case "SCHEDULED":
+    case "PRE":
       return "bg-green-100 text-green-800";
     case "POSTPONED":
       return "bg-yellow-100 text-yellow-800";
@@ -77,7 +78,42 @@ const GamesList = ({
         {displayGames.map((game) => {
           const homeTeam = teams.find((t) => t.id === game.home_team_id);
           const awayTeam = teams.find((t) => t.id === game.away_team_id);
-          const { date, time } = formatDateTime(game.start_time);
+
+          // Parse date safely
+          let gameDate, gameTime;
+          try {
+            // For UTC format like "23:00 UTC"
+            if (game.start_time.includes("UTC")) {
+              const today = new Date();
+              const timeStr = game.start_time.replace(" UTC", "");
+              const [hours, minutes] = timeStr.split(":").map(Number);
+
+              const gameDateTime = new Date(today);
+              gameDateTime.setUTCHours(hours, minutes);
+
+              gameTime = gameDateTime.toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+              });
+              gameDate = gameDateTime.toLocaleDateString([], {
+                weekday: "short",
+                month: "short",
+                day: "numeric",
+              });
+            } else {
+              // For ISO format
+              const dateObj = new Date(game.start_time);
+              const formatted = formatDateTime(game.start_time);
+              gameTime = formatted.time;
+              gameDate = formatted.date;
+            }
+          } catch (e) {
+            gameTime = "Time TBD";
+            gameDate = "Date TBD";
+          }
+
+          // Determine status text
+          const gameStatus = game.game_state || "SCHEDULED";
 
           return (
             <div
@@ -88,16 +124,20 @@ const GamesList = ({
               <div className="bg-gray-50 p-3 flex justify-between items-center">
                 <div>
                   {showDate && (
-                    <div className="text-sm text-gray-500">{date}</div>
+                    <div className="text-sm text-gray-500">{gameDate}</div>
                   )}
-                  <div className="font-medium">{time}</div>
+                  <div className="font-medium">{gameTime}</div>
+                  {game.venue && (
+                    <div className="text-xs text-gray-500">{game.venue}</div>
+                  )}
                 </div>
 
                 <div className="flex items-center">
                   <span
-                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(game.status)}`}
+                    className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(gameStatus)}`}
                   >
-                    {game.status}
+                    {gameStatus === "PRE" ? "SCHEDULED" : gameStatus}
+                    {game.period && ` - ${game.period}`}
                   </span>
                 </div>
               </div>
@@ -106,67 +146,59 @@ const GamesList = ({
               <div className="p-3">
                 <div className="flex items-center justify-between">
                   {/* Away team */}
-                  <Link
-                    to={`/teams/${awayTeam?.id}`}
-                    className="flex items-center hover:underline"
-                  >
+                  <div className="flex items-center">
                     <div className="text-center mr-2">
-                      {awayTeam?.logo ? (
+                      {game.away_team_logo ? (
                         <img
-                          src={awayTeam.logo}
-                          alt={`${awayTeam.name} logo`}
+                          src={game.away_team_logo}
+                          alt={`${game.away_team} logo`}
                           className="w-8 h-8 object-contain"
                         />
                       ) : (
                         <div className="w-8 h-8 bg-gray-200 flex items-center justify-center rounded-full">
                           <span className="text-xs font-bold text-gray-500">
-                            {awayTeam?.abbreviation}
+                            {game.away_team}
                           </span>
                         </div>
                       )}
                     </div>
-                    <div className="font-medium">
-                      {awayTeam?.name || "Unknown"}
-                    </div>
-                    {game.away_score !== undefined && (
-                      <div className="ml-2 text-xl font-bold">
-                        {game.away_score}
-                      </div>
-                    )}
-                  </Link>
+                    <div className="font-medium">{game.away_team}</div>
+                    {game.away_score !== undefined &&
+                      game.away_score !== null && (
+                        <div className="ml-2 text-xl font-bold">
+                          {game.away_score}
+                        </div>
+                      )}
+                  </div>
 
                   {/* VS */}
                   <div className="text-sm font-bold text-gray-400 mx-2">@</div>
 
                   {/* Home team */}
-                  <Link
-                    to={`/teams/${homeTeam?.id}`}
-                    className="flex items-center hover:underline"
-                  >
-                    <div className="font-medium">
-                      {homeTeam?.name || "Unknown"}
-                    </div>
-                    {game.home_score !== undefined && (
-                      <div className="ml-2 text-xl font-bold">
-                        {game.home_score}
-                      </div>
-                    )}
+                  <div className="flex items-center">
+                    <div className="font-medium">{game.home_team}</div>
+                    {game.home_score !== undefined &&
+                      game.home_score !== null && (
+                        <div className="ml-2 text-xl font-bold">
+                          {game.home_score}
+                        </div>
+                      )}
                     <div className="text-center ml-2">
-                      {homeTeam?.logo ? (
+                      {game.home_team_logo ? (
                         <img
-                          src={homeTeam.logo}
-                          alt={`${homeTeam.name} logo`}
+                          src={game.home_team_logo}
+                          alt={`${game.home_team} logo`}
                           className="w-8 h-8 object-contain"
                         />
                       ) : (
                         <div className="w-8 h-8 bg-gray-200 flex items-center justify-center rounded-full">
                           <span className="text-xs font-bold text-gray-500">
-                            {homeTeam?.abbreviation}
+                            {game.home_team}
                           </span>
                         </div>
                       )}
                     </div>
-                  </Link>
+                  </div>
                 </div>
               </div>
             </div>

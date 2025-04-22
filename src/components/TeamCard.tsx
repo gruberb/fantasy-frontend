@@ -17,23 +17,25 @@ const TeamCard = ({ team, stats, className = "" }: TeamCardProps) => {
   return (
     <Link to={`/teams/${team.id}`} className={`card ${className}`}>
       <div className="flex items-center space-x-4">
-        {team.logo ? (
+        {team.team_logo ? (
           <img
-            src={team.logo}
+            src={team.team_logo}
             alt={`${team.name} logo`}
             className="w-16 h-16 object-contain"
           />
         ) : (
           <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full">
             <span className="text-xl font-bold text-gray-500">
-              {team.abbreviation}
+              {team.name.substring(0, 2).toUpperCase()}
             </span>
           </div>
         )}
 
         <div>
           <h2 className="text-xl font-bold">{team.name}</h2>
-          <p className="text-gray-600">{team.abbreviation}</p>
+          {team.abbreviation && (
+            <p className="text-gray-600">{team.abbreviation}</p>
+          )}
 
           {stats && (
             <div className="mt-2 text-sm text-gray-700">

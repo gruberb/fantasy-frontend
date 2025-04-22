@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -13,39 +12,12 @@ const getStatusClass = (status: string) => {
     case "FINAL":
       return "bg-gray-100 text-gray-800";
     case "SCHEDULED":
+    case "PRE":
       return "bg-green-100 text-green-800";
     case "POSTPONED":
       return "bg-yellow-100 text-yellow-800";
     default:
       return "bg-blue-100 text-blue-800";
-  }
-};
-
-// Safe parse date function
-const parseDate = (dateStr: string) => {
-  try {
-    // First try direct parsing
-    const date = new Date(dateStr);
-    if (!isNaN(date.getTime())) {
-      return date;
-    }
-
-    // If it's in format like "23:00 UTC", parse it specially
-    if (dateStr.includes("UTC")) {
-      const today = new Date();
-      const timeStr = dateStr.replace(" UTC", "");
-      const [hours, minutes] = timeStr.split(":").map(Number);
-
-      const dateWithTime = new Date(today);
-      dateWithTime.setUTCHours(hours, minutes);
-      return dateWithTime;
-    }
-
-    // Return today as fallback
-    return new Date();
-  } catch (e) {
-    console.error("Failed to parse date:", dateStr);
-    return new Date(); // Return today as fallback
   }
 };
 
@@ -61,34 +33,71 @@ const formatDate = (date: Date) => {
 };
 
 const GamesPage = () => {
+  // State for date selector
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    // Try to match the server's timezone expectations
+    // Initially set to current date
+    return new Date().toISOString().split("T")[0];
+  });
+
   // State for filters
   const [filterTeam, setFilterTeam] = useState<string>("all");
 
-  // Fetch data
-  const { data: todaysGamesData, isLoading: gamesLoading } = useQuery({
-    queryKey: ["todaysGames"],
-    queryFn: api.getTodaysGames,
+  // Debug information
+  console.log("Selected date:", selectedDate);
+
+  // Fetch data for the selected date
+  const {
+    data: gamesData,
+    isLoading: gamesLoading,
+    error: gamesError,
+    refetch,
+  } = useQuery({
+    queryKey: ["games", selectedDate],
+    queryFn: () => api.getGames(selectedDate),
+    retry: 2,
   });
+
+  useEffect(() => {
+    // Refetch when date changes
+    refetch();
+  }, [selectedDate, refetch]);
 
   // Loading state
   if (gamesLoading) {
     return <LoadingSpinner size="large" message="Loading games data..." />;
   }
 
-  // Check if we have data
-  if (!todaysGamesData || !todaysGamesData.games) {
+  // Error handling
+  if (gamesError) {
     return (
-      <ErrorMessage message="Failed to load games data. Please try again." />
+      <div>
+        <ErrorMessage message="Failed to load games data. Please try again." />
+        <div className="mt-4">
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
     );
   }
 
-  const { date, games, summary } = todaysGamesData;
+  if (!gamesData) {
+    return (
+      <ErrorMessage message="No game data available for the selected date." />
+    );
+  }
 
-  // Always use today's actual date
-  const today = new Date();
-  const displayDate = formatDate(today);
+  const { date, games, summary } = gamesData;
 
-  // Get unique NHL teams playing today
+  // Display date based on selection
+  const displayDate = new Date(selectedDate);
+  const formattedDisplayDate = formatDate(displayDate);
+
+  // Get unique NHL teams playing on this date
   const teamsPlaying = summary.team_players_count.map((t) => t.nhl_team);
 
   // Filter games by selected team
@@ -100,10 +109,120 @@ const GamesPage = () => {
             game.home_team === filterTeam || game.away_team === filterTeam,
         );
 
+  // Helper to calculate date range for the date picker
+  const getDateRange = () => {
+    const dates = [];
+    const today = new Date();
+
+    // Add dates from 7 days ago to 7 days ahead
+    for (let i = -14; i <= 14; i++) {
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
+
+      const dateString = date.toISOString().split("T")[0];
+      const isToday = i === 0;
+
+      dates.push({
+        value: dateString,
+        label: date.toLocaleDateString("en-US", {
+          weekday: "short",
+          month: "short",
+          day: "numeric",
+        }),
+        isToday,
+      });
+    }
+
+    return dates;
+  };
+
+  const dateRange = getDateRange();
+
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Today's NHL Games</h1>
-      <p className="text-lg text-gray-600 mb-6">{displayDate}</p>
+      <h1 className="text-3xl font-bold mb-6">NHL Games</h1>
+
+      {/* Date selector */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
+        <div className="flex flex-col md:flex-row justify-between items-center">
+          <h2 className="text-xl font-medium mb-4 md:mb-0">
+            {formattedDisplayDate}
+          </h2>
+
+          <div className="flex items-center space-x-2">
+            <button
+              onClick={() => {
+                const prevDate = new Date(selectedDate);
+                prevDate.setDate(prevDate.getDate() - 1);
+                setSelectedDate(prevDate.toISOString().split("T")[0]);
+              }}
+              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+              aria-label="Previous day"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M15 19l-7-7 7-7"
+                />
+              </svg>
+            </button>
+
+            <select
+              value={selectedDate}
+              onChange={(e) => setSelectedDate(e.target.value)}
+              className="p-2 border rounded-md"
+            >
+              {dateRange.map((date) => (
+                <option key={date.value} value={date.value}>
+                  {date.isToday ? `Today (${date.label})` : date.label}
+                </option>
+              ))}
+            </select>
+
+            <button
+              onClick={() => {
+                const nextDate = new Date(selectedDate);
+                nextDate.setDate(nextDate.getDate() + 1);
+                setSelectedDate(nextDate.toISOString().split("T")[0]);
+              }}
+              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+              aria-label="Next day"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                className="h-5 w-5"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M9 5l7 7-7 7"
+                />
+              </svg>
+            </button>
+
+            <button
+              onClick={() =>
+                setSelectedDate(new Date().toISOString().split("T")[0])
+              }
+              className="ml-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              Today
+            </button>
+          </div>
+        </div>
+      </div>
 
       {/* Stats summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -170,8 +289,10 @@ const GamesPage = () => {
 
       {/* Games list */}
       {filteredGames.length === 0 ? (
-        <div className="text-center py-8">
-          <p className="text-gray-500">No games match your filter criteria.</p>
+        <div className="text-center py-8 bg-white rounded-lg shadow-md">
+          <p className="text-gray-500">
+            No games scheduled for this date with the selected filters.
+          </p>
         </div>
       ) : (
         <div className="space-y-6">
@@ -179,26 +300,34 @@ const GamesPage = () => {
             // Parse and format time in 12-hour format
             let timeString;
             try {
-              const startTimeRaw = game.start_time.includes("UTC")
-                ? game.start_time
-                : parseDate(game.start_time);
+              // For UTC format like "23:00 UTC"
+              if (game.start_time.includes("UTC")) {
+                const timeStr = game.start_time.replace(" UTC", "");
+                const [hours, minutes] = timeStr.split(":").map(Number);
 
-              const startTime =
-                typeof startTimeRaw === "string"
-                  ? parseDate(startTimeRaw)
-                  : startTimeRaw;
+                const gameDate = new Date(selectedDate);
+                gameDate.setUTCHours(hours, minutes);
 
-              timeString = startTime.toLocaleTimeString([], {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              });
+                timeString = gameDate.toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                });
+              } else {
+                // For ISO format
+                const startTime = new Date(game.start_time);
+                timeString = startTime.toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                });
+              }
             } catch (e) {
               timeString = "Time TBD";
             }
 
-            // Default game status
-            const gameStatus = "SCHEDULED";
+            // Game status
+            const gameStatus = game.game_state || "SCHEDULED";
 
             return (
               <div
@@ -216,7 +345,8 @@ const GamesPage = () => {
                     <span
                       className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(gameStatus)}`}
                     >
-                      {gameStatus}
+                      {gameStatus === "PRE" ? "SCHEDULED" : gameStatus}
+                      {game.period && ` - ${game.period}`}
                     </span>
                   </div>
                 </div>
@@ -227,11 +357,19 @@ const GamesPage = () => {
                     {/* Away team */}
                     <div className="flex flex-col items-center">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full mx-auto">
-                          <span className="text-xl font-bold text-gray-500">
-                            {game.away_team}
-                          </span>
-                        </div>
+                        {game.away_team_logo ? (
+                          <img
+                            src={game.away_team_logo}
+                            alt={`${game.away_team} logo`}
+                            className="w-16 h-16 mx-auto"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full mx-auto">
+                            <span className="text-xl font-bold text-gray-500">
+                              {game.away_team}
+                            </span>
+                          </div>
+                        )}
                         <div className="font-bold mt-2">{game.away_team}</div>
                       </div>
                     </div>
@@ -244,11 +382,19 @@ const GamesPage = () => {
                     {/* Home team */}
                     <div className="flex flex-col items-center">
                       <div className="text-center">
-                        <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full mx-auto">
-                          <span className="text-xl font-bold text-gray-500">
-                            {game.home_team}
-                          </span>
-                        </div>
+                        {game.home_team_logo ? (
+                          <img
+                            src={game.home_team_logo}
+                            alt={`${game.home_team} logo`}
+                            className="w-16 h-16 mx-auto"
+                          />
+                        ) : (
+                          <div className="w-16 h-16 bg-gray-200 flex items-center justify-center rounded-full mx-auto">
+                            <span className="text-xl font-bold text-gray-500">
+                              {game.home_team}
+                            </span>
+                          </div>
+                        )}
                         <div className="font-bold mt-2">{game.home_team}</div>
                       </div>
                     </div>
@@ -282,8 +428,19 @@ const GamesPage = () => {
                                 key={idx}
                                 className="border-t hover:bg-gray-50"
                               >
-                                <td className="py-1 px-2 text-sm">
-                                  {player.player_name}
+                                <td className="py-1 px-2">
+                                  <div className="flex items-center">
+                                    {player.image_url ? (
+                                      <img
+                                        src={player.image_url}
+                                        alt={player.player_name || ""}
+                                        className="w-8 h-8 rounded-full mr-2"
+                                      />
+                                    ) : null}
+                                    <span className="text-sm">
+                                      {player.player_name || player.name}
+                                    </span>
+                                  </div>
                                 </td>
                                 <td className="py-1 px-2 text-sm">
                                   {player.position}
@@ -320,8 +477,19 @@ const GamesPage = () => {
                         <tbody>
                           {game.home_team_players.map((player, idx) => (
                             <tr key={idx} className="border-t hover:bg-gray-50">
-                              <td className="py-1 px-2 text-sm">
-                                {player.player_name}
+                              <td className="py-1 px-2">
+                                <div className="flex items-center">
+                                  {player.image_url ? (
+                                    <img
+                                      src={player.image_url}
+                                      alt={player.player_name || ""}
+                                      className="w-8 h-8 rounded-full mr-2"
+                                    />
+                                  ) : null}
+                                  <span className="text-sm">
+                                    {player.player_name || player.name}
+                                  </span>
+                                </div>
                               </td>
                               <td className="py-1 px-2 text-sm">
                                 {player.position}
