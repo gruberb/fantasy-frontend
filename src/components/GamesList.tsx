@@ -31,6 +31,7 @@ const getStatusClass = (status: string) => {
     case "LIVE":
       return "bg-red-100 text-red-800";
     case "FINAL":
+    case "OFF":
       return "bg-gray-100 text-gray-800";
     case "SCHEDULED":
     case "PRE":
@@ -45,7 +46,7 @@ const getStatusClass = (status: string) => {
 const GamesList = ({
   games,
   teams,
-  title = "Game Center",
+  title = "Today's Games",
   showDate = true,
   limit,
 }: GamesListProps) => {
@@ -76,43 +77,42 @@ const GamesList = ({
 
       <div className="space-y-4">
         {displayGames.map((game) => {
-          const homeTeam = teams.find((t) => t.id === game.home_team_id);
-          const awayTeam = teams.find((t) => t.id === game.away_team_id);
+          // Parse and format time in 12-hour format
+          let timeString;
+          let dateString;
 
-          // Parse date safely
-          let gameDate, gameTime;
           try {
             // For UTC format like "23:00 UTC"
             if (game.start_time.includes("UTC")) {
-              const today = new Date();
               const timeStr = game.start_time.replace(" UTC", "");
               const [hours, minutes] = timeStr.split(":").map(Number);
 
-              const gameDateTime = new Date(today);
-              gameDateTime.setUTCHours(hours, minutes);
+              const gameDate = new Date();
+              gameDate.setUTCHours(hours, minutes);
 
-              gameTime = gameDateTime.toLocaleTimeString([], {
+              timeString = gameDate.toLocaleTimeString([], {
                 hour: "numeric",
                 minute: "2-digit",
+                hour12: true,
               });
-              gameDate = gameDateTime.toLocaleDateString([], {
+
+              dateString = gameDate.toLocaleDateString([], {
                 weekday: "short",
                 month: "short",
                 day: "numeric",
               });
             } else {
               // For ISO format
-              const dateObj = new Date(game.start_time);
-              const formatted = formatDateTime(game.start_time);
-              gameTime = formatted.time;
-              gameDate = formatted.date;
+              const { date, time } = formatDateTime(game.start_time);
+              dateString = date;
+              timeString = time;
             }
           } catch (e) {
-            gameTime = "Time TBD";
-            gameDate = "Date TBD";
+            timeString = "Time TBD";
+            dateString = "Date TBD";
           }
 
-          // Determine status text
+          // Game status
           const gameStatus = game.game_state || "SCHEDULED";
 
           return (
@@ -124,12 +124,10 @@ const GamesList = ({
               <div className="bg-gray-50 p-3 flex justify-between items-center">
                 <div>
                   {showDate && (
-                    <div className="text-sm text-gray-500">{gameDate}</div>
+                    <div className="text-sm text-gray-500">{dateString}</div>
                   )}
-                  <div className="font-medium">{gameTime}</div>
-                  {game.venue && (
-                    <div className="text-xs text-gray-500">{game.venue}</div>
-                  )}
+                  <div className="font-medium">{timeString}</div>
+                  <div className="text-xs text-gray-500">{game.venue}</div>
                 </div>
 
                 <div className="flex items-center">
@@ -200,6 +198,39 @@ const GamesList = ({
                     </div>
                   </div>
                 </div>
+
+                {/* Player summary - new section showing top players from game */}
+                {(game.home_team_players?.length > 0 ||
+                  game.away_team_players?.length > 0) &&
+                  (gameStatus === "FINAL" || gameStatus === "OFF") && (
+                    <div className="mt-2 pt-2 border-t text-xs text-gray-600">
+                      <div className="flex flex-wrap gap-2">
+                        {/* Show up to 3 top players from the game */}
+                        {[
+                          ...(game.home_team_players || []),
+                          ...(game.away_team_players || []),
+                        ]
+                          .filter((player) => (player.points || 0) > 0)
+                          .sort((a, b) => (b.points || 0) - (a.points || 0))
+                          .slice(0, 3)
+                          .map((player, idx) => (
+                            <div key={idx} className="flex items-center">
+                              {player.image_url && (
+                                <img
+                                  src={player.image_url}
+                                  alt={player.player_name || player.name || ""}
+                                  className="w-5 h-5 rounded-full mr-1"
+                                />
+                              )}
+                              <span>
+                                {player.player_name || player.name}:{" "}
+                                {player.points || 0} pts
+                              </span>
+                            </div>
+                          ))}
+                      </div>
+                    </div>
+                  )}
               </div>
             </div>
           );

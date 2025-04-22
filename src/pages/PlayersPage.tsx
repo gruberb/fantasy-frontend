@@ -1,9 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
-import ErrorMessage from "../components/ErrorMessage";
 
 const PlayersPage = () => {
   // State for filters
@@ -254,9 +252,9 @@ const PlayersPage = () => {
                     <th className="py-2 px-4 text-left">Name</th>
                     <th className="py-2 px-4 text-left">Position</th>
                     <th className="py-2 px-4 text-left">NHL Team</th>
+                    <th className="py-2 px-4 text-left">Points</th>
                     <th className="py-2 px-4 text-left">Goals</th>
                     <th className="py-2 px-4 text-left">Assists</th>
-                    <th className="py-2 px-4 text-left">Points</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -293,9 +291,9 @@ const PlayersPage = () => {
                           <span>{player.nhl_team}</span>
                         </div>
                       </td>
+                      <td className="py-2 px-4">{player.total_points}</td>
                       <td className="py-2 px-4">{player.goals}</td>
                       <td className="py-2 px-4">{player.assists}</td>
-                      <td className="py-2 px-4">{player.total_points}</td>
                     </tr>
                   ))}
                 </tbody>

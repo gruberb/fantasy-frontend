@@ -66,74 +66,6 @@ const HomePage = () => {
         </p>
       </section>
 
-      {/* Rankings Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Team Rankings</h2>
-          <Link to="/rankings" className="text-blue-600 hover:underline">
-            View All Rankings →
-          </Link>
-        </div>
-
-        {rankingsLoading ? (
-          <LoadingSpinner message="Loading rankings..." />
-        ) : rankingsError ? (
-          <ErrorMessage message="Could not load rankings data." />
-        ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="text-lg font-bold mb-4">Top Teams</h3>
-              <RankingsTable rankings={rankings} title="" limit={5} />
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="text-lg font-bold mb-4">Points Comparison</h3>
-              <PointsChart rankings={rankings} limit={8} />
-            </div>
-          </div>
-        )}
-      </section>
-
-      {/* Today's Games Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Today's Games</h2>
-          <Link to="/games" className="text-blue-600 hover:underline">
-            View All Games →
-          </Link>
-        </div>
-
-        {gamesLoading ? (
-          <LoadingSpinner message="Loading games..." />
-        ) : gamesError ? (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <ErrorMessage message="Could not load today's games." />
-            <div className="mt-4 text-center">
-              <Link
-                to="/games"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                View Games Calendar
-              </Link>
-            </div>
-          </div>
-        ) : games.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <p className="text-gray-500">No games scheduled for today.</p>
-            <Link
-              to="/games"
-              className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              View Games Calendar
-            </Link>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <GamesList games={games} teams={teams || []} title="" limit={2} />
-          </div>
-        )}
-      </section>
-
       {/* Teams Overview */}
       <section>
         <h2 className="text-2xl font-bold mb-4">Teams Overview</h2>
@@ -183,6 +115,74 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+      </section>
+
+      {/* Rankings Section */}
+      <section>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Team Rankings</h2>
+          <Link to="/rankings" className="text-blue-600 hover:underline">
+            View All Rankings →
+          </Link>
+        </div>
+
+        {rankingsLoading ? (
+          <LoadingSpinner message="Loading rankings..." />
+        ) : rankingsError ? (
+          <ErrorMessage message="Could not load rankings data." />
+        ) : (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <h3 className="text-lg font-bold mb-4">Top Teams</h3>
+              <RankingsTable rankings={rankings} title="" limit={7} />
+            </div>
+
+            <div className="bg-white rounded-lg shadow-md p-4">
+              <h3 className="text-lg font-bold mb-4">Points Comparison</h3>
+              <PointsChart rankings={rankings} limit={7} />
+            </div>
+          </div>
+        )}
+      </section>
+
+      {/* Today's Games Section */}
+      <section>
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-2xl font-bold">Today's Games</h2>
+          <Link to="/games" className="text-blue-600 hover:underline">
+            View All Games →
+          </Link>
+        </div>
+
+        {gamesLoading ? (
+          <LoadingSpinner message="Loading games..." />
+        ) : gamesError ? (
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <ErrorMessage message="Could not load today's games." />
+            <div className="mt-4 text-center">
+              <Link
+                to="/games"
+                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              >
+                View Games Calendar
+              </Link>
+            </div>
+          </div>
+        ) : games.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-6 text-center">
+            <p className="text-gray-500">No games scheduled for today.</p>
+            <Link
+              to="/games"
+              className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            >
+              View Games Calendar
+            </Link>
+          </div>
+        ) : (
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <GamesList games={games} teams={teams || []} title="" limit={4} />
           </div>
         )}
       </section>

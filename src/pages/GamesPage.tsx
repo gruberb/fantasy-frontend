@@ -10,6 +10,7 @@ const getStatusClass = (status: string) => {
     case "LIVE":
       return "bg-red-100 text-red-800";
     case "FINAL":
+    case "OFF":
       return "bg-gray-100 text-gray-800";
     case "SCHEDULED":
     case "PRE":
@@ -40,10 +41,6 @@ const GamesPage = () => {
 
   // State for filters
   const [filterTeam, setFilterTeam] = useState<string>("all");
-
-  const displayDate = new Date(selectedDate);
-  displayDate.setDate(displayDate.getDate() + 1); // Add one day
-  const formattedDisplayDate = formatDate(displayDate);
 
   // Fetch data for the selected date
   const {
@@ -90,7 +87,12 @@ const GamesPage = () => {
     );
   }
 
-  const { games, summary } = gamesData;
+  const { date, games, summary } = gamesData;
+
+  // Format the display date for UI - add one day to match what's expected
+  const displayDate = new Date(selectedDate);
+  displayDate.setDate(displayDate.getDate() + 1); // Add one day
+  const formattedDisplayDate = formatDate(displayDate);
 
   // Get unique NHL teams playing on this date
   const teamsPlaying = summary.team_players_count.map((t) => t.nhl_team);
@@ -137,7 +139,7 @@ const GamesPage = () => {
     <div>
       <h1 className="text-3xl font-bold mb-6">NHL Games</h1>
 
-      {/* Date selector with FIXED HEADER DATE */}
+      {/* Date selector */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
           <h2 className="text-xl font-medium mb-4 md:mb-0">
@@ -252,7 +254,6 @@ const GamesPage = () => {
         </div>
       </div>
 
-      {/* Rest of the component remains the same */}
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex flex-wrap gap-2">
@@ -347,7 +348,7 @@ const GamesPage = () => {
                   </div>
                 </div>
 
-                {/* Game matchup */}
+                {/* Game matchup section with scores */}
                 <div className="p-4">
                   <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                     {/* Away team */}
@@ -367,6 +368,13 @@ const GamesPage = () => {
                           </div>
                         )}
                         <div className="font-bold mt-2">{game.away_team}</div>
+                        {/* Display game score */}
+                        {game.away_score !== undefined &&
+                          game.away_score !== null && (
+                            <div className="text-2xl font-bold mt-1">
+                              {game.away_score}
+                            </div>
+                          )}
                       </div>
                     </div>
 
@@ -392,6 +400,13 @@ const GamesPage = () => {
                           </div>
                         )}
                         <div className="font-bold mt-2">{game.home_team}</div>
+                        {/* Display game score */}
+                        {game.home_score !== undefined &&
+                          game.home_score !== null && (
+                            <div className="text-2xl font-bold mt-1">
+                              {game.home_score}
+                            </div>
+                          )}
                       </div>
                     </div>
                   </div>
@@ -411,10 +426,10 @@ const GamesPage = () => {
                                 Player
                               </th>
                               <th className="py-1 px-2 text-left text-xs">
-                                Position
+                                Fantasy Team
                               </th>
                               <th className="py-1 px-2 text-left text-xs">
-                                Fantasy Team
+                                Points
                               </th>
                             </tr>
                           </thead>
@@ -432,17 +447,29 @@ const GamesPage = () => {
                                         alt={player.player_name || ""}
                                         className="w-8 h-8 rounded-full mr-2"
                                       />
-                                    ) : null}
+                                    ) : (
+                                      <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                        <span className="text-xs font-medium">
+                                          {(
+                                            player.player_name ||
+                                            player.name ||
+                                            ""
+                                          )
+                                            .substring(0, 2)
+                                            .toUpperCase()}
+                                        </span>
+                                      </div>
+                                    )}
                                     <span className="text-sm">
                                       {player.player_name || player.name}
                                     </span>
                                   </div>
                                 </td>
                                 <td className="py-1 px-2 text-sm">
-                                  {player.position}
-                                </td>
-                                <td className="py-1 px-2 text-sm">
                                   {player.fantasy_team}
+                                </td>
+                                <td className="py-1 px-2 text-sm font-medium">
+                                  {player.points || 0}
                                 </td>
                               </tr>
                             ))}
@@ -463,10 +490,10 @@ const GamesPage = () => {
                               Player
                             </th>
                             <th className="py-1 px-2 text-left text-xs">
-                              Position
+                              Fantasy Team
                             </th>
                             <th className="py-1 px-2 text-left text-xs">
-                              Fantasy Team
+                              Points
                             </th>
                           </tr>
                         </thead>
@@ -481,17 +508,29 @@ const GamesPage = () => {
                                       alt={player.player_name || ""}
                                       className="w-8 h-8 rounded-full mr-2"
                                     />
-                                  ) : null}
+                                  ) : (
+                                    <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                      <span className="text-xs font-medium">
+                                        {(
+                                          player.player_name ||
+                                          player.name ||
+                                          ""
+                                        )
+                                          .substring(0, 2)
+                                          .toUpperCase()}
+                                      </span>
+                                    </div>
+                                  )}
                                   <span className="text-sm">
                                     {player.player_name || player.name}
                                   </span>
                                 </div>
                               </td>
                               <td className="py-1 px-2 text-sm">
-                                {player.position}
-                              </td>
-                              <td className="py-1 px-2 text-sm">
                                 {player.fantasy_team}
+                              </td>
+                              <td className="py-1 px-2 text-sm font-medium">
+                                {player.points || 0}
                               </td>
                             </tr>
                           ))}
