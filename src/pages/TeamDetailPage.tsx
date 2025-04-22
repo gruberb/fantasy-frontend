@@ -1,16 +1,13 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
-  PieChart,
-  Pie,
-  Cell,
-  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
   Legend,
+  ResponsiveContainer,
 } from "recharts";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
@@ -52,16 +49,9 @@ const TeamDetailPage = () => {
 
   // Find this team's bets
   const currentTeamBets = teamBets?.find((tb) => tb.team_id === id)?.bets || [];
-
-  // Create chart data for points breakdown
-  const pointsData = [
-    { name: "Goals", value: teamPoints.team_totals.goals, color: "#4CAF50" },
-    {
-      name: "Assists",
-      value: teamPoints.team_totals.assists,
-      color: "#F44336",
-    },
-  ];
+  currentTeamBets.sort((a, b) => {
+    return b.num_players - a.num_players;
+  });
 
   // Position breakdown data
   const positionCounts = teamPoints.players.reduce(
@@ -152,25 +142,19 @@ const TeamDetailPage = () => {
               </span>
             </div>
 
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <PieChart>
-                  <Pie
-                    data={pointsData}
-                    cx="50%"
-                    cy="50%"
-                    outerRadius={80}
-                    dataKey="value"
-                    label={({ name, value }) => `${name}: ${value}`}
-                  >
-                    {pointsData.map((entry, index) => (
-                      <Cell key={`cell-${index}`} fill={entry.color} />
-                    ))}
-                  </Pie>
-                  <Legend />
-                  <Tooltip />
-                </PieChart>
-              </ResponsiveContainer>
+            <div className="grid grid-cols-2 gap-4 mt-4">
+              <div className="bg-blue-50 p-4 rounded-lg text-center">
+                <div className="text-sm font-medium mb-1">Goals</div>
+                <div className="text-3xl font-bold">
+                  {teamPoints.team_totals.goals}
+                </div>
+              </div>
+              <div className="bg-green-50 p-4 rounded-lg text-center">
+                <div className="text-sm font-medium mb-1">Assists</div>
+                <div className="text-3xl font-bold">
+                  {teamPoints.team_totals.assists}
+                </div>
+              </div>
             </div>
           </div>
         </section>
@@ -216,9 +200,9 @@ const TeamDetailPage = () => {
                     <th className="py-2 px-4 text-left">Player</th>
                     <th className="py-2 px-4 text-left">Position</th>
                     <th className="py-2 px-4 text-left">NHL Team</th>
+                    <th className="py-2 px-4 text-left">Points</th>
                     <th className="py-2 px-4 text-left">Goals</th>
                     <th className="py-2 px-4 text-left">Assists</th>
-                    <th className="py-2 px-4 text-left">Points</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -255,9 +239,9 @@ const TeamDetailPage = () => {
                           <span>{player.nhl_team}</span>
                         </div>
                       </td>
+                      <td className="py-2 px-4">{player.total_points}</td>
                       <td className="py-2 px-4">{player.goals}</td>
                       <td className="py-2 px-4">{player.assists}</td>
-                      <td className="py-2 px-4">{player.total_points}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -268,32 +252,9 @@ const TeamDetailPage = () => {
           )}
         </section>
 
-        {/* NHL Team Distribution */}
-        <section className="card">
-          <h2 className="text-2xl font-bold mb-4">NHL Team Distribution</h2>
-
-          {nhlTeamData.length > 0 ? (
-            <div className="h-64">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={nhlTeamData} layout="vertical">
-                  <XAxis type="number" />
-                  <YAxis dataKey="team" type="category" width={80} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="count" name="Players" fill="#AF1E2D" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          ) : (
-            <p className="text-gray-500">
-              No NHL team distribution data available.
-            </p>
-          )}
-        </section>
-
         {/* Team Bets */}
         {currentTeamBets.length > 0 && (
-          <section className="card lg:col-span-2">
+          <section className="card">
             <h2 className="text-2xl font-bold mb-4">NHL Team Bets</h2>
 
             <div className="overflow-x-auto">

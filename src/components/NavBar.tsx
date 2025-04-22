@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, Link } from "react-router-dom";
 
 const NavBar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -17,9 +17,14 @@ const NavBar = () => {
     <nav className="bg-gray-800 text-white">
       <div className="max-w-7xl mx-auto px-4">
         <div className="flex justify-between items-center h-16">
-          {/* Left side: Brand */}
+          {/* Left side: Brand - Now a Link to homepage */}
           <div className="flex-shrink-0">
-            <span className="text-xl font-bold">Fantasy NHL</span>
+            <Link
+              to="/"
+              className="text-xl font-bold hover:text-blue-300 transition-colors"
+            >
+              Fantasy NHL
+            </Link>
           </div>
 
           {/* Mobile menu button (hamburger) – hidden on medium and up */}

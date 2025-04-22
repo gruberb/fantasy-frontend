@@ -5,9 +5,13 @@ import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import RankingsTable from "../components/RankingsTable";
 import GamesList from "../components/GamesList";
-import PointsChart from "../components/PointsChart";
+import DailyRankingsCard from "../components/DailyRankingsCard";
 
 const HomePage = () => {
+  // Calculate yesterday's date
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+
   // Fetch data for the dashboard
   const {
     data: teams,
@@ -31,22 +35,37 @@ const HomePage = () => {
     data: todaysGamesData,
     isLoading: gamesLoading,
     error: gamesError,
-    refetch: refetchGames,
   } = useQuery({
     queryKey: ["todaysGames"],
     queryFn: () => api.getTodaysGames(),
     retry: 1, // Only retry once to avoid excessive retries
   });
 
+  // New query for yesterday's rankings
+  const {
+    data: yesterdayRankings,
+    isLoading: yesterdayRankingsLoading,
+    error: yesterdayRankingsError,
+  } = useQuery({
+    queryKey: ["yesterdayRankings"],
+    queryFn: () => api.getYesterdayRankings(),
+    retry: 1,
+  });
+
   // Loading state - show partial content while loading
-  if (teamsLoading && rankingsLoading && gamesLoading) {
+  if (
+    teamsLoading &&
+    rankingsLoading &&
+    gamesLoading &&
+    yesterdayRankingsLoading
+  ) {
     return <LoadingSpinner size="large" message="Loading dashboard data..." />;
   }
 
   // Critical error - if everything failed
   if (
-    (teamsError && rankingsError && gamesError) ||
-    (!teams && !rankings && !todaysGamesData)
+    (teamsError && rankingsError && gamesError && yesterdayRankingsError) ||
+    (!teams && !rankings && !todaysGamesData && !yesterdayRankings)
   ) {
     return (
       <ErrorMessage message="Failed to load dashboard data. Please try again." />
@@ -133,17 +152,26 @@ const HomePage = () => {
         ) : rankingsError ? (
           <ErrorMessage message="Could not load rankings data." />
         ) : (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="text-lg font-bold mb-4">Top Teams</h3>
-              <RankingsTable rankings={rankings} title="" limit={7} />
-            </div>
-
-            <div className="bg-white rounded-lg shadow-md p-4">
-              <h3 className="text-lg font-bold mb-4">Points Comparison</h3>
-              <PointsChart rankings={rankings} limit={7} />
-            </div>
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <RankingsTable rankings={rankings} title="" limit={7} />
           </div>
+        )}
+      </section>
+
+      {/* Yesterday's Rankings Section */}
+      <section>
+        <h2 className="text-2xl font-bold mb-4">Yesterday's Results</h2>
+        {yesterdayRankingsLoading ? (
+          <LoadingSpinner message="Loading yesterday's rankings..." />
+        ) : yesterdayRankingsError ? (
+          <ErrorMessage message="Could not load yesterday's rankings data." />
+        ) : (
+          <DailyRankingsCard
+            rankings={yesterdayRankings || []}
+            date={yesterday}
+            title=""
+            limit={7}
+          />
         )}
       </section>
 

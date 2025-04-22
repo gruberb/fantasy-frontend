@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import GameDaySummary from "../components/GameDaySummary";
 
 // Helper to get status class
 const getStatusClass = (status: string) => {
@@ -47,7 +48,7 @@ const GamesPage = () => {
     data: gamesData,
     isLoading: gamesLoading,
     error: gamesError,
-    refetch,
+    refetch: refetchGames,
   } = useQuery({
     queryKey: ["games", selectedDate],
     queryFn: () => {
@@ -59,19 +60,30 @@ const GamesPage = () => {
     retry: 1,
   });
 
+  // Fetch daily fantasy rankings for the selected date
+  const {
+    data: dailyRankings,
+    isLoading: dailyRankingsLoading,
+    error: dailyRankingsError,
+  } = useQuery({
+    queryKey: ["dailyRankings", selectedDate],
+    queryFn: () => api.getDailyFantasySummary(selectedDate),
+    retry: 1,
+  });
+
   // Loading state
-  if (gamesLoading) {
+  if (gamesLoading && dailyRankingsLoading) {
     return <LoadingSpinner size="large" message="Loading games data..." />;
   }
 
   // Error handling
-  if (gamesError) {
+  if (gamesError && dailyRankingsError) {
     return (
       <div>
         <ErrorMessage message="Failed to load games data. Please try again." />
         <div className="mt-4">
           <button
-            onClick={() => refetch()}
+            onClick={() => refetchGames()}
             className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
           >
             Retry
@@ -282,6 +294,15 @@ const GamesPage = () => {
             </button>
           ))}
         </div>
+      </div>
+
+      {/* Daily Fantasy Scores */}
+      <div className="mb-6">
+        <GameDaySummary
+          rankings={dailyRankings || []}
+          isLoading={dailyRankingsLoading}
+          error={dailyRankingsError}
+        />
       </div>
 
       {/* Games list */}

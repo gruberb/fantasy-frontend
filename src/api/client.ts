@@ -98,6 +98,19 @@ export interface GamesResponse {
   };
 }
 
+export interface DailyFantasyRanking {
+  rank: number;
+  team_id: number;
+  team_name: string;
+  daily_points: number;
+  player_highlights: {
+    player_name: string;
+    points: number;
+    nhl_team: string;
+    image_url?: string;
+  }[];
+}
+
 // MOCK DATA FOR FALLBACK
 const MOCK_TEAMS: Team[] = [
   { id: 1, name: "Emma" },
@@ -300,5 +313,46 @@ export const api = {
 
     // Use the specific todays-games endpoint without any date parameter
     return fetchApi<GamesResponse>("todays-games", mockGames);
+  },
+
+  // Get yesterday's fantasy rankings
+  async getYesterdayRankings(): Promise<DailyFantasyRanking[]> {
+    // Calculate yesterday's date
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const dateString = yesterday.toISOString().split("T")[0];
+
+    // Mock data for fallback
+    const mockRankings: DailyFantasyRanking[] = MOCK_TEAMS.map((team, idx) => ({
+      rank: idx + 1,
+      team_id: team.id,
+      team_name: team.name,
+      daily_points: Math.floor(Math.random() * 10),
+      player_highlights: [],
+    }));
+
+    return fetchApi<DailyFantasyRanking[]>(
+      `daily-rankings?date=${dateString}`,
+      mockRankings,
+    );
+  },
+
+  // Get daily fantasy summary for a specific date
+  async getDailyFantasySummary(date: string): Promise<DailyFantasyRanking[]> {
+    console.log(`Fetching daily rankings for ${date}`);
+
+    // Mock data for fallback
+    const mockRankings: DailyFantasyRanking[] = MOCK_TEAMS.map((team, idx) => ({
+      rank: idx + 1,
+      team_id: team.id,
+      team_name: team.name,
+      daily_points: Math.floor(Math.random() * 10),
+      player_highlights: [],
+    }));
+
+    return fetchApi<DailyFantasyRanking[]>(
+      `daily-rankings?date=${date}`,
+      mockRankings,
+    );
   },
 };
