@@ -49,9 +49,9 @@ const RankingsTable = ({
             <tr>
               <th className="py-3 px-4 text-left">Rank</th>
               <th className="py-3 px-4 text-left">Team</th>
+              <th className="py-3 px-4 text-left">Points</th>
               <th className="py-3 px-4 text-left">Goals</th>
               <th className="py-3 px-4 text-left">Assists</th>
-              <th className="py-3 px-4 text-left">Points</th>
               <th className="py-3 px-4 text-left">Actions</th>
             </tr>
           </thead>
@@ -60,9 +60,9 @@ const RankingsTable = ({
               <tr key={team.team_id} className="border-t hover:bg-gray-50">
                 <td className="py-3 px-4 font-bold">{team.rank}</td>
                 <td className="py-3 px-4">{team.team_name}</td>
+                <td className="py-3 px-4">{team.total_points}</td>
                 <td className="py-3 px-4">{team.goals}</td>
                 <td className="py-3 px-4">{team.assists}</td>
-                <td className="py-3 px-4">{team.total_points}</td>
                 <td className="py-3 px-4">
                   <Link
                     to={`/teams/${team.team_id}`}

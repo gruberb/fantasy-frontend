@@ -90,7 +90,7 @@ const HomePage = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg shadow-md p-4">
               <h3 className="text-lg font-bold mb-4">Top Teams</h3>
-              <RankingsTable rankings={rankings} title="" limit={5} />
+              <RankingsTable rankings={rankings} title="" limit={7} />
             </div>
 
             <div className="bg-white rounded-lg shadow-md p-4">

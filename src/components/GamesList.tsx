@@ -45,7 +45,7 @@ const getStatusClass = (status: string) => {
 const GamesList = ({
   games,
   teams,
-  title = "Today's Games",
+  title = "Game Center",
   showDate = true,
   limit,
 }: GamesListProps) => {

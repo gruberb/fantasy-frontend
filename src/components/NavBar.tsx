@@ -89,7 +89,7 @@ const NavBar = () => {
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Today's Games
+              Game Center
             </NavLink>
             <NavLink
               to="/rankings"
@@ -141,7 +141,7 @@ const NavBar = () => {
               isActive ? activeLinkClass : inactiveLinkClass
             }
           >
-            Today's Games
+            Game Center
           </NavLink>
           <NavLink
             to="/rankings"
