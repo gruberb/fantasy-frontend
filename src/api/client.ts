@@ -111,78 +111,8 @@ export interface DailyFantasyRanking {
   }[];
 }
 
-// MOCK DATA FOR FALLBACK
-const MOCK_TEAMS: Team[] = [
-  { id: 1, name: "Emma" },
-  { id: 2, name: "Bastian" },
-  { id: 3, name: "Zac" },
-  { id: 4, name: "Ben" },
-  { id: 5, name: "Henry" },
-  { id: 6, name: "Mikey" },
-  { id: 7, name: "Mike" },
-];
-
-const MOCK_RANKINGS: Ranking[] = [
-  {
-    rank: 1,
-    team_id: 4,
-    team_name: "Ben",
-    goals: 3,
-    assists: 5,
-    total_points: 8,
-  },
-  {
-    rank: 2,
-    team_id: 6,
-    team_name: "Mikey",
-    goals: 2,
-    assists: 6,
-    total_points: 8,
-  },
-  {
-    rank: 3,
-    team_id: 1,
-    team_name: "Emma",
-    goals: 2,
-    assists: 5,
-    total_points: 7,
-  },
-  {
-    rank: 4,
-    team_id: 3,
-    team_name: "Zac",
-    goals: 4,
-    assists: 2,
-    total_points: 6,
-  },
-  {
-    rank: 5,
-    team_id: 2,
-    team_name: "Bastian",
-    goals: 2,
-    assists: 3,
-    total_points: 5,
-  },
-  {
-    rank: 6,
-    team_id: 5,
-    team_name: "Henry",
-    goals: 3,
-    assists: 2,
-    total_points: 5,
-  },
-  {
-    rank: 7,
-    team_id: 7,
-    team_name: "Mike",
-    goals: 0,
-    assists: 1,
-    total_points: 1,
-  },
-];
-
 // Helper function for API requests that handles the wrapped response structure
-async function fetchApi<T>(endpoint: string, mockData: T): Promise<T> {
+async function fetchApi<T>(endpoint: string): Promise<T> {
   const url = `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
   try {
@@ -192,11 +122,6 @@ async function fetchApi<T>(endpoint: string, mockData: T): Promise<T> {
         "Content-Type": "application/json",
       },
     });
-
-    if (!response.ok) {
-      console.warn(`API error (${response.status}): Falling back to mock data`);
-      return mockData;
-    }
 
     const jsonData = await response.json();
 
@@ -212,9 +137,7 @@ async function fetchApi<T>(endpoint: string, mockData: T): Promise<T> {
 
     return jsonData as T;
   } catch (error) {
-    console.warn(`API request failed for ${endpoint}:`, error);
-    console.log("Using mock data instead");
-    return mockData;
+    console.error(`API request failed for ${endpoint}:`, error);
   }
 }
 
@@ -222,7 +145,7 @@ async function fetchApi<T>(endpoint: string, mockData: T): Promise<T> {
 export const api = {
   // Get all teams
   async getTeams(): Promise<Team[]> {
-    return fetchApi<Team[]>("teams", MOCK_TEAMS);
+    return fetchApi<Team[]>("teams");
   },
 
   // Get team points
@@ -231,21 +154,8 @@ export const api = {
     season: string = "20242025",
     gameType: number = 3,
   ): Promise<TeamPoints> {
-    // Default mock response matching the structure
-    const mockTeamPoints: TeamPoints = {
-      team_id: teamId,
-      team_name: MOCK_TEAMS.find((t) => t.id === teamId)?.name || "Unknown",
-      players: [],
-      team_totals: {
-        goals: 0,
-        assists: 0,
-        total_points: 0,
-      },
-    };
-
     return fetchApi<TeamPoints>(
       `teams/${teamId}/points?season=${season}&game_type=${gameType}`,
-      mockTeamPoints,
     );
   },
 
@@ -256,63 +166,28 @@ export const api = {
   ): Promise<Ranking[]> {
     return fetchApi<Ranking[]>(
       `rankings?season=${season}&game_type=${gameType}`,
-      MOCK_RANKINGS,
     );
   },
 
   // Get players per team
   async getPlayersPerTeam(): Promise<Record<string, Player[]>> {
-    // This is a simplified mock structure - adjust based on your actual API
-    const mockPlayersPerTeam: Record<string, Player[]> = {};
-    return fetchApi<Record<string, Player[]>>(
-      "players-per-team",
-      mockPlayersPerTeam,
-    );
+    return fetchApi<Record<string, Player[]>>("players-per-team");
   },
 
   // Get team bets
   async getTeamBets(): Promise<TeamBetsResponse[]> {
-    // Mock response based on the structure seen in the API response
-    const mockTeamBets: TeamBetsResponse[] = MOCK_TEAMS.map((team) => ({
-      team_id: team.id,
-      team_name: team.name,
-      bets: [],
-    }));
-
-    return fetchApi<TeamBetsResponse[]>("team-bets", mockTeamBets);
+    return fetchApi<TeamBetsResponse[]>("team-bets");
   },
 
   // Get games for a specific date
   async getGames(date: string): Promise<GamesResponse> {
-    // Mock response based on the structure seen in the API response
-    const mockGames: GamesResponse = {
-      date: date,
-      games: [],
-      summary: {
-        total_games: 0,
-        total_teams_playing: 0,
-        team_players_count: [],
-      },
-    };
-
-    return fetchApi<GamesResponse>(`games?date=${date}`, mockGames);
+    return fetchApi<GamesResponse>(`games?date=${date}`);
   },
 
   // Get today's games (convenience method)
   async getTodaysGames(): Promise<GamesResponse> {
-    // Use the direct endpoint for today's games
-    const mockGames: GamesResponse = {
-      date: new Date().toISOString().split("T")[0],
-      games: [],
-      summary: {
-        total_games: 0,
-        total_teams_playing: 0,
-        team_players_count: [],
-      },
-    };
-
     // Use the specific todays-games endpoint without any date parameter
-    return fetchApi<GamesResponse>("todays-games", mockGames);
+    return fetchApi<GamesResponse>("todays-games");
   },
 
   // Get yesterday's fantasy rankings
@@ -322,37 +197,13 @@ export const api = {
     yesterday.setDate(yesterday.getDate() - 1);
     const dateString = yesterday.toISOString().split("T")[0];
 
-    // Mock data for fallback
-    const mockRankings: DailyFantasyRanking[] = MOCK_TEAMS.map((team, idx) => ({
-      rank: idx + 1,
-      team_id: team.id,
-      team_name: team.name,
-      daily_points: Math.floor(Math.random() * 10),
-      player_highlights: [],
-    }));
-
-    return fetchApi<DailyFantasyRanking[]>(
-      `daily-rankings?date=${dateString}`,
-      mockRankings,
-    );
+    return fetchApi<DailyFantasyRanking[]>(`daily-rankings?date=${dateString}`);
   },
 
   // Get daily fantasy summary for a specific date
   async getDailyFantasySummary(date: string): Promise<DailyFantasyRanking[]> {
     console.log(`Fetching daily rankings for ${date}`);
 
-    // Mock data for fallback
-    const mockRankings: DailyFantasyRanking[] = MOCK_TEAMS.map((team, idx) => ({
-      rank: idx + 1,
-      team_id: team.id,
-      team_name: team.name,
-      daily_points: Math.floor(Math.random() * 10),
-      player_highlights: [],
-    }));
-
-    return fetchApi<DailyFantasyRanking[]>(
-      `daily-rankings?date=${date}`,
-      mockRankings,
-    );
+    return fetchApi<DailyFantasyRanking[]>(`daily-rankings?date=${date}`);
   },
 };
