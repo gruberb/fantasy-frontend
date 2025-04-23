@@ -101,6 +101,17 @@ const GamesList = ({
                   <div className="font-medium">{timeString}</div>
                   <div className="text-xs text-gray-500">{game.venue}</div>
                 </div>
+                <div className="flex-1 text-center">
+                  <div className="text-sm md:text-lg font-bold">
+                    Round {game.series_status.round}
+                  </div>
+                  <div className="text-xs md:text-sm text-gray-500">
+                    {game.series_status.topSeedTeamAbbrev}{" "}
+                    {game.series_status.topSeedWins} -{" "}
+                    {game.series_status.bottomSeedWins}{" "}
+                    {game.series_status.bottomSeedTeamAbbrev}{" "}
+                  </div>
+                </div>
                 <div className="flex items-center">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(gameStatus)}`}
