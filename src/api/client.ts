@@ -1,8 +1,4 @@
-import {
-  getTodayString,
-  getYesterdayString,
-  toLocalDateString,
-} from "../utils/timezone";
+import { getTodayString, getYesterdayString } from "../utils/timezone";
 
 import { API_URL } from "../config";
 
@@ -89,6 +85,15 @@ export interface Game {
   status?: string;
   game_state?: string;
   period?: string;
+  series_status: {
+    round: number;
+    seriesTitle: string;
+    topSeedTeamAbbrev: string;
+    topSeedWins: number;
+    bottomSeedTeamAbbrev: string;
+    bottomSeedWins: number;
+    gameNumberOfSeries: number;
+  };
 }
 
 export interface GamesResponse {

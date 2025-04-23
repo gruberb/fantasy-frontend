@@ -340,14 +340,28 @@ const GamesPage = () => {
               >
                 {/* Game header */}
                 <div className="bg-gray-50 p-4 flex justify-between items-center">
-                  <div>
-                    <div className="font-bold">{timeString}</div>
-                    <div className="text-sm text-gray-500">{game.venue}</div>
+                  <div className="text-center">
+                    <div className="text-sm md:text-lg font-bold">
+                      {timeString}
+                    </div>
+                    <div className="text-xs md:text-sm text-gray-500">
+                      {game.venue}
+                    </div>
                   </div>
-
+                  <div className="flex-1 text-center">
+                    <div className="text-sm md:text-lg font-bold">
+                      Round {game.series_status.round}
+                    </div>
+                    <div className="text-xs md:text-sm text-gray-500">
+                      {game.series_status.topSeedTeamAbbrev}{" "}
+                      {game.series_status.topSeedWins} -{" "}
+                      {game.series_status.bottomSeedWins}{" "}
+                      {game.series_status.bottomSeedTeamAbbrev}{" "}
+                    </div>
+                  </div>
                   <div className="flex items-center">
                     <span
-                      className={`px-3 py-1 rounded-full text-sm font-medium ${getStatusClass(gameStatus)}`}
+                      className={`px-3 py-1 rounded-full text-xs md:text-sm font-medium ${getStatusClass(gameStatus)}`}
                     >
                       {gameStatus === "PRE" ? "SCHEDULED" : gameStatus}
                       {game.period && ` - ${game.period}`}
@@ -357,7 +371,8 @@ const GamesPage = () => {
 
                 {/* Game matchup section with scores */}
                 <div className="p-4">
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  {/* Instead of grid-cols-1 on mobile, use grid-cols-3 for all viewports */}
+                  <div className="grid grid-cols-3 gap-4">
                     {/* Away team */}
                     <div className="flex flex-col items-center">
                       <div className="text-center">
@@ -375,7 +390,6 @@ const GamesPage = () => {
                           </div>
                         )}
                         <div className="font-bold mt-2">{game.away_team}</div>
-                        {/* Display game score */}
                         {game.away_score !== undefined &&
                           game.away_score !== null && (
                             <div className="text-2xl font-bold mt-1">
@@ -385,7 +399,7 @@ const GamesPage = () => {
                       </div>
                     </div>
 
-                    {/* VS */}
+                    {/* VS separator */}
                     <div className="flex items-center justify-center">
                       <div className="text-xl font-bold text-gray-400">@</div>
                     </div>
@@ -407,7 +421,6 @@ const GamesPage = () => {
                           </div>
                         )}
                         <div className="font-bold mt-2">{game.home_team}</div>
-                        {/* Display game score */}
                         {game.home_score !== undefined &&
                           game.home_score !== null && (
                             <div className="text-2xl font-bold mt-1">
