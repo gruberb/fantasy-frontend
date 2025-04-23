@@ -4,6 +4,8 @@ import { TopSkatersResponse, TopSkater } from "../api/client";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 import { Link } from "react-router-dom";
+// Import the utility that generates the correct URL slug
+import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
 
 interface TopSkatersProps {
   data: TopSkatersResponse | undefined;
@@ -62,7 +64,9 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <a
-                        href={`https://www.nhl.com/team/${player.team_abbrev.toLowerCase()}`}
+                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(
+                          player.team_abbrev,
+                        )}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center hover:underline"
@@ -146,7 +150,9 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <a
-                        href={`https://www.nhl.com/team/${player.team_abbrev.toLowerCase()}`}
+                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(
+                          player.team_abbrev,
+                        )}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center hover:underline"
