@@ -54,7 +54,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                         rel="noopener noreferrer"
                         className="text-gray-800 hover:underline flex items-center whitespace-nowrap"
                       >
-                        {player.first_name} {player.last_name}
+                        {player.last_name}
                         <span className="ml-1 text-gray-500 text-sm inline-block">
                           ↗
                         </span>
@@ -138,7 +138,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                         rel="noopener noreferrer"
                         className="text-gray-800 hover:underline flex items-center whitespace-nowrap"
                       >
-                        {player.first_name} {player.last_name}
+                        {player.last_name}
                         <span className="ml-1 text-gray-500 text-sm inline-block">
                           ↗
                         </span>
