@@ -13,6 +13,7 @@ export interface Team {
 export interface PlayerStats {
   name: string;
   nhl_team: string;
+  nhl_id: number;
   position: string;
   goals: number;
   assists: number;
@@ -118,6 +119,7 @@ export interface DailyFantasyRanking {
     player_name: string;
     points: number;
     nhl_team: string;
+    nhl_id?: number;
     image_url?: string;
   }[];
 }

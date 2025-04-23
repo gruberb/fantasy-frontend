@@ -2,6 +2,7 @@ import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
+import { getNHLTeamUrlSlug } from "../utils/nhlTeams"; // Import our new utility
 
 const PlayersPage = () => {
   // State for filters
@@ -49,6 +50,8 @@ const PlayersPage = () => {
             teamName: teamData.team_name,
             teamId: teamData.team_id,
             teamAbbreviation: player.nhl_team || "",
+            // Generate the URL slug for the NHL team website
+            nhlTeamUrlSlug: getNHLTeamUrlSlug(player.nhl_team || ""),
           });
         }
       }
@@ -261,35 +264,55 @@ const PlayersPage = () => {
                   {players.map((player, index) => (
                     <tr key={index} className="border-t hover:bg-gray-50">
                       <td className="py-2 px-4">
-                        <div className="flex items-center">
-                          {player.image_url ? (
-                            <img
-                              src={player.image_url}
-                              alt={player.name}
-                              className="w-10 h-10 rounded-full mr-3 object-cover"
-                            />
-                          ) : (
-                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                              <span className="text-xs font-medium">
-                                {player.name.substring(0, 2).toUpperCase()}
-                              </span>
-                            </div>
-                          )}
-                          <span className="font-medium">{player.name}</span>
-                        </div>
+                        <a
+                          href={`https://www.nhl.com/player/${player.nhl_id}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-gray-800 hover:underline flex items-center"
+                        >
+                          <div className="flex items-center">
+                            {player.image_url ? (
+                              <img
+                                src={player.image_url}
+                                alt={player.name}
+                                className="w-10 h-10 rounded-full mr-3 object-cover"
+                              />
+                            ) : (
+                              <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
+                                <span className="text-xs font-medium">
+                                  {player.name.substring(0, 2).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <span className="font-medium">{player.name}</span>
+                            <span className="ml-1 text-gray-500 text-sm inline-block">
+                              ↗
+                            </span>
+                          </div>
+                        </a>
                       </td>
                       <td className="py-2 px-4">{player.position}</td>
                       <td className="py-2 px-4">
-                        <div className="flex items-center">
-                          {player.team_logo ? (
-                            <img
-                              src={player.team_logo}
-                              alt={`${player.nhl_team} logo`}
-                              className="w-6 h-6 mr-2"
-                            />
-                          ) : null}
-                          <span>{player.nhl_team}</span>
-                        </div>
+                        <a
+                          href={`https://www.nhl.com/${player.nhlTeamUrlSlug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="font-medium text-gray-800 hover:underline flex items-center"
+                        >
+                          <div className="flex items-center">
+                            {player.team_logo ? (
+                              <img
+                                src={player.team_logo}
+                                alt={`${player.nhl_team} logo`}
+                                className="w-6 h-6 mr-2"
+                              />
+                            ) : null}
+                            <span>{player.nhl_team}</span>
+                            <span className="ml-1 text-gray-500 text-sm inline-block">
+                              ↗
+                            </span>
+                          </div>
+                        </a>
                       </td>
                       <td className="py-2 px-4">{player.total_points}</td>
                       <td className="py-2 px-4">{player.goals}</td>

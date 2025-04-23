@@ -1,11 +1,12 @@
 import { Link } from "react-router-dom";
 
-// Define the expected structure based on the actual API response
+// Interfaces remain the same
 interface PlayerHighlight {
   player_name: string;
   points: number;
   nhl_team: string;
   image_url?: string;
+  nhl_id?: number;
 }
 
 interface RankingItem {
@@ -34,26 +35,18 @@ const DailyRankingsCard = ({
   title = "Daily Rankings",
   limit = 5,
 }: DailyRankingsCardProps) => {
-  console.log("DailyRankingsCard received rankings:", rankings);
-
-  // Extract rankings array based on the structure
   let rankingsArray: RankingItem[] = [];
 
   if (rankings && Array.isArray(rankings)) {
-    // If it's already an array, use it directly
     rankingsArray = rankings;
   } else if (
     rankings &&
     "rankings" in rankings &&
     Array.isArray(rankings.rankings)
   ) {
-    // If it's an object with a rankings property, use that
     rankingsArray = rankings.rankings;
   }
 
-  console.log("Extracted rankings array:", rankingsArray);
-
-  // Check if rankings array is empty
   if (!rankingsArray || rankingsArray.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6">
@@ -87,8 +80,11 @@ const DailyRankingsCard = ({
           <p className="text-sm text-gray-500">{formattedDate}</p>
         </div>
         {limit && limit > 0 && rankingsArray.length > limit && (
-          <Link to="/games" className="text-blue-600 hover:underline">
-            View Full Results →
+          <Link
+            to="/games"
+            className="text-gray-600 hover:underline flex items-center"
+          >
+            View Full Results <span className="ml-1">→</span>
           </Link>
         )}
       </div>
@@ -107,9 +103,22 @@ const DailyRankingsCard = ({
           </thead>
           <tbody>
             {displayRankings.map((team) => (
-              <tr key={team.team_id} className="border-t hover:bg-gray-50">
+              <tr
+                key={team.team_id}
+                className="border-t hover:bg-gray-50 transition-colors duration-150"
+              >
                 <td className="py-3 px-4 font-bold">{team.rank}</td>
-                <td className="py-3 px-4">{team.team_name}</td>
+                <td className="py-3 px-4">
+                  <Link
+                    to={`/teams/${team.team_id}`}
+                    className="text-gray-800 hover:underline flex items-center"
+                  >
+                    {team.team_name}
+                    <span className="ml-1 text-gray-500 text-sm inline-block">
+                      →
+                    </span>
+                  </Link>
+                </td>
                 <td className="py-3 px-4 font-semibold">{team.daily_points}</td>
                 <td className="py-3 px-4 hidden md:table-cell">
                   {team.player_highlights &&
@@ -123,9 +132,23 @@ const DailyRankingsCard = ({
                         />
                       ) : null}
                       <div>
-                        <div className="font-medium">
-                          {team.player_highlights[0].player_name}
-                        </div>
+                        {team.player_highlights[0].nhl_id ? (
+                          <a
+                            href={`https://www.nhl.com/player/${team.player_highlights[0].nhl_id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="font-medium text-gray-800 hover:underline flex items-center"
+                          >
+                            {team.player_highlights[0].player_name}
+                            <span className="ml-1 text-gray-500 text-sm inline-block">
+                              ↗
+                            </span>
+                          </a>
+                        ) : (
+                          <div className="font-medium">
+                            {team.player_highlights[0].player_name}
+                          </div>
+                        )}
                         <div className="text-xs text-gray-500">
                           {team.player_highlights[0].points} pts
                         </div>

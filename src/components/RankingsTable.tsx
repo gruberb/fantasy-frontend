@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Ranking } from "../api/client";
 
 interface RankingsTableProps {
@@ -12,6 +12,8 @@ const RankingsTable = ({
   title = "Rankings",
   limit,
 }: RankingsTableProps) => {
+  const navigate = useNavigate();
+
   // Check if rankings is an array and not empty
   if (!rankings || !Array.isArray(rankings) || rankings.length === 0) {
     return (
@@ -36,13 +38,15 @@ const RankingsTable = ({
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">{title}</h2>
           {limit && rankings.length > limit && (
-            <Link to="/rankings" className="text-blue-600 hover:underline">
-              View All →
+            <Link
+              to="/rankings"
+              className="text-gray-600 hover:underline flex items-center"
+            >
+              View All <span className="ml-1">→</span>
             </Link>
           )}
         </div>
       )}
-
       <div className="bg-white rounded-lg shadow-md overflow-x-auto">
         <table className="min-w-full">
           <thead className="bg-gray-100">
@@ -62,9 +66,15 @@ const RankingsTable = ({
           </thead>
           <tbody>
             {displayRankings.map((team) => (
-              <tr key={team.team_id} className="border-t hover:bg-gray-50">
+              <tr
+                key={team.team_id}
+                className="border-t transition-colors duration-80 hover:bg-blue-100 cursor-pointer group"
+                onClick={() => navigate(`/teams/${team.team_id}`)}
+              >
                 <td className="py-3 px-4 font-bold">{team.rank}</td>
-                <td className="py-3 px-4">{team.team_name}</td>
+                <td className="py-3 px-4 transition-all duration-150">
+                  {team.team_name}
+                </td>
                 {/* These cells will be hidden on small screens using responsive classes */}
                 <td className="py-3 px-4 hidden md:table-cell">{team.goals}</td>
                 <td className="py-3 px-4 hidden md:table-cell">
@@ -74,9 +84,11 @@ const RankingsTable = ({
                 <td className="py-3 px-4">
                   <Link
                     to={`/teams/${team.team_id}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-gray-600 group-hover:underline flex items-center"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     View Team
+                    <span className="ml-1 text-sm">→</span>
                   </Link>
                 </td>
               </tr>
