@@ -181,7 +181,6 @@ const PlayersPage = () => {
             >
               <option value="points">Total Points</option>
               <option value="name">Player Name</option>
-              <option value="position">Position</option>
               <option value="team">Fantasy Team</option>
               <option value="nhlTeam">NHL Team</option>
             </select>
@@ -253,7 +252,6 @@ const PlayersPage = () => {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="py-2 px-4 text-left">Name</th>
-                    <th className="py-2 px-4 text-left">Position</th>
                     <th className="py-2 px-4 text-left">NHL Team</th>
                     <th className="py-2 px-4 text-left">Points</th>
                     <th className="py-2 px-4 text-left">Goals</th>
@@ -291,7 +289,6 @@ const PlayersPage = () => {
                           </div>
                         </a>
                       </td>
-                      <td className="py-2 px-4">{player.position}</td>
                       <td className="py-2 px-4">
                         <a
                           href={`https://www.nhl.com/${player.nhlTeamUrlSlug}`}

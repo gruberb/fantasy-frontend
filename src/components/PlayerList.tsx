@@ -56,7 +56,6 @@ const PlayerList = ({
             <tr>
               <th className="py-2 px-4 text-left">#</th>
               <th className="py-2 px-4 text-left">Player</th>
-              <th className="py-2 px-4 text-left">Position</th>
               {showTeam && <th className="py-2 px-4 text-left">Team</th>}
               <th className="py-2 px-4 text-left">Actions</th>
             </tr>
@@ -83,7 +82,6 @@ const PlayerList = ({
                     <span className="font-medium">{player.name}</span>
                   </div>
                 </td>
-                <td className="py-2 px-4">{player.position}</td>
                 {showTeam && (
                   <td className="py-2 px-4">
                     <div className="flex items-center">

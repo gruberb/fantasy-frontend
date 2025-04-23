@@ -78,10 +78,6 @@ const TeamDetailPage = () => {
     {},
   );
 
-  const nhlTeamData = Object.entries(nhlTeamCounts)
-    .map(([team, count]) => ({ team, count }))
-    .sort((a, b) => b.count - a.count);
-
   return (
     <div>
       <div className="mb-4">
@@ -198,7 +194,6 @@ const TeamDetailPage = () => {
                 <thead className="bg-gray-100">
                   <tr>
                     <th className="py-2 px-4 text-left">Player</th>
-                    <th className="py-2 px-4 text-left">Position</th>
                     <th className="py-2 px-4 text-left">NHL Team</th>
                     <th className="py-2 px-4 text-left">Points</th>
                     <th className="py-2 px-4 text-left">Goals</th>
@@ -226,7 +221,6 @@ const TeamDetailPage = () => {
                           <span>{player.name}</span>
                         </div>
                       </td>
-                      <td className="py-2 px-4">{player.position}</td>
                       <td className="py-2 px-4">
                         <div className="flex items-center">
                           {player.team_logo ? (

@@ -408,7 +408,6 @@ const GamesPage = () => {
                     {/* Game header */}
                     <div className="bg-gray-100 p-3 flex items-center justify-between">
                       <div className="text-sm font-bold">{timeString}</div>
-                      <div className="text-sm">{game.venue}</div>
                       <div>
                         <span
                           className={`px-2 py-1 rounded text-xs font-medium ${getStatusClass(gameStatus)}`}
