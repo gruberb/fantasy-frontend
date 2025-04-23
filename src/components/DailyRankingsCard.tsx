@@ -95,7 +95,7 @@ const DailyRankingsCard = ({
             <tr>
               <th className="py-3 px-4 text-left">Rank</th>
               <th className="py-3 px-4 text-left">Team</th>
-              <th className="py-3 px-4 text-left">Daily Points</th>
+              <th className="py-3 px-4 text-left">Points</th>
               <th className="py-3 px-4 text-left hidden md:table-cell">
                 Top Player
               </th>

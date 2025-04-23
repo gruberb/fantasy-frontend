@@ -124,6 +124,31 @@ export interface DailyFantasyRanking {
   }[];
 }
 
+export interface TopSkater {
+  id: number;
+  first_name: string;
+  last_name: string;
+  sweater_number?: number;
+  headshot: string;
+  team_abbrev: string;
+  team_name: string;
+  team_logo: string;
+  position: string;
+  value: number;
+  category: string;
+  fantasy_team: FantasyTeam;
+}
+
+export interface FantasyTeam {
+  team_id: number;
+  team_name: string;
+}
+
+export interface TopSkatersResponse {
+  goals?: TopSkater[];
+  assists?: TopSkater[];
+}
+
 // Helper function for API requests that handles the wrapped response structure
 async function fetchApi<T>(endpoint: string): Promise<T> {
   const url = `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
@@ -213,5 +238,11 @@ export const api = {
   async getDailyFantasySummary(date: string): Promise<DailyFantasyRanking[]> {
     console.log(`Fetching daily rankings for ${date}`);
     return fetchApi<DailyFantasyRanking[]>(`daily-rankings?date=${date}`);
+  },
+
+  async getTopSkaters(): Promise<TopSkatersResponse> {
+    return fetchApi<TopSkatersResponse>(
+      "get-top-skaters?category=goals,assists",
+    );
   },
 };
