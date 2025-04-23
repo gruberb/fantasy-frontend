@@ -1,29 +1,12 @@
 import { Link } from "react-router-dom";
-import { Game, Team } from "../api/client";
+import { Game } from "../api/client";
 
 interface GamesListProps {
   games: Game[];
-  teams: Team[];
   title?: string;
   showDate?: boolean;
   limit?: number;
 }
-
-// Helper function to format date/time
-const formatDateTime = (dateTimeStr: string) => {
-  const date = new Date(dateTimeStr);
-  return {
-    date: date.toLocaleDateString(undefined, {
-      weekday: "short",
-      month: "short",
-      day: "numeric",
-    }),
-    time: date.toLocaleTimeString(undefined, {
-      hour: "2-digit",
-      minute: "2-digit",
-    }),
-  };
-};
 
 // Helper to get status class
 const getStatusClass = (status: string) => {
@@ -45,7 +28,6 @@ const getStatusClass = (status: string) => {
 
 const GamesList = ({
   games,
-  teams,
   title = "Today's Games",
   showDate = true,
   limit,
@@ -77,36 +59,26 @@ const GamesList = ({
 
       <div className="space-y-4">
         {displayGames.map((game) => {
-          // Parse and format time in 12-hour format
+          // Simple time conversion using the date from API
           let timeString;
           let dateString;
 
           try {
-            // For UTC format like "23:00 UTC"
-            if (game.start_time.includes("UTC")) {
-              const timeStr = game.start_time.replace(" UTC", "");
-              const [hours, minutes] = timeStr.split(":").map(Number);
+            // Parse the ISO 8601 date string directly
+            const gameDate = new Date(game.start_time);
 
-              const gameDate = new Date();
-              gameDate.setUTCHours(hours, minutes);
+            // Format for display
+            timeString = gameDate.toLocaleTimeString([], {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            });
 
-              timeString = gameDate.toLocaleTimeString([], {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              });
-
-              dateString = gameDate.toLocaleDateString([], {
-                weekday: "short",
-                month: "short",
-                day: "numeric",
-              });
-            } else {
-              // For ISO format
-              const { date, time } = formatDateTime(game.start_time);
-              dateString = date;
-              timeString = time;
-            }
+            dateString = gameDate.toLocaleDateString([], {
+              weekday: "short",
+              month: "short",
+              day: "numeric",
+            });
           } catch (e) {
             timeString = "Time TBD";
             dateString = "Date TBD";
@@ -129,7 +101,6 @@ const GamesList = ({
                   <div className="font-medium">{timeString}</div>
                   <div className="text-xs text-gray-500">{game.venue}</div>
                 </div>
-
                 <div className="flex items-center">
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusClass(gameStatus)}`}

@@ -30,15 +30,18 @@ const formatDate = (date: Date) => {
     year: "numeric",
     month: "long",
     day: "numeric",
+    timeZone: "UTC",
   };
   return date.toLocaleDateString("en-US", options);
 };
 
+const getTodayString = () => {
+  return new Date().toISOString().split("T")[0];
+};
+
 const GamesPage = () => {
   // State for date selector
-  const [selectedDate, setSelectedDate] = useState<string>(() => {
-    return new Date().toISOString().split("T")[0]; // YYYY-MM-DD format
-  });
+  const [selectedDate, setSelectedDate] = useState<string>(getTodayString);
 
   // State for filters
   const [filterTeam, setFilterTeam] = useState<string>("all");
@@ -99,11 +102,10 @@ const GamesPage = () => {
     );
   }
 
-  const { date, games, summary } = gamesData;
+  const { games, summary } = gamesData;
 
   // Format the display date for UI - add one day to match what's expected
   const displayDate = new Date(selectedDate);
-  displayDate.setDate(displayDate.getDate() + 1); // Add one day
   const formattedDisplayDate = formatDate(displayDate);
 
   // Get unique NHL teams playing on this date
@@ -122,14 +124,14 @@ const GamesPage = () => {
   const getDateRange = () => {
     const dates = [];
     const today = new Date();
+    const todayString = today.toISOString().split("T")[0]; // Get consistent "today" string
 
-    // Add dates from 14 days ago to 14 days ahead
     for (let i = -14; i <= 14; i++) {
       const date = new Date(today);
       date.setDate(today.getDate() + i);
 
       const dateString = date.toISOString().split("T")[0];
-      const isToday = i === 0;
+      const isToday = dateString === todayString; // Compare strings instead of index
 
       dates.push({
         value: dateString,
@@ -315,31 +317,15 @@ const GamesPage = () => {
       ) : (
         <div className="space-y-6">
           {filteredGames.map((game) => {
-            // Parse and format time in 12-hour format
             let timeString;
             try {
-              // For UTC format like "23:00 UTC"
-              if (game.start_time.includes("UTC")) {
-                const timeStr = game.start_time.replace(" UTC", "");
-                const [hours, minutes] = timeStr.split(":").map(Number);
-
-                const gameDate = new Date(selectedDate);
-                gameDate.setUTCHours(hours, minutes);
-
-                timeString = gameDate.toLocaleTimeString([], {
-                  hour: "numeric",
-                  minute: "2-digit",
-                  hour12: true,
-                });
-              } else {
-                // For ISO format
-                const startTime = new Date(game.start_time);
-                timeString = startTime.toLocaleTimeString([], {
-                  hour: "numeric",
-                  minute: "2-digit",
-                  hour12: true,
-                });
-              }
+              // Just use the ISO date directly
+              const gameDate = new Date(game.start_time);
+              timeString = gameDate.toLocaleTimeString([], {
+                hour: "numeric",
+                minute: "2-digit",
+                hour12: true,
+              });
             } catch (e) {
               timeString = "Time TBD";
             }

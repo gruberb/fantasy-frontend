@@ -1,3 +1,9 @@
+import {
+  getTodayString,
+  getYesterdayString,
+  toLocalDateString,
+} from "../utils/timezone";
+
 import { API_URL } from "../config";
 
 // Define API types based on response structure from your Rust server
@@ -184,26 +190,21 @@ export const api = {
     return fetchApi<GamesResponse>(`games?date=${date}`);
   },
 
-  // Get today's games (convenience method)
   async getTodaysGames(): Promise<GamesResponse> {
-    // Use the specific todays-games endpoint without any date parameter
-    return fetchApi<GamesResponse>("todays-games");
+    return this.getGames(getTodayString());
   },
 
   // Get yesterday's fantasy rankings
   async getYesterdayRankings(): Promise<DailyFantasyRanking[]> {
-    // Calculate yesterday's date
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    const dateString = yesterday.toISOString().split("T")[0];
-
-    return fetchApi<DailyFantasyRanking[]>(`daily-rankings?date=${dateString}`);
+    const yesterdayString = getYesterdayString();
+    return fetchApi<DailyFantasyRanking[]>(
+      `daily-rankings?date=${yesterdayString}`,
+    );
   },
 
   // Get daily fantasy summary for a specific date
   async getDailyFantasySummary(date: string): Promise<DailyFantasyRanking[]> {
     console.log(`Fetching daily rankings for ${date}`);
-
     return fetchApi<DailyFantasyRanking[]>(`daily-rankings?date=${date}`);
   },
 };

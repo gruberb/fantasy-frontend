@@ -72,7 +72,6 @@ const HomePage = () => {
     );
   }
 
-  // Get games from data if available
   const games = todaysGamesData?.games || [];
 
   return (
@@ -210,7 +209,7 @@ const HomePage = () => {
           </div>
         ) : (
           <div className="bg-white rounded-lg shadow-md p-4">
-            <GamesList games={games} teams={teams || []} title="" limit={4} />
+            <GamesList games={games} title="" limit={4} />
           </div>
         )}
       </section>
