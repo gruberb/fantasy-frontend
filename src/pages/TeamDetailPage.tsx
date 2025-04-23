@@ -62,20 +62,15 @@ const TeamDetailPage = () => {
     {},
   );
 
+  const players = teamPoints.players.sort((a, b) => {
+    return b.total_points - a.total_points;
+  });
+
   const positionData = Object.entries(positionCounts).map(
     ([position, count]) => ({
       position,
       count,
     }),
-  );
-
-  // Distribution of players by NHL team
-  const nhlTeamCounts = teamPoints.players.reduce(
-    (acc: Record<string, number>, player) => {
-      acc[player.nhl_team] = (acc[player.nhl_team] || 0) + 1;
-      return acc;
-    },
-    {},
   );
 
   return (
@@ -188,7 +183,7 @@ const TeamDetailPage = () => {
         <section className="card">
           <h2 className="text-2xl font-bold mb-4">Player Roster</h2>
 
-          {teamPoints.players.length > 0 ? (
+          {players.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full bg-white">
                 <thead className="bg-gray-100">
@@ -201,7 +196,7 @@ const TeamDetailPage = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {teamPoints.players.map((player, index) => (
+                  {players.map((player, index) => (
                     <tr key={index} className="border-t hover:bg-gray-50">
                       <td className="py-2 px-4">
                         <div className="flex items-center">
