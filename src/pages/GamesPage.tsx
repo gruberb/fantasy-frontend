@@ -200,8 +200,6 @@ const GamesPage = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">NHL Games</h1>
-
       {/* Date selector */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex flex-col md:flex-row justify-between items-center">

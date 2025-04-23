@@ -84,8 +84,6 @@ const RankingsPage = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">NHL Rankings</h1>
-
       {/* Date selector for daily rankings */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
@@ -174,7 +172,7 @@ const RankingsPage = () => {
           rankings={dailyRankings || []}
           date={displayDate}
           title="Daily Fantasy Scores"
-          limit={0} // Show all
+          limit={100} // Show all
         />
       )}
 

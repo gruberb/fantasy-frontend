@@ -39,19 +39,6 @@ const TeamsPage = () => {
 
   return (
     <div>
-      <h1 className="text-3xl font-bold mb-6">Fantasy NHL Teams</h1>
-
-      {/* Search bar */}
-      <div className="mb-6">
-        <input
-          type="text"
-          placeholder="Search teams..."
-          className="w-full md:w-1/3 px-4 py-2 border rounded-md"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-      </div>
-
       {/* Teams grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {filteredTeams.map((team) => (
