@@ -114,12 +114,21 @@ const HomePage = () => {
         )}
       </section>
 
+      {/* Yesterday's Rankings Section */}
       <section>
-        <TopSkaters
-          data={topSkatersData}
-          isLoading={topSkatersLoading}
-          error={topSkatersError}
-        />
+        <h2 className="text-2xl font-bold mb-4">Yesterday's Results</h2>
+        {yesterdayRankingsLoading ? (
+          <LoadingSpinner message="Loading yesterday's rankings..." />
+        ) : yesterdayRankingsError ? (
+          <ErrorMessage message="Could not load yesterday's rankings data." />
+        ) : (
+          <DailyRankingsCard
+            rankings={yesterdayRankings || []}
+            date={yesterday}
+            title=""
+            limit={7}
+          />
+        )}
       </section>
 
       {/* Today's Games Section */}
@@ -162,22 +171,14 @@ const HomePage = () => {
         )}
       </section>
 
-      {/* Yesterday's Rankings Section */}
       <section>
-        <h2 className="text-2xl font-bold mb-4">Yesterday's Results</h2>
-        {yesterdayRankingsLoading ? (
-          <LoadingSpinner message="Loading yesterday's rankings..." />
-        ) : yesterdayRankingsError ? (
-          <ErrorMessage message="Could not load yesterday's rankings data." />
-        ) : (
-          <DailyRankingsCard
-            rankings={yesterdayRankings || []}
-            date={yesterday}
-            title=""
-            limit={7}
-          />
-        )}
+        <TopSkaters
+          data={topSkatersData}
+          isLoading={topSkatersLoading}
+          error={topSkatersError}
+        />
       </section>
+
       {/* Teams Overview */}
       <section>
         <h2 className="text-2xl font-bold mb-4">Teams Overview</h2>
