@@ -158,27 +158,7 @@ const HomePage = () => {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm opacity-80">Total Games</div>
-            <div className="text-2xl font-bold">
-              {isLoadingSummary ? (
-                <div className="h-8 w-8 bg-white/20 rounded animate-pulse"></div>
-              ) : (
-                gamesSummary.total_games
-              )}
-            </div>
-          </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm opacity-80">Teams Playing</div>
-            <div className="text-2xl font-bold">
-              {isLoadingSummary ? (
-                <div className="h-8 w-8 bg-white/20 rounded animate-pulse"></div>
-              ) : (
-                gamesSummary.total_teams_playing
-              )}
-            </div>
-          </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm opacity-80">Most Players</div>
+            <div className="text-sm opacity-80">Team with most bets</div>
             <div className="text-2xl font-bold">
               {isLoadingSummary ? (
                 <div className="h-8 w-16 bg-white/20 rounded animate-pulse"></div>
@@ -188,7 +168,9 @@ const HomePage = () => {
             </div>
           </div>
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm opacity-80">Player Count</div>
+            <div className="text-sm opacity-80">
+              Fantasy Teams with Players for today
+            </div>
             <div className="text-2xl font-bold">
               {isLoadingSummary ? (
                 <div className="h-8 w-8 bg-white/20 rounded animate-pulse"></div>

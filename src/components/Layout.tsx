@@ -10,9 +10,9 @@ const Layout = ({ children }: LayoutProps) => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen flex flex-col bg-gray-50">
       <NavBar />
-      <main className="container mx-auto px-4 py-6 md:py-8">
+      <main className="flex-grow container mx-auto px-4 py-6 md:py-8">
         {/* Subtle animation for the main content */}
         <div className="animate-fadeIn">{children}</div>
       </main>

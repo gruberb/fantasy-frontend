@@ -234,90 +234,90 @@ const GamesPage = () => {
     <div>
       {/* Page header */}
       <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-3xl font-bold mb-2">Game Center</h1>
+        <h1 className="text-3xl font-bold mb-2 pb-2">Game Center</h1>
         <p className="text-lg opacity-90 mb-4">
-          Track NHL games and fantasy player performance
+          Follow up on all match days, scores and the top players of the day.
         </p>
-      </div>
+        <div className="bg-white/10 p-2 m-2 rounded-lg shadow-sm mb-6 border border-white/20">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <h2 className="text-xl font-medium mb-4 md:mb-0">
+              {formattedDisplayDate}
+            </h2>
 
-      {/* Date selector */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <div className="flex flex-col md:flex-row justify-between items-center">
-          <h2 className="text-xl font-medium mb-4 md:mb-0">
-            {formattedDisplayDate}
-          </h2>
-
-          <div className="flex items-center space-x-2">
-            <button
-              onClick={() => {
-                const nextDate = removeDaysFromString(selectedDate, 1);
-                setSelectedDate(nextDate);
-              }}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors"
-              aria-label="Previous day"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => {
+                  const nextDate = removeDaysFromString(selectedDate, 1);
+                  setSelectedDate(nextDate);
+                }}
+                className="p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Previous day"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M15 19l-7-7 7-7"
-                />
-              </svg>
-            </button>
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
 
-            <select
-              value={selectedDate}
-              onChange={(e) => setSelectedDate(e.target.value)}
-              className="p-2 border rounded-md"
-            >
-              {dateRange.map((date) => (
-                <option key={date.value} value={date.value}>
-                  {date.isToday ? `Today (${date.label})` : date.label}
-                </option>
-              ))}
-            </select>
-
-            <button
-              onClick={() => {
-                // Get next day by adding 1 to the current local date string
-                const nextDate = addDaysToDateString(selectedDate, 1);
-                setSelectedDate(nextDate);
-              }}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors"
-              aria-label="Next day"
-            >
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                className="h-5 w-5"
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
+              <select
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
+                className="p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
               >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M9 5l7 7-7 7"
-                />
-              </svg>
-            </button>
+                {dateRange.map((date) => (
+                  <option key={date.value} value={date.value}>
+                    {date.isToday ? `Today (${date.label})` : date.label}
+                  </option>
+                ))}
+              </select>
 
-            <button
-              onClick={() => setSelectedDate(toLocalDateString(new Date()))}
-              className="ml-2 px-3 py-2 bg-[#6D4C9F] text-white rounded-md hover:bg-[#5A3A87] transition-colors"
-            >
-              Today
-            </button>
+              <button
+                onClick={() => {
+                  const nextDate = addDaysToDateString(selectedDate, 1);
+                  setSelectedDate(nextDate);
+                }}
+                className="p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+                aria-label="Next day"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="h-5 w-5"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+
+              <button
+                onClick={() => setSelectedDate(toLocalDateString(new Date()))}
+                className="ml-2 px-3 py-2 bg-white/10 border border-white/20 text-white rounded-md hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                Today
+              </button>
+            </div>
           </div>
         </div>
       </div>
+
+      {/* Date selector */}
+      <div className="bg-white p-4 rounded-lg shadow-md mb-6"></div>
 
       {/* Stats summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
@@ -334,7 +334,7 @@ const GamesPage = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600">Most Players</div>
+          <div className="text-sm text-gray-600">Team with most bets</div>
           <div className="text-2xl font-bold">
             {summary.team_players_count.length > 0
               ? summary.team_players_count[0].nhl_team
@@ -343,7 +343,9 @@ const GamesPage = () => {
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600">Player Count</div>
+          <div className="text-sm text-gray-600">
+            Fantasy Teams involved today
+          </div>
           <div className="text-2xl font-bold">
             {summary.team_players_count.length > 0
               ? summary.team_players_count[0].player_count

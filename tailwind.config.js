@@ -3,6 +3,7 @@ export default {
   content: ["./index.html", "./src/**/*.{js,ts,jsx,tsx}"],
   theme: {
     extend: {
+      screens: { sm: { max: "640px" } },
       colors: {
         // Brand colors
         "fantasy-purple": {

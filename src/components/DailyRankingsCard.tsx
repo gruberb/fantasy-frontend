@@ -100,7 +100,7 @@ const DailyRankingsCard = ({
               <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Points
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                 Top Player
               </th>
             </tr>
@@ -132,15 +132,12 @@ const DailyRankingsCard = ({
                     className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium flex items-center"
                   >
                     {team.team_name}
-                    <span className="ml-1 text-gray-500 text-sm inline-block">
-                      →
-                    </span>
                   </Link>
                 </td>
                 <td className="py-3 px-4 font-semibold whitespace-nowrap">
                   {team.daily_points}
                 </td>
-                <td className="py-3 px-4 hidden md:table-cell whitespace-nowrap">
+                <td className="py-3 px-4 whitespace-nowrap">
                   {team.player_highlights &&
                   team.player_highlights.length > 0 ? (
                     <div className="flex items-center">
@@ -167,7 +164,22 @@ const DailyRankingsCard = ({
                             rel="noopener noreferrer"
                             className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
                           >
-                            {team.player_highlights[0].player_name}
+                            {/* Full name for md and above */}
+                            <span className="hidden md:inline">
+                              {team.player_highlights[0].player_name}
+                            </span>
+                            {/* Abbreviated name for small screens */}
+                            <span className="md:hidden">
+                              {(() => {
+                                const nameParts =
+                                  team.player_highlights[0].player_name.split(
+                                    " ",
+                                  );
+                                return nameParts.length >= 2
+                                  ? `${nameParts[1]} ${nameParts[0].charAt(0)}.`
+                                  : team.player_highlights[0].player_name;
+                              })()}
+                            </span>
                             <svg
                               className="w-3 h-3 ml-1 text-gray-500"
                               fill="none"
@@ -185,7 +197,20 @@ const DailyRankingsCard = ({
                           </a>
                         ) : (
                           <div className="font-medium text-gray-900">
-                            {team.player_highlights[0].player_name}
+                            <span className="hidden md:inline">
+                              {team.player_highlights[0].player_name}
+                            </span>
+                            <span className="md:hidden">
+                              {(() => {
+                                const nameParts =
+                                  team.player_highlights[0].player_name.split(
+                                    " ",
+                                  );
+                                return nameParts.length >= 2
+                                  ? `${nameParts[1]} ${nameParts[0].charAt(0)}.`
+                                  : team.player_highlights[0].player_name;
+                              })()}
+                            </span>
                           </div>
                         )}
                         <div className="text-xs text-gray-500">

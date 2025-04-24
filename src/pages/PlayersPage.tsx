@@ -141,91 +141,94 @@ const PlayersPage = () => {
         <p className="text-lg opacity-90 mb-4">
           Browse and search all fantasy hockey players
         </p>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-sm mb-6 border border-gray-100">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Search
-            </label>
-            <div className="relative">
-              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                <svg
-                  className="w-4 h-4 text-gray-400"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                  />
-                </svg>
-              </div>
-              <input
-                type="text"
-                placeholder="Search players or teams..."
-                className="w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md focus:ring-[#6D4C9F] focus:border-[#6D4C9F]"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-              />
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Position
-            </label>
-            <select
-              className="w-full p-2 border border-gray-200 rounded-md focus:ring-[#6D4C9F] focus:border-[#6D4C9F]"
-              value={positionFilter}
-              onChange={(e) => setPositionFilter(e.target.value)}
-            >
-              <option value="all">All Positions</option>
-              {positions.map((pos) => (
-                <option key={pos} value={pos}>
-                  {pos}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Sort By
-            </label>
-            <select
-              className="w-full p-2 border border-gray-200 rounded-md focus:ring-[#6D4C9F] focus:border-[#6D4C9F]"
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-            >
-              <option value="points">Total Points</option>
-              <option value="name">Player Name</option>
-              <option value="team">Fantasy Team</option>
-              <option value="nhlTeam">NHL Team</option>
-            </select>
-          </div>
-
-          <div className="flex items-end">
-            <div className="flex items-center w-full">
-              <input
-                type="checkbox"
-                id="groupByTeam"
-                checked={groupByTeam}
-                onChange={(e) => setGroupByTeam(e.target.checked)}
-                className="mr-2 h-4 w-4 text-[#6D4C9F] focus:ring-[#6D4C9F] border-gray-300 rounded"
-              />
-              <label
-                htmlFor="groupByTeam"
-                className="text-sm font-medium text-gray-700"
-              >
-                Group by Fantasy Team
+        {/* Filters */}
+        <div className="bg-white/10 p-4 rounded-lg shadow-sm mb-6 border border-white/20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
+            {/* Search Filter */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">
+                Search
               </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                  <svg
+                    className="w-4 h-4 text-gray-300"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  placeholder="Search players or teams..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+                />
+              </div>
+            </div>
+
+            {/* Position Filter */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">
+                Position
+              </label>
+              <select
+                value={positionFilter}
+                onChange={(e) => setPositionFilter(e.target.value)}
+                className="w-full p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                <option value="all">All Positions</option>
+                {positions.map((pos) => (
+                  <option key={pos} value={pos}>
+                    {pos}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {/* Sort By Filter */}
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">
+                Sort By
+              </label>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value)}
+                className="w-full p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                <option value="points">Total Points</option>
+                <option value="name">Player Name</option>
+                <option value="team">Fantasy Team</option>
+                <option value="nhlTeam">NHL Team</option>
+              </select>
+            </div>
+
+            {/* Checkbox Filter */}
+            <div className="flex items-end">
+              <div className="flex h-8">
+                <input
+                  type="checkbox"
+                  id="groupByTeam"
+                  checked={groupByTeam}
+                  onChange={(e) => setGroupByTeam(e.target.checked)}
+                  className="mr-2 h-4 w-4 text-white focus:ring-2 focus:ring-white/50 border border-white/20 rounded"
+                />
+                <label
+                  htmlFor="groupByTeam"
+                  className="text-sm font-medium text-white"
+                >
+                  Group by Fantasy Team
+                </label>
+              </div>
             </div>
           </div>
         </div>
@@ -245,7 +248,10 @@ const PlayersPage = () => {
           </div>
 
           {positions.map((pos) => (
-            <div key={pos} className="bg-gray-50 p-3 rounded-lg">
+            <div
+              key={pos}
+              className="bg-gray-50 p-3 rounded-lg hidden sm:table-cell"
+            >
               <div className="text-sm text-gray-600">{pos}</div>
               <div className="text-xl font-bold">
                 {allPlayers.filter((p) => p.position === pos).length}
@@ -305,10 +311,10 @@ const PlayersPage = () => {
                     <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Points
                     </th>
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       Goals
                     </th>
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
                       Assists
                     </th>
                   </tr>
@@ -321,7 +327,7 @@ const PlayersPage = () => {
                           href={`https://www.nhl.com/player/${player.nhl_id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="flex items-center group"
+                          className="inline-flex items-center group"
                         >
                           <div className="flex-shrink-0 h-10 w-10">
                             {player.image_url ? (
@@ -338,6 +344,7 @@ const PlayersPage = () => {
                               </div>
                             )}
                           </div>
+
                           <div className="ml-4">
                             <div className="text-sm font-medium text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
                               {player.name}
@@ -345,6 +352,23 @@ const PlayersPage = () => {
                             <div className="text-xs text-gray-500">
                               {player.position}
                             </div>
+                          </div>
+                          <div className="flex-shrink-0 h-7">
+                            {" "}
+                            <svg
+                              className="w-3 h-3 ml-1 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
                           </div>
                         </a>
                       </td>
@@ -363,9 +387,23 @@ const PlayersPage = () => {
                                 className="h-6 w-6 mr-2"
                               />
                             ) : null}
-                            <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                            <span className="text-sm  hidden sm:table-cell text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
                               {player.nhl_team}
                             </span>
+                            <svg
+                              className="w-3 h-3 ml-1 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
                           </div>
                         </a>
                       </td>
@@ -374,12 +412,12 @@ const PlayersPage = () => {
                           {player.total_points}
                         </div>
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3 px-4 whitespace-nowrap hidden sm:table-cell">
                         <div className="text-sm text-gray-900">
                           {player.goals}
                         </div>
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3 px-4 whitespace-nowrap hidden sm:table-cell">
                         <div className="text-sm text-gray-900">
                           {player.assists}
                         </div>

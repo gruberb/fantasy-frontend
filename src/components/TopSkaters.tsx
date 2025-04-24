@@ -21,7 +21,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
   }
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Top 10 Goal Scorers */}
       <div>
         <h3 className="text-xl font-bold mb-2">Top 10 Scorers</h3>
@@ -69,6 +69,20 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                             {player.last_name}
                           </a>
                         </div>
+                        <svg
+                          className="w-3 h-3 ml-1 text-gray-500"
+                          fill="none"
+                          stroke="currentColor"
+                          viewBox="0 0 24 24"
+                          xmlns="http://www.w3.org/2000/svg"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                          />
+                        </svg>
                       </div>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
@@ -84,8 +98,24 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                             alt={player.team_abbrev}
                             className="h-5 w-5 rounded mr-2"
                           />
-                          <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                          <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline hidden sm:table-cell">
                             {player.team_abbrev}
+                          </span>
+                          <span>
+                            <svg
+                              className="w-3 h-3 ml-1 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>{" "}
                           </span>
                         </div>
                       </a>
@@ -162,6 +192,22 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                             {player.last_name}
                           </a>
                         </div>
+                        <span>
+                          <svg
+                            className="w-3 h-3 ml-1 text-gray-500"
+                            fill="none"
+                            stroke="currentColor"
+                            viewBox="0 0 24 24"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              strokeWidth={2}
+                              d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                            />
+                          </svg>{" "}
+                        </span>
                       </div>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
@@ -177,8 +223,25 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                             alt={player.team_abbrev}
                             className="h-5 w-5 rounded mr-2"
                           />
-                          <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                          <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline hidden sm:table-cell">
                             {player.team_abbrev}
+                          </span>
+                          <span>
+                            {" "}
+                            <svg
+                              className="w-3 h-3 ml-1 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>{" "}
                           </span>
                         </div>
                       </a>
