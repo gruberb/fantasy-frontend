@@ -291,8 +291,6 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
           (team) => team.playerCount > 0,
         );
 
-        console.log("Fantasy teams with players:", teamsArray);
-
         setFantasyTeamCounts(teamsArray);
       } catch (error) {
         console.error("Error processing fantasy team data:", error);
@@ -333,9 +331,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   if (fantasyTeamCounts.length === 0) {
     return (
       <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">
-          Fantasy Teams with Players Today
-        </h2>
+        <h2 className="text-xl font-bold mb-4">Fantasy Teams</h2>
         <div className="text-center py-4 text-gray-500">
           No fantasy teams have players in today's games.
         </div>
@@ -361,7 +357,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-        <h2 className="text-xl font-bold">Fantasy Teams with Players Today</h2>
+        <h2 className="text-xl font-bold">Fantasy Teams</h2>
 
         <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2 md:mt-0">
           <div className="flex items-center space-x-2">
