@@ -149,23 +149,32 @@ const GamesPage = () => {
     return toLocalDateString(date); // convert back to YYYY-MM-DD
   };
 
-  // Helper to calculate date range for the date picker
+  // Build date range for the date picker
   const getDateRange = () => {
     const dates = [];
-    const today = toLocalDateString(new Date());
+    const today = new Date(); // local
+    for (let i = -14; i <= 0; i++) {
+      // Create a local date offset by i days from 'today'
+      const date = new Date(today);
+      date.setDate(today.getDate() + i);
 
-    for (let i = -14; i <= 14; i++) {
-      const dateString = addDaysToDateString(today, i);
-      const date = dateStringToLocalDate(dateString);
+      // Convert to local YYYY-MM-DD
+      const dateString = toLocalDateString(date);
+
       const isToday = i === 0;
+      const isYesterday = i === -1;
 
       dates.push({
         value: dateString,
-        label: toLocalDateString(date),
+        label: isToday
+          ? "Today"
+          : isYesterday
+            ? "Yesterday"
+            : toLocalDateString(date),
         isToday,
+        isYesterday,
       });
     }
-
     return dates;
   };
 
@@ -240,17 +249,18 @@ const GamesPage = () => {
         </p>
         <div className="bg-white/10 p-2 m-2 rounded-lg shadow-sm mb-6 border border-white/20">
           <div className="flex flex-col md:flex-row justify-between items-center">
-            <h2 className="text-xl font-medium mb-4 md:mb-0">
+            {/* Date header */}
+            <h2 className="text-lg md:text-xl font-medium mb-4 md:mb-0">
               {formattedDisplayDate}
             </h2>
-
+            {/* Date controls */}
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => {
-                  const nextDate = removeDaysFromString(selectedDate, 1);
-                  setSelectedDate(nextDate);
+                  const prevDate = removeDaysFromString(selectedDate, 1);
+                  setSelectedDate(prevDate);
                 }}
-                className="p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="p-1 md:p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                 aria-label="Previous day"
               >
                 <svg
@@ -272,11 +282,11 @@ const GamesPage = () => {
               <select
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                className="p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="p-1 md:p-2 bg-white/10 border border-white/20 rounded-md text-center text-white focus:outline-none focus:ring-2 focus:ring-white/50"
               >
                 {dateRange.map((date) => (
                   <option key={date.value} value={date.value}>
-                    {date.isToday ? `Today (${date.label})` : date.label}
+                    {date.isToday ? `Today` : date.label}
                   </option>
                 ))}
               </select>
@@ -286,7 +296,7 @@ const GamesPage = () => {
                   const nextDate = addDaysToDateString(selectedDate, 1);
                   setSelectedDate(nextDate);
                 }}
-                className="p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="p-1 md:p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                 aria-label="Next day"
               >
                 <svg
@@ -307,7 +317,7 @@ const GamesPage = () => {
 
               <button
                 onClick={() => setSelectedDate(toLocalDateString(new Date()))}
-                className="ml-2 px-3 py-2 bg-white/10 border border-white/20 text-white rounded-md hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
+                className="ml-2 px-2 md:px-3 py-1 md:py-2 bg-white/10 border border-white/20 text-white rounded-md hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
               >
                 Today
               </button>
@@ -315,9 +325,6 @@ const GamesPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Date selector */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6"></div>
 
       {/* Stats summary */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
