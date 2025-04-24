@@ -1,10 +1,10 @@
 import { useState, useEffect } from "react";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
-import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
-import GameDaySummary from "../components/GameDaySummary";
+import FantasyTeamSummary from "../components/FantasyTeamSummary";
 import {
   toLocalDateString,
   dateStringToLocalDate,
@@ -31,12 +31,37 @@ const getStatusClass = (status: string) => {
 };
 
 const GamesPage = () => {
-  // State for date selector - using simple YYYY-MM-DD string format
+  // Get date parameter from URL
+  const { date: dateParam } = useParams<{ date?: string }>();
+  const navigate = useNavigate();
+
+  // Helper to validate date format
+  const isValidDate = (dateString: string): boolean => {
+    // Check if the date string matches format YYYY-MM-DD
+    const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+    if (!dateRegex.test(dateString)) return false;
+
+    // Check if it's a valid date
+    const date = new Date(dateString);
+    return !isNaN(date.getTime());
+  };
+
+  // State for date selector - now initialized from URL parameter if valid
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const today = new Date();
-    // Return YYYY-MM-DD in **local** time
-    return toLocalDateString(today);
+    // If there's a valid date in the URL, use it
+    if (dateParam && isValidDate(dateParam)) {
+      return dateParam;
+    }
+    // Otherwise, use today
+    return toLocalDateString(new Date());
   });
+
+  // Update URL when date changes
+  const updateSelectedDate = (newDate: string) => {
+    setSelectedDate(newDate);
+    // Update URL without full reload
+    navigate(`/games/${newDate}`, { replace: true });
+  };
 
   // State for filters
   const [filterTeam, setFilterTeam] = useState<string>("all");
@@ -258,7 +283,7 @@ const GamesPage = () => {
               <button
                 onClick={() => {
                   const prevDate = removeDaysFromString(selectedDate, 1);
-                  setSelectedDate(prevDate);
+                  updateSelectedDate(prevDate);
                 }}
                 className="p-1 md:p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                 aria-label="Previous day"
@@ -281,7 +306,7 @@ const GamesPage = () => {
 
               <select
                 value={selectedDate}
-                onChange={(e) => setSelectedDate(e.target.value)}
+                onChange={(e) => updateSelectedDate(e.target.value)} // Using updateSelectedDate
                 className="p-1 md:p-2 bg-white/10 border border-white/20 rounded-md text-center text-white focus:outline-none focus:ring-2 focus:ring-white/50"
               >
                 {dateRange.map((date) => (
@@ -294,7 +319,7 @@ const GamesPage = () => {
               <button
                 onClick={() => {
                   const nextDate = addDaysToDateString(selectedDate, 1);
-                  setSelectedDate(nextDate);
+                  updateSelectedDate(nextDate);
                 }}
                 className="p-1 md:p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
                 aria-label="Next day"
@@ -316,7 +341,9 @@ const GamesPage = () => {
               </button>
 
               <button
-                onClick={() => setSelectedDate(toLocalDateString(new Date()))}
+                onClick={() =>
+                  updateSelectedDate(toLocalDateString(new Date()))
+                }
                 className="ml-2 px-2 md:px-3 py-1 md:py-2 bg-white/10 border border-white/20 text-white rounded-md hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
               >
                 Today
@@ -325,133 +352,53 @@ const GamesPage = () => {
           </div>
         </div>
       </div>
-
-      {/* Stats summary */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600">Total Games</div>
-          <div className="text-2xl font-bold">{summary.totalGames}</div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600">Teams Playing</div>
-          <div className="text-2xl font-bold">{summary.totalTeamsPlaying}</div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600">Team with most bets</div>
-          <div className="text-2xl font-bold">
-            {summary.teamPlayersCount.length > 0
-              ? summary.teamPlayersCount[0].nhlTeam
-              : "N/A"}
-          </div>
-        </div>
-
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <div className="text-sm text-gray-600">
-            Fantasy Teams involved today
-          </div>
-          <div className="text-2xl font-bold">
-            {summary.teamPlayersCount.length > 0
-              ? summary.teamPlayersCount[0].playerCount
-              : "0"}
-          </div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <div className="flex flex-col space-y-4">
-          {/* Team filters */}
-          <div>
-            <h3 className="text-sm font-medium text-gray-700 mb-2">
-              Filter by NHL Team
-            </h3>
-            <div className="flex flex-wrap gap-2">
-              <button
-                className={`px-3 py-1 rounded-full text-sm font-medium ${
-                  filterTeam === "all"
-                    ? "bg-[#6D4C9F] text-white"
-                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                }`}
-                onClick={() => setFilterTeam("all")}
-              >
-                All Teams
-              </button>
-
-              {teamsPlaying.map((team) => (
-                <button
-                  key={team}
-                  className={`px-3 py-1 rounded-full text-sm font-medium ${
-                    filterTeam === team
-                      ? "bg-[#6D4C9F] text-white"
-                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
-                  }`}
-                  onClick={() => setFilterTeam(team)}
-                >
-                  {team}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Options */}
-          <div className="flex flex-wrap items-center gap-4">
-            {/* Live update toggle */}
-            {hasLiveGames && selectedDate === toLocalDateString(new Date()) && (
-              <div className="flex items-center">
-                <input
-                  type="checkbox"
-                  id="autoRefresh"
-                  checked={autoRefresh}
-                  onChange={(e) => setAutoRefresh(e.target.checked)}
-                  className="mr-2"
-                />
-                <label htmlFor="autoRefresh" className="text-sm text-gray-700">
-                  Auto-refresh live games
-                </label>
-                {autoRefresh && (
-                  <div
-                    className="ml-1 h-2 w-2 rounded-full bg-red-500 animate-pulse"
-                    title="Refreshing every 30 seconds"
-                  ></div>
-                )}
-              </div>
+      {/* Fantasy Team Breakdown */}
+      <FantasyTeamSummary selectedDate={selectedDate} />
+      {/* Options */}
+      <div className="flex flex-wrap items-center gap-4">
+        {/* Live update toggle */}
+        {hasLiveGames && selectedDate === toLocalDateString(new Date()) && (
+          <div className="flex items-center">
+            <input
+              type="checkbox"
+              id="autoRefresh"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="mr-2"
+            />
+            <label htmlFor="autoRefresh" className="text-sm text-gray-700">
+              Auto-refresh live games
+            </label>
+            {autoRefresh && (
+              <div
+                className="ml-1 h-2 w-2 rounded-full bg-red-500 animate-pulse"
+                title="Refreshing every 30 seconds"
+              ></div>
             )}
-
-            {/* Manual refresh button */}
-            <button
-              onClick={() => refetchGames()}
-              className="ml-auto px-3 py-1 bg-[#6D4C9F]/10 text-[#6D4C9F] rounded hover:bg-[#6D4C9F]/20 flex items-center"
-            >
-              <svg
-                className="w-4 h-4 mr-1"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-              Refresh Data
-            </button>
           </div>
-        </div>
-      </div>
+        )}
 
-      {/* Daily Fantasy Scores */}
-      <div className="mb-6">
-        <h2 className="text-xl font-bold mb-4">Fantasy Scores</h2>
-        <GameDaySummary
-          rankings={dailyRankings || []}
-          isLoading={dailyRankingsLoading}
-          error={dailyRankingsError}
-        />
+        {/* Manual refresh button */}
+        <button
+          onClick={() => refetchGames()}
+          className="ml-auto px-3 py-1 bg-[#6D4C9F]/10 text-[#6D4C9F] rounded hover:bg-[#6D4C9F]/20 flex items-center"
+        >
+          <svg
+            className="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          Refresh Data
+        </button>
       </div>
 
       {/* Games list */}
@@ -905,7 +852,6 @@ const GamesPage = () => {
           </div>
         )}
       </div>
-
       {/* Auto-refresh status indicator */}
       {autoRefresh && (
         <div className="fixed bottom-4 right-4 bg-[#6D4C9F] text-white py-2 px-4 rounded-full shadow-lg flex items-center text-sm animate-pulse">

@@ -3,16 +3,23 @@ import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 
-// Import components
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import GameCard from "../components/GameCard";
 import RankingsTable from "../components/RankingsTable";
 import TopSkaters from "../components/TopSkaters";
+import { getYesterdayString, dateStringToLocalDate } from "../utils/timezone";
+import DailyRankingsCard from "../components/DailyRankingsCard";
+
+import { toLocalDateString } from "../utils/timezone";
 
 const HomePage = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState("rankings");
+
+  // Get yesterday's date string
+  const yesterdayString = getYesterdayString();
+  const yesterdayDate = dateStringToLocalDate(yesterdayString);
 
   // Fetch data for the dashboard
   const {
@@ -43,6 +50,16 @@ const HomePage = () => {
     queryFn: () => api.getTopSkaters(),
   });
 
+  const {
+    data: yesterdayRankings,
+    isLoading: yesterdayRankingsLoading,
+    error: yesterdayRankingsError,
+  } = useQuery({
+    queryKey: ["dailyRankings", yesterdayString],
+    queryFn: () => api.getDailyFantasySummary(yesterdayString),
+    retry: 1,
+  });
+
   // Function to render the games tab content
   const renderGamesTab = () => {
     if (gamesLoading) {
@@ -60,7 +77,7 @@ const HomePage = () => {
         <div className="bg-white rounded-lg shadow-sm p-6 text-center border border-gray-100">
           <p className="text-gray-500">No games scheduled for today.</p>
           <Link
-            to="/games"
+            to={`/games/${toLocalDateString(new Date())}`}
             className="inline-block mt-4 px-4 py-2 bg-[#6D4C9F] text-white rounded-md hover:bg-[#5A3A87] transition-colors"
           >
             View Games Calendar
@@ -182,6 +199,22 @@ const HomePage = () => {
         </div>
       </div>
 
+      {/* Yesterday's Rankings Section */}
+      <div className="mb-6">
+        {yesterdayRankingsLoading ? (
+          <LoadingSpinner message="Loading yesterday's rankings..." />
+        ) : yesterdayRankingsError ? (
+          <ErrorMessage message="Could not load yesterday's rankings." />
+        ) : (
+          <DailyRankingsCard
+            rankings={yesterdayRankings || []}
+            date={yesterdayDate}
+            title="Yesterday's Rankings"
+            limit={7}
+          />
+        )}
+      </div>
+
       {/* Tab navigation */}
       <div className="border-b border-gray-200 mb-6">
         <nav className="flex space-x-8">
@@ -193,7 +226,7 @@ const HomePage = () => {
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
-            Rankings
+            Overall Ranking
           </button>
           <button
             onClick={() => setActiveTab("games")}
@@ -213,7 +246,7 @@ const HomePage = () => {
                 : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
             }`}
           >
-            Top Players
+            Top Skaters
           </button>
         </nav>
       </div>
@@ -234,7 +267,7 @@ const HomePage = () => {
           View All Teams
         </Link>
         <Link
-          to="/games"
+          to={`/games/${toLocalDateString(new Date())}`}
           className="bg-[#041E42] hover:bg-[#0A2D5A] text-white py-3 px-4 rounded-md shadow-sm font-medium transition-colors text-center"
         >
           Game Center

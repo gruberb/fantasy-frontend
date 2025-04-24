@@ -1,12 +1,21 @@
 import { useState, useEffect } from "react";
-import { NavLink, Link } from "react-router-dom";
+import { NavLink, Link, useLocation } from "react-router-dom";
+import { toLocalDateString } from "../utils/timezone";
 
 const NavBar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
 
+  const location = useLocation();
+
   const toggleMobileMenu = () => {
     setMobileOpen((prev) => !prev);
+  };
+
+  const isGamesRouteActive = () => {
+    return (
+      location.pathname === "/games" || location.pathname.startsWith("/games/")
+    );
   };
 
   // Handle navbar appearance on scroll
@@ -75,9 +84,11 @@ const NavBar = () => {
               Players
             </NavLink>
             <NavLink
-              to="/games"
+              to={`/games/${toLocalDateString(new Date())}`}
               className={({ isActive }) =>
-                isActive ? activeLinkClass : inactiveLinkClass
+                isActive || isGamesRouteActive()
+                  ? activeLinkClass
+                  : inactiveLinkClass
               }
             >
               Game Center
@@ -161,10 +172,11 @@ const NavBar = () => {
               Players
             </NavLink>
             <NavLink
-              to="/games"
-              onClick={() => setMobileOpen(false)}
+              to={`/games/${toLocalDateString(new Date())}`}
               className={({ isActive }) =>
-                isActive ? activeLinkClass : inactiveLinkClass
+                isActive || isGamesRouteActive()
+                  ? activeLinkClass
+                  : inactiveLinkClass
               }
             >
               Game Center

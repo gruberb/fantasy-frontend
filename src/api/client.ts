@@ -47,6 +47,7 @@ export interface Player {
   name: string;
   teamId?: number;
   position: string;
+  points?: number;
   jerseyNumber?: number;
   nhlTeam?: string;
   fantasyTeam?: string;

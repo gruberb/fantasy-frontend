@@ -34,7 +34,7 @@ const DailyRankingsCard = ({
   rankings = [],
   date,
   title = "Daily Rankings",
-  limit = 5,
+  limit = 7,
 }: DailyRankingsCardProps) => {
   let rankingsArray: RankingItem[] = [];
   console.log("drc", date);
@@ -77,14 +77,6 @@ const DailyRankingsCard = ({
           <h2 className="text-xl font-bold">{title}</h2>
           <p className="text-sm text-gray-500">{formattedDate}</p>
         </div>
-        {limit && limit > 0 && rankingsArray.length > limit && (
-          <Link
-            to="/rankings"
-            className="text-[#6D4C9F] hover:underline flex items-center font-medium"
-          >
-            View Full Results <span className="ml-1">→</span>
-          </Link>
-        )}
       </div>
 
       <div className="overflow-x-auto">

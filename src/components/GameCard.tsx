@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import React from "react";
 import { Game } from "../api/client";
+import { toLocalDateString } from "../utils/timezone";
 
 interface GameCardProps {
   game: Game;
@@ -162,7 +163,12 @@ const GameCard: React.FC<GameCardProps> = ({
   return (
     <div
       className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-md hover:translate-y-px cursor-pointer"
-      onClick={() => navigate(`/games`)}
+      onClick={() => {
+        // Extract date from game.startTime for navigation
+        const gameDate = new Date(game.startTime);
+        const dateString = toLocalDateString(gameDate);
+        navigate(`/games/${dateString}`);
+      }}
     >
       <div className="flex">
         {/* Left team color bar */}
