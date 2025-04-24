@@ -20,12 +20,16 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
     return <ErrorMessage message="Failed to load top skaters data." />;
   }
 
+  // Limit to 10 entries for each category
+  const topGoalScorers = data?.goals?.slice(0, 10) || [];
+  const topAssistLeaders = data?.assists?.slice(0, 10) || [];
+
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Top 10 Goal Scorers */}
       <div>
         <h3 className="text-xl font-bold mb-2">Top 10 Scorers</h3>
-        {data?.goals && data.goals.length > 0 ? (
+        {topGoalScorers.length > 0 ? (
           <div className="card overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">
               <thead className="bg-gray-50">
@@ -45,7 +49,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {data.goals.map((player: TopSkater) => (
+                {topGoalScorers.map((player: TopSkater) => (
                   <tr
                     key={`goal-${player.id}`}
                     className="hover:bg-gray-50 transition-colors duration-150"
@@ -148,7 +152,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
       {/* Top 10 Assist Leaders */}
       <div>
         <h3 className="text-xl font-bold mb-2">Top 10 Assists</h3>
-        {data?.assists && data.assists.length > 0 ? (
+        {topAssistLeaders.length > 0 ? (
           <div className="card overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">
               <thead className="bg-gray-50">
@@ -168,7 +172,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-100">
-                {data.assists.map((player: TopSkater) => (
+                {topAssistLeaders.map((player: TopSkater) => (
                   <tr
                     key={`assist-${player.id}`}
                     className="hover:bg-gray-50 transition-colors duration-150"

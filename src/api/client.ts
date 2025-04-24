@@ -241,9 +241,9 @@ export const api = {
     return fetchApi<DailyFantasyRanking[]>(`daily-rankings?date=${date}`);
   },
 
-  async getTopSkaters(): Promise<TopSkatersResponse> {
+  async getTopSkaters(limit: number = 10): Promise<TopSkatersResponse> {
     return fetchApi<TopSkatersResponse>(
-      "get-top-skaters?category=goals,assists",
+      `get-top-skaters?category=goals,assists&limit=${limit}`,
     );
   },
 };
