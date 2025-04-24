@@ -1,6 +1,17 @@
 @import "tailwindcss";
 
-/* Custom styles */
+/* Color variables */
+:root {
+    --nhl-blue: #041e42;
+    --nhl-red: #af1e2d;
+    --nhl-light-blue: #6bbbae;
+    --fantasy-purple: #6d4c9f;
+    --fantasy-purple-dark: #5a3a87;
+    --fantasy-purple-light: #8a6cb5;
+    --fantasy-purple-gradient: linear-gradient(90deg, #6d4c9f 0%, #8a6cb5 100%);
+}
+
+/* Base styles */
 body {
     font-family:
         "Inter",
@@ -8,23 +19,161 @@ body {
         -apple-system,
         BlinkMacSystemFont,
         sans-serif;
+    background-color: #f5f7fb;
+    color: #333;
+}
+
+/* Typography enhancements */
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    font-weight: 700;
+}
+
+h1 {
+    font-size: 2rem;
+    line-height: 2.5rem;
+}
+
+h2 {
+    font-size: 1.5rem;
+    line-height: 2rem;
 }
 
 /* Custom utility classes */
 @layer components {
+    /* Card styling */
     .card {
-        @apply bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow duration-300;
+        @apply bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-all duration-300 border border-gray-100;
     }
 
+    /* Updated button styles */
     .btn {
-        @apply px-4 py-2 rounded-md font-medium transition-colors duration-200;
+        @apply px-4 py-2 rounded-md font-medium transition-all duration-200;
     }
 
     .btn-primary {
-        @apply bg-blue-600 text-white hover:bg-blue-700;
+        @apply bg-[#6D4C9F] text-white hover:bg-[#5A3A87] shadow-sm;
     }
 
     .btn-secondary {
-        @apply bg-gray-200 text-gray-800 hover:bg-gray-300;
+        @apply bg-gray-100 text-gray-800 hover:bg-gray-200 border border-gray-200;
     }
+
+    /* Game card styling */
+    .game-card {
+        @apply bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 transition-all duration-200
+    hover:shadow-md hover:translate-y-px;
+    }
+
+    .game-card-header {
+        @apply bg-gray-50 p-3 flex items-center justify-between border-b border-gray-100;
+    }
+
+    .game-status {
+        @apply px-2 py-1 rounded text-xs font-medium;
+    }
+
+    .status-live {
+        @apply bg-red-100 text-red-800;
+    }
+
+    .status-final {
+        @apply bg-gray-100 text-gray-800;
+    }
+
+    .status-scheduled {
+        @apply bg-green-100 text-green-800;
+    }
+
+    /* Table styles */
+    .table-container {
+        @apply bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100;
+    }
+
+    .table-header {
+        @apply bg-gray-50 py-3 px-4 text-left text-sm font-medium text-gray-700 border-b border-gray-100;
+    }
+
+    .table-cell {
+        @apply py-3 px-4 border-t border-gray-100;
+    }
+
+    .table-row {
+        @apply hover:bg-gray-50 transition-colors duration-150;
+    }
+
+    /* Stats components */
+    .stat-card {
+        @apply bg-white p-4 rounded-lg shadow-sm border border-gray-100;
+    }
+
+    .stat-value {
+        @apply text-2xl font-bold;
+    }
+
+    .stat-label {
+        @apply text-sm text-gray-600;
+    }
+
+    /* Theme-colored components */
+    .theme-gradient {
+        @apply bg-gradient-to-r from-[#6D4C9F] to-[#8A6CB5] text-white;
+    }
+
+    /* Navbar specific styles */
+    .navbar {
+        @apply bg-gradient-to-r from-[#6D4C9F] to-[#8A6CB5] shadow-md;
+    }
+
+    .nav-link {
+        @apply block px-3 py-2 rounded text-gray-200 hover:text-white hover:bg-[#5A3A87] transition-all duration-200;
+    }
+
+    .nav-link-active {
+        @apply block px-3 py-2 rounded text-white bg-[#5A3A87] shadow-sm;
+    }
+
+    /* Team colors accent */
+    .team-accent {
+        @apply w-3 flex-shrink-0;
+    }
+}
+
+/* Animations */
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+@keyframes pulse {
+    0%,
+    100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.5;
+    }
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #cdcdcd;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #6d4c9f;
 }

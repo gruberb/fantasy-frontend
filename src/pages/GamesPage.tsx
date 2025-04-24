@@ -1,50 +1,65 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { Link } from "react-router-dom";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import GameDaySummary from "../components/GameDaySummary";
+import {
+  toLocalDateString,
+  dateStringToLocalDate,
+  formatDisplayDate,
+  isSameLocalDay,
+} from "../utils/timezone";
 
 // Helper to get status class
 const getStatusClass = (status: string) => {
   switch (status) {
     case "LIVE":
-      return "bg-red-100 text-red-800";
+      return "bg-red-100 text-red-800 border border-red-200";
     case "FINAL":
     case "OFF":
-      return "bg-gray-100 text-gray-800";
+      return "bg-gray-100 text-gray-800 border border-gray-200";
     case "SCHEDULED":
     case "PRE":
-      return "bg-green-100 text-green-800";
+      return "bg-green-100 text-green-800 border border-green-200";
     case "POSTPONED":
-      return "bg-yellow-100 text-yellow-800";
+      return "bg-yellow-100 text-yellow-800 border border-yellow-200";
     default:
-      return "bg-blue-100 text-blue-800";
+      return "bg-blue-100 text-blue-800 border border-blue-200";
   }
 };
 
-// Format date for display
-const formatDate = (date: Date) => {
-  const options: Intl.DateTimeFormatOptions = {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  };
-  return date.toLocaleDateString("en-US", options);
-};
-
-const getTodayString = () => {
-  return new Date().toISOString().split("T")[0];
-};
-
 const GamesPage = () => {
-  // State for date selector
-  const [selectedDate, setSelectedDate] = useState<string>(getTodayString);
+  // State for date selector - using simple YYYY-MM-DD string format
+  const [selectedDate, setSelectedDate] = useState<string>(() => {
+    const today = new Date();
+    // Return YYYY-MM-DD in **local** time
+    return toLocalDateString(today);
+  });
 
   // State for filters
   const [filterTeam, setFilterTeam] = useState<string>("all");
+  const [expandedGame, setExpandedGame] = useState<number | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
+
+  // Auto-refresh for live games
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | null = null;
+
+    if (autoRefresh) {
+      intervalId = setInterval(() => {
+        // Only refetch if we're on today's date
+        if (isSameLocalDay(dateStringToLocalDate(selectedDate), new Date())) {
+          refetchGames();
+        }
+      }, 30000); // Refresh every 30 seconds
+    }
+
+    return () => {
+      if (intervalId) clearInterval(intervalId);
+    };
+  }, [autoRefresh, selectedDate]);
 
   // Fetch data for the selected date
   const {
@@ -55,7 +70,7 @@ const GamesPage = () => {
   } = useQuery({
     queryKey: ["games", selectedDate],
     queryFn: () => {
-      if (selectedDate === new Date().toISOString().split("T")[0]) {
+      if (isSameLocalDay(dateStringToLocalDate(selectedDate), new Date())) {
         return api.getTodaysGames();
       }
       return api.getGames(selectedDate);
@@ -74,9 +89,8 @@ const GamesPage = () => {
     retry: 1,
   });
 
-  // Function to get team primary color (this could be expanded with your team colors data)
+  // Function to get team primary color
   const getTeamPrimaryColor = (teamName: string): string => {
-    // This is a simplified version - you should expand this with your full team colors
     const teamColors: Record<string, string> = {
       ANA: "#F47A38", // Anaheim Ducks
       ARI: "#8C2633", // Arizona Coyotes
@@ -123,20 +137,69 @@ const GamesPage = () => {
     return "#041E42"; // NHL blue
   };
 
+  const addDaysToDateString = (dateString: string, days: number): string => {
+    const date = dateStringToLocalDate(dateString); // get local date
+    date.setDate(date.getDate() + days); // add (or subtract) days in local time
+    return toLocalDateString(date); // convert back to YYYY-MM-DD
+  };
+
+  const removeDaysFromString = (dateString: string, days: number): string => {
+    const date = dateStringToLocalDate(dateString); // get local date
+    date.setDate(date.getDate() - days); // add (or subtract) days in local time
+    return toLocalDateString(date); // convert back to YYYY-MM-DD
+  };
+
+  // Helper to calculate date range for the date picker
+  const getDateRange = () => {
+    const dates = [];
+    const today = toLocalDateString(new Date());
+
+    for (let i = -14; i <= 14; i++) {
+      const dateString = addDaysToDateString(today, i);
+      const date = dateStringToLocalDate(dateString);
+      const isToday = i === 0;
+
+      dates.push({
+        value: dateString,
+        label: toLocalDateString(date),
+        isToday,
+      });
+    }
+
+    return dates;
+  };
+
+  const dateRange = getDateRange();
+
+  // Format date for display
+  const formattedDisplayDate = formatDisplayDate(
+    dateStringToLocalDate(selectedDate),
+  );
+
+  // Check if any games are live
+  const hasLiveGames =
+    gamesData?.games.some(
+      (game) => (game.game_state || "").toUpperCase() === "LIVE",
+    ) || false;
+
   // Loading state
   if (gamesLoading && dailyRankingsLoading) {
-    return <LoadingSpinner size="large" message="Loading games data..." />;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <LoadingSpinner size="large" message="Loading games data..." />
+      </div>
+    );
   }
 
   // Error handling
   if (gamesError && dailyRankingsError) {
     return (
-      <div>
+      <div className="bg-white rounded-lg shadow-md p-6">
         <ErrorMessage message="Failed to load games data. Please try again." />
         <div className="mt-4">
           <button
             onClick={() => refetchGames()}
-            className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+            className="px-4 py-2 bg-[#6D4C9F] text-white rounded-md hover:bg-[#5A3A87] transition-colors"
           >
             Retry
           </button>
@@ -147,15 +210,13 @@ const GamesPage = () => {
 
   if (!gamesData) {
     return (
-      <ErrorMessage message="No game data available for the selected date." />
+      <div className="bg-white rounded-lg shadow-md p-6 text-center">
+        <ErrorMessage message="No game data available for the selected date." />
+      </div>
     );
   }
 
   const { games, summary } = gamesData;
-
-  // Format the display date for UI
-  const displayDate = new Date(selectedDate);
-  const formattedDisplayDate = formatDate(displayDate);
 
   // Get unique NHL teams playing on this date
   const teamsPlaying = summary.team_players_count.map((t) => t.nhl_team);
@@ -169,37 +230,16 @@ const GamesPage = () => {
             game.home_team === filterTeam || game.away_team === filterTeam,
         );
 
-  // Helper to calculate date range for the date picker
-  const getDateRange = () => {
-    const dates = [];
-    const today = new Date();
-    const todayString = today.toISOString().split("T")[0]; // Get consistent "today" string
-
-    for (let i = -14; i <= 14; i++) {
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-
-      const dateString = date.toISOString().split("T")[0];
-      const isToday = dateString === todayString; // Compare strings instead of index
-
-      dates.push({
-        value: dateString,
-        label: date.toLocaleDateString("en-US", {
-          weekday: "short",
-          month: "short",
-          day: "numeric",
-        }),
-        isToday,
-      });
-    }
-
-    return dates;
-  };
-
-  const dateRange = getDateRange();
-
   return (
     <div>
+      {/* Page header */}
+      <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
+        <h1 className="text-3xl font-bold mb-2">Game Center</h1>
+        <p className="text-lg opacity-90 mb-4">
+          Track NHL games and fantasy player performance
+        </p>
+      </div>
+
       {/* Date selector */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
         <div className="flex flex-col md:flex-row justify-between items-center">
@@ -210,11 +250,10 @@ const GamesPage = () => {
           <div className="flex items-center space-x-2">
             <button
               onClick={() => {
-                const prevDate = new Date(selectedDate);
-                prevDate.setDate(prevDate.getDate() - 1);
-                setSelectedDate(prevDate.toISOString().split("T")[0]);
+                const nextDate = removeDaysFromString(selectedDate, 1);
+                setSelectedDate(nextDate);
               }}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors"
               aria-label="Previous day"
             >
               <svg
@@ -247,11 +286,11 @@ const GamesPage = () => {
 
             <button
               onClick={() => {
-                const nextDate = new Date(selectedDate);
-                nextDate.setDate(nextDate.getDate() + 1);
-                setSelectedDate(nextDate.toISOString().split("T")[0]);
+                // Get next day by adding 1 to the current local date string
+                const nextDate = addDaysToDateString(selectedDate, 1);
+                setSelectedDate(nextDate);
               }}
-              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300"
+              className="p-2 rounded-md bg-gray-200 hover:bg-gray-300 transition-colors"
               aria-label="Next day"
             >
               <svg
@@ -271,10 +310,8 @@ const GamesPage = () => {
             </button>
 
             <button
-              onClick={() =>
-                setSelectedDate(new Date().toISOString().split("T")[0])
-              }
-              className="ml-2 px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
+              onClick={() => setSelectedDate(toLocalDateString(new Date()))}
+              className="ml-2 px-3 py-2 bg-[#6D4C9F] text-white rounded-md hover:bg-[#5A3A87] transition-colors"
             >
               Today
             </button>
@@ -317,36 +354,92 @@ const GamesPage = () => {
 
       {/* Filters */}
       <div className="bg-white p-4 rounded-lg shadow-md mb-6">
-        <div className="flex flex-wrap gap-2">
-          <button
-            className={`px-3 py-1 rounded-full text-sm font-medium ${
-              filterTeam === "all"
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-800"
-            }`}
-            onClick={() => setFilterTeam("all")}
-          >
-            All Teams
-          </button>
+        <div className="flex flex-col space-y-4">
+          {/* Team filters */}
+          <div>
+            <h3 className="text-sm font-medium text-gray-700 mb-2">
+              Filter by NHL Team
+            </h3>
+            <div className="flex flex-wrap gap-2">
+              <button
+                className={`px-3 py-1 rounded-full text-sm font-medium ${
+                  filterTeam === "all"
+                    ? "bg-[#6D4C9F] text-white"
+                    : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                }`}
+                onClick={() => setFilterTeam("all")}
+              >
+                All Teams
+              </button>
 
-          {teamsPlaying.map((team) => (
+              {teamsPlaying.map((team) => (
+                <button
+                  key={team}
+                  className={`px-3 py-1 rounded-full text-sm font-medium ${
+                    filterTeam === team
+                      ? "bg-[#6D4C9F] text-white"
+                      : "bg-gray-200 text-gray-800 hover:bg-gray-300"
+                  }`}
+                  onClick={() => setFilterTeam(team)}
+                >
+                  {team}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Options */}
+          <div className="flex flex-wrap items-center gap-4">
+            {/* Live update toggle */}
+            {hasLiveGames && selectedDate === toLocalDateString(new Date()) && (
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  id="autoRefresh"
+                  checked={autoRefresh}
+                  onChange={(e) => setAutoRefresh(e.target.checked)}
+                  className="mr-2"
+                />
+                <label htmlFor="autoRefresh" className="text-sm text-gray-700">
+                  Auto-refresh live games
+                </label>
+                {autoRefresh && (
+                  <div
+                    className="ml-1 h-2 w-2 rounded-full bg-red-500 animate-pulse"
+                    title="Refreshing every 30 seconds"
+                  ></div>
+                )}
+              </div>
+            )}
+
+            {/* Manual refresh button */}
             <button
-              key={team}
-              className={`px-3 py-1 rounded-full text-sm font-medium ${
-                filterTeam === team
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-200 text-gray-800"
-              }`}
-              onClick={() => setFilterTeam(team)}
+              onClick={() => refetchGames()}
+              className="ml-auto px-3 py-1 bg-[#6D4C9F]/10 text-[#6D4C9F] rounded hover:bg-[#6D4C9F]/20 flex items-center"
             >
-              {team}
+              <svg
+                className="w-4 h-4 mr-1"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+                />
+              </svg>
+              Refresh Data
             </button>
-          ))}
+          </div>
         </div>
       </div>
 
       {/* Daily Fantasy Scores */}
       <div className="mb-6">
+        <h2 className="text-xl font-bold mb-4">Fantasy Scores</h2>
         <GameDaySummary
           rankings={dailyRankings || []}
           isLoading={dailyRankingsLoading}
@@ -355,332 +448,475 @@ const GamesPage = () => {
       </div>
 
       {/* Games list */}
-      {filteredGames.length === 0 ? (
-        <div className="text-center py-8 bg-white rounded-lg shadow-md">
-          <p className="text-gray-500">
-            No games scheduled for this date with the selected filters.
-          </p>
+      <div className="mb-6">
+        <div className="flex justify-between items-center mb-4">
+          <h2 className="text-xl font-bold">Game Schedule</h2>
+
+          {/* Game status indicators */}
+          <div className="flex gap-2 items-center">
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-green-100 border border-green-200 mr-1"></div>
+              <span className="text-xs text-gray-500">Scheduled</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-red-100 border border-red-200 animate-pulse mr-1"></div>
+              <span className="text-xs text-gray-500">Live</span>
+            </div>
+            <div className="flex items-center">
+              <div className="w-3 h-3 rounded-full bg-gray-100 border border-gray-200 mr-1"></div>
+              <span className="text-xs text-gray-500">Final</span>
+            </div>
+          </div>
         </div>
-      ) : (
-        <div className="space-y-6">
-          {filteredGames.map((game) => {
-            let timeString;
-            try {
-              // Just use the ISO date directly
-              const gameDate = new Date(game.start_time);
-              timeString = gameDate.toLocaleTimeString([], {
-                hour: "numeric",
-                minute: "2-digit",
-                hour12: true,
-              });
-            } catch (e) {
-              timeString = "Time TBD";
-            }
 
-            // Game status
-            const gameStatus = game.game_state || "SCHEDULED";
+        {filteredGames.length === 0 ? (
+          <div className="bg-white rounded-lg shadow-md p-12 text-center">
+            <p className="text-gray-500">
+              No games scheduled for this date with the selected filters.
+            </p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            {filteredGames.map((game) => {
+              let timeString;
+              try {
+                // Just use the ISO date directly
+                const gameDate = new Date(game.start_time);
+                timeString = gameDate.toLocaleTimeString([], {
+                  hour: "numeric",
+                  minute: "2-digit",
+                  hour12: true,
+                });
+              } catch (e) {
+                timeString = "Time TBD";
+              }
 
-            // Check if game is complete
-            const isGameComplete =
-              gameStatus === "FINAL" || gameStatus === "OFF";
+              // Game status
+              const gameStatus = game.game_state || "SCHEDULED";
 
-            // Get team colors
-            const awayTeamColor = getTeamPrimaryColor(game.away_team);
-            const homeTeamColor = getTeamPrimaryColor(game.home_team);
+              // Check if game is complete
+              const isGameComplete =
+                gameStatus === "FINAL" || gameStatus === "OFF";
 
-            return (
-              <div
-                key={game.id}
-                className="bg-white rounded-lg shadow-md overflow-hidden"
-              >
-                {/* NHL-style game card with team colors on sides */}
-                <div className="flex">
-                  {/* Left team color bar */}
-                  <div
-                    className="w-3 flex-shrink-0"
-                    style={{ backgroundColor: awayTeamColor }}
-                  ></div>
+              // Get team colors
+              const awayTeamColor = getTeamPrimaryColor(game.away_team);
+              const homeTeamColor = getTeamPrimaryColor(game.home_team);
 
-                  {/* Main game content */}
-                  <div className="flex-grow">
-                    {/* Game header */}
-                    <div className="bg-gray-100 p-3 flex items-center justify-between">
-                      <div className="text-sm font-bold">{timeString}</div>
-                      <div>
-                        <span
-                          className={`px-2 py-1 rounded text-xs font-medium ${getStatusClass(gameStatus)}`}
-                        >
-                          {gameStatus === "PRE" ? "SCHEDULED" : gameStatus}
-                          {game.period && ` - ${game.period}`}
-                        </span>
-                      </div>
-                    </div>
+              return (
+                <div
+                  key={game.id}
+                  className="bg-white rounded-lg shadow-md overflow-hidden"
+                >
+                  {/* NHL-style game card with team colors on sides */}
+                  <div className="flex">
+                    {/* Left team color bar */}
+                    <div
+                      className="w-2 flex-shrink-0"
+                      style={{ backgroundColor: awayTeamColor }}
+                    ></div>
 
-                    {/* Team matchup - NHL style */}
-                    <div className="p-4">
-                      <div className="flex items-center">
-                        {/* Away team */}
-                        <div className="flex-1">
-                          <div className="flex items-center">
-                            {game.away_team_logo ? (
-                              <img
-                                src={game.away_team_logo}
-                                alt={`${game.away_team} logo`}
-                                className="w-12 h-12 mr-3"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                                <span className="text-sm font-bold">
-                                  {game.away_team.substring(0, 3)}
-                                </span>
-                              </div>
-                            )}
-                            <div>
-                              <div className="text-lg font-bold">
-                                {game.away_team}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {game.series_status.topSeedTeamAbbrev ===
-                                game.away_team.substring(0, 3)
-                                  ? `${game.series_status.topSeedWins}-${game.series_status.bottomSeedWins}`
-                                  : `${game.series_status.bottomSeedWins}-${game.series_status.topSeedWins}`}
-                              </div>
-                            </div>
-                          </div>
+                    {/* Main game content */}
+                    <div className="flex-grow">
+                      {/* Game header */}
+                      <div className="bg-gray-50 p-3 flex items-center justify-between border-b border-gray-100">
+                        <div className="text-sm font-bold">{timeString}</div>
+                        <div>
+                          <span
+                            className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusClass(gameStatus)}`}
+                          >
+                            {gameStatus === "PRE" ? "SCHEDULED" : gameStatus}
+                            {game.period && ` • ${game.period}`}
+                          </span>
                         </div>
+                      </div>
 
-                        {/* Score */}
-                        <div className="px-4 text-center flex flex-col">
-                          {game.away_score !== undefined &&
-                          game.away_score !== null &&
-                          game.home_score !== undefined &&
-                          game.home_score !== null ? (
-                            <>
-                              <div className="flex items-center justify-center">
-                                <div className="text-3xl font-bold">
-                                  {game.away_score}
-                                </div>
-                                <div className="mx-2 text-gray-400">-</div>
-                                <div className="text-3xl font-bold">
-                                  {game.home_score}
-                                </div>
-                              </div>
-
-                              {/* Subtle text links for completed games - properly positioned underneath */}
-                              {isGameComplete && (
-                                <div className="mt-1 text-xs flex justify-center space-x-3">
-                                  <a
-                                    href={`https://www.nhl.com/gamecenter/${game.id}/recap`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-500 hover:text-blue-600 hover:underline"
-                                    onClick={(e) => e.stopPropagation()}
+                      {/* Team matchup - NHL style */}
+                      <div
+                        className="p-4 cursor-pointer hover:bg-gray-50"
+                        onClick={() =>
+                          window.open(
+                            `https://www.nhl.com/gamecenter/${game.id}`,
+                            "_blank",
+                          )
+                        }
+                      >
+                        <div className="flex items-center">
+                          {/* Away team */}
+                          <div className="flex-1">
+                            <div className="flex items-center">
+                              {game.away_team_logo ? (
+                                <img
+                                  src={game.away_team_logo}
+                                  alt={`${game.away_team} logo`}
+                                  className="w-12 h-12 mr-3"
+                                />
+                              ) : (
+                                <div
+                                  className="w-12 h-12 rounded-full flex items-center justify-center mr-3"
+                                  style={{
+                                    backgroundColor: `${awayTeamColor}20`,
+                                  }}
+                                >
+                                  <span
+                                    className="text-sm font-bold"
+                                    style={{ color: awayTeamColor }}
                                   >
-                                    Highlights
-                                  </a>
-                                  <span className="text-gray-300">|</span>
-                                  <a
-                                    href={`https://www.nhl.com/gamecenter/${game.id}/boxscore`}
-                                    target="_blank"
-                                    rel="noopener noreferrer"
-                                    className="text-gray-500 hover:text-blue-600 hover:underline"
-                                    onClick={(e) => e.stopPropagation()}
-                                  >
-                                    Box Score
-                                  </a>
-                                </div>
-                              )}
-                            </>
-                          ) : (
-                            <div className="text-lg font-bold">VS</div>
-                          )}
-                          {gameStatus === "LIVE" && game.period && (
-                            <div className="text-xs text-red-600 font-medium mt-1">
-                              {game.period}
-                            </div>
-                          )}
-                        </div>
-
-                        {/* Home team */}
-                        <div className="flex-1 text-right">
-                          <div className="flex items-center justify-end">
-                            <div className="text-right">
-                              <div className="text-lg font-bold">
-                                {game.home_team}
-                              </div>
-                              <div className="text-xs text-gray-500">
-                                {game.series_status.topSeedTeamAbbrev ===
-                                game.home_team.substring(0, 3)
-                                  ? `${game.series_status.topSeedWins}-${game.series_status.bottomSeedWins}`
-                                  : `${game.series_status.bottomSeedWins}-${game.series_status.topSeedWins}`}
-                              </div>
-                            </div>
-                            {game.home_team_logo ? (
-                              <img
-                                src={game.home_team_logo}
-                                alt={`${game.home_team} logo`}
-                                className="w-12 h-12 ml-3"
-                              />
-                            ) : (
-                              <div className="w-12 h-12 bg-gray-200 rounded-full flex items-center justify-center ml-3">
-                                <span className="text-sm font-bold">
-                                  {game.home_team.substring(0, 3)}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Right team color bar */}
-                  <div
-                    className="w-3 flex-shrink-0"
-                    style={{ backgroundColor: homeTeamColor }}
-                  ></div>
-                </div>
-
-                {/* Player information - Collapsible or in an accordion */}
-                <div className="border-t">
-                  <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {/* Away team players */}
-                    <div>
-                      <h3 className="font-bold text-md mb-2 flex items-center">
-                        <div
-                          className="w-3 h-3 mr-2"
-                          style={{ backgroundColor: awayTeamColor }}
-                        ></div>
-                        {game.away_team} Players
-                      </h3>
-                      <div className="overflow-x-auto">
-                        <table className="min-w-full">
-                          <thead className="bg-gray-100">
-                            <tr>
-                              <th className="py-1 px-2 text-left text-xs">
-                                Player
-                              </th>
-                              <th className="py-1 px-2 text-left text-xs">
-                                Fantasy Team
-                              </th>
-                              <th className="py-1 px-2 text-left text-xs">
-                                Points
-                              </th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {game.away_team_players.map((player, idx) => (
-                              <tr
-                                key={idx}
-                                className="border-t hover:bg-gray-50"
-                              >
-                                <td className="py-1 px-2">
-                                  <div className="flex items-center">
-                                    {player.image_url ? (
-                                      <img
-                                        src={player.image_url}
-                                        alt={player.player_name || ""}
-                                        className="w-6 h-6 rounded-full mr-2"
-                                      />
-                                    ) : (
-                                      <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
-                                        <span className="text-xs font-medium">
-                                          {(
-                                            player.player_name ||
-                                            player.name ||
-                                            ""
-                                          )
-                                            .substring(0, 2)
-                                            .toUpperCase()}
-                                        </span>
-                                      </div>
-                                    )}
-                                    <span className="text-xs">
-                                      {player.player_name || player.name}
-                                    </span>
-                                  </div>
-                                </td>
-                                <td className="py-1 px-2 text-xs">
-                                  {player.fantasy_team}
-                                </td>
-                                <td className="py-1 px-2 text-xs font-medium">
-                                  {player.points || 0}
-                                </td>
-                              </tr>
-                            ))}
-                          </tbody>
-                        </table>
-                      </div>
-                    </div>
-
-                    {/* Home team players */}
-                    <div>
-                      <h3 className="font-bold text-md mb-2 flex items-center">
-                        <div
-                          className="w-3 h-3 mr-2"
-                          style={{ backgroundColor: homeTeamColor }}
-                        ></div>
-                        {game.home_team} Players
-                      </h3>
-                      <table className="min-w-full">
-                        <thead className="bg-gray-100">
-                          <tr>
-                            <th className="py-1 px-2 text-left text-xs">
-                              Player
-                            </th>
-                            <th className="py-1 px-2 text-left text-xs">
-                              Fantasy Team
-                            </th>
-                            <th className="py-1 px-2 text-left text-xs">
-                              Points
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {game.home_team_players.map((player, idx) => (
-                            <tr key={idx} className="border-t hover:bg-gray-50">
-                              <td className="py-1 px-2">
-                                <div className="flex items-center">
-                                  {player.image_url ? (
-                                    <img
-                                      src={player.image_url}
-                                      alt={player.player_name || ""}
-                                      className="w-6 h-6 rounded-full mr-2"
-                                    />
-                                  ) : (
-                                    <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
-                                      <span className="text-xs font-medium">
-                                        {(
-                                          player.player_name ||
-                                          player.name ||
-                                          ""
-                                        )
-                                          .substring(0, 2)
-                                          .toUpperCase()}
-                                      </span>
-                                    </div>
-                                  )}
-                                  <span className="text-xs">
-                                    {player.player_name || player.name}
+                                    {game.away_team.substring(0, 3)}
                                   </span>
                                 </div>
-                              </td>
-                              <td className="py-1 px-2 text-xs">
-                                {player.fantasy_team}
-                              </td>
-                              <td className="py-1 px-2 text-xs font-medium">
-                                {player.points || 0}
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
+                              )}
+                              <div>
+                                <div className="text-lg font-bold">
+                                  {game.away_team}
+                                </div>
+                                {game.series_status &&
+                                  game.series_status.topSeedTeamAbbrev && (
+                                    <div className="text-xs text-gray-500">
+                                      {game.series_status.topSeedTeamAbbrev ===
+                                      game.away_team.substring(0, 3)
+                                        ? `${game.series_status.topSeedWins}-${game.series_status.bottomSeedWins}`
+                                        : `${game.series_status.bottomSeedWins}-${game.series_status.topSeedWins}`}
+                                    </div>
+                                  )}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Score */}
+                          <div className="px-4 text-center flex flex-col">
+                            {game.away_score !== undefined &&
+                            game.away_score !== null &&
+                            game.home_score !== undefined &&
+                            game.home_score !== null ? (
+                              <>
+                                <div className="flex items-center justify-center">
+                                  <div className="text-3xl font-bold">
+                                    {game.away_score}
+                                  </div>
+                                  <div className="mx-2 text-gray-300">-</div>
+                                  <div className="text-3xl font-bold">
+                                    {game.home_score}
+                                  </div>
+                                </div>
+
+                                {/* Subtle text links for completed games - properly positioned underneath */}
+                                {isGameComplete && (
+                                  <div className="mt-1 text-xs flex justify-center space-x-3">
+                                    <a
+                                      href={`https://www.nhl.com/gamecenter/${game.id}/recap`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-500 hover:text-[#6D4C9F] hover:underline flex items-center"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <svg
+                                        className="w-3 h-3 mr-1"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                      >
+                                        <path d="M8 5v14l11-7z" />
+                                      </svg>
+                                      Highlights
+                                    </a>
+                                    <span className="text-gray-300">|</span>
+                                    <a
+                                      href={`https://www.nhl.com/gamecenter/${game.id}/boxscore`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-gray-500 hover:text-[#6D4C9F] hover:underline flex items-center"
+                                      onClick={(e) => e.stopPropagation()}
+                                    >
+                                      <svg
+                                        className="w-3 h-3 mr-1"
+                                        viewBox="0 0 24 24"
+                                        fill="currentColor"
+                                      >
+                                        <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z" />
+                                        <path d="M7 7h10v2H7zm0 4h10v2H7zm0 4h7v2H7z" />
+                                      </svg>
+                                      Box Score
+                                    </a>
+                                  </div>
+                                )}
+                              </>
+                            ) : (
+                              <div className="text-lg font-bold text-gray-400">
+                                VS
+                              </div>
+                            )}
+                            {gameStatus === "LIVE" && game.period && (
+                              <div className="text-xs text-red-600 font-bold mt-1 animate-pulse">
+                                {game.period}
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Home team */}
+                          <div className="flex-1 text-right">
+                            <div className="flex items-center justify-end">
+                              <div className="text-right">
+                                <div className="text-lg font-bold">
+                                  {game.home_team}
+                                </div>
+                                {game.series_status &&
+                                  game.series_status.topSeedTeamAbbrev && (
+                                    <div className="text-xs text-gray-500">
+                                      {game.series_status.topSeedTeamAbbrev ===
+                                      game.home_team.substring(0, 3)
+                                        ? `${game.series_status.topSeedWins}-${game.series_status.bottomSeedWins}`
+                                        : `${game.series_status.bottomSeedWins}-${game.series_status.topSeedWins}`}
+                                    </div>
+                                  )}
+                              </div>
+                              {game.home_team_logo ? (
+                                <img
+                                  src={game.home_team_logo}
+                                  alt={`${game.home_team} logo`}
+                                  className="w-12 h-12 ml-3"
+                                />
+                              ) : (
+                                <div
+                                  className="w-12 h-12 rounded-full flex items-center justify-center ml-3"
+                                  style={{
+                                    backgroundColor: `${homeTeamColor}20`,
+                                  }}
+                                >
+                                  <span
+                                    className="text-sm font-bold"
+                                    style={{ color: homeTeamColor }}
+                                  >
+                                    {game.home_team.substring(0, 3)}
+                                  </span>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
                     </div>
+
+                    {/* Right team color bar */}
+                    <div
+                      className="w-2 flex-shrink-0"
+                      style={{ backgroundColor: homeTeamColor }}
+                    ></div>
+                  </div>
+
+                  {/* Player information - Collapsible or in an accordion */}
+                  <div className="border-t">
+                    <button
+                      className="w-full py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center"
+                      onClick={() =>
+                        setExpandedGame(
+                          expandedGame === game.id ? null : game.id,
+                        )
+                      }
+                    >
+                      <span>
+                        {expandedGame === game.id ? "Hide" : "Show"} Player
+                        Details
+                      </span>
+                      <svg
+                        className={`ml-2 h-5 w-5 transform ${expandedGame === game.id ? "rotate-180" : ""} transition-transform duration-200`}
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth={2}
+                          d="M19 9l-7 7-7-7"
+                        />
+                      </svg>
+                    </button>
+
+                    {/* Collapsible content */}
+                    {expandedGame === game.id && (
+                      <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Away team players */}
+                        <div>
+                          <h3 className="font-bold text-md mb-2 flex items-center">
+                            <div
+                              className="w-3 h-3 mr-2"
+                              style={{ backgroundColor: awayTeamColor }}
+                            ></div>
+                            {game.away_team} Players
+                          </h3>
+                          <div className="overflow-x-auto">
+                            <table className="min-w-full">
+                              <thead className="bg-gray-50">
+                                <tr>
+                                  <th className="py-1 px-2 text-left text-xs">
+                                    Player
+                                  </th>
+                                  <th className="py-1 px-2 text-left text-xs">
+                                    Fantasy Team
+                                  </th>
+                                  <th className="py-1 px-2 text-left text-xs">
+                                    Points
+                                  </th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {game.away_team_players.map((player, idx) => (
+                                  <tr
+                                    key={idx}
+                                    className="border-t hover:bg-gray-50"
+                                  >
+                                    <td className="py-1 px-2">
+                                      <div className="flex items-center">
+                                        {player.image_url ? (
+                                          <img
+                                            src={player.image_url}
+                                            alt={player.player_name || ""}
+                                            className="w-6 h-6 rounded-full mr-2"
+                                          />
+                                        ) : (
+                                          <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                            <span className="text-xs font-medium">
+                                              {(
+                                                player.player_name ||
+                                                player.name ||
+                                                ""
+                                              )
+                                                .substring(0, 2)
+                                                .toUpperCase()}
+                                            </span>
+                                          </div>
+                                        )}
+                                        <span className="text-xs">
+                                          {player.player_name || player.name}
+                                        </span>
+                                      </div>
+                                    </td>
+                                    <td className="py-1 px-2 text-xs">
+                                      {player.fantasy_team ? (
+                                        <Link
+                                          to={`/teams/${player.fantasy_team_id}`}
+                                          className="text-[#6D4C9F] hover:underline"
+                                          onClick={(e) => e.stopPropagation()}
+                                        >
+                                          {player.fantasy_team}
+                                        </Link>
+                                      ) : (
+                                        <span className="text-gray-400">—</span>
+                                      )}
+                                    </td>
+                                    <td className="py-1 px-2 text-xs font-medium">
+                                      {player.points || 0}
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        </div>
+
+                        {/* Home team players */}
+                        <div>
+                          <h3 className="font-bold text-md mb-2 flex items-center">
+                            <div
+                              className="w-3 h-3 mr-2"
+                              style={{ backgroundColor: homeTeamColor }}
+                            ></div>
+                            {game.home_team} Players
+                          </h3>
+                          <table className="min-w-full">
+                            <thead className="bg-gray-50">
+                              <tr>
+                                <th className="py-1 px-2 text-left text-xs">
+                                  Player
+                                </th>
+                                <th className="py-1 px-2 text-left text-xs">
+                                  Fantasy Team
+                                </th>
+                                <th className="py-1 px-2 text-left text-xs">
+                                  Points
+                                </th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {game.home_team_players.map((player, idx) => (
+                                <tr
+                                  key={idx}
+                                  className="border-t hover:bg-gray-50"
+                                >
+                                  <td className="py-1 px-2">
+                                    <div className="flex items-center">
+                                      {player.image_url ? (
+                                        <img
+                                          src={player.image_url}
+                                          alt={player.player_name || ""}
+                                          className="w-6 h-6 rounded-full mr-2"
+                                        />
+                                      ) : (
+                                        <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                          <span className="text-xs font-medium">
+                                            {(
+                                              player.player_name ||
+                                              player.name ||
+                                              ""
+                                            )
+                                              .substring(0, 2)
+                                              .toUpperCase()}
+                                          </span>
+                                        </div>
+                                      )}
+                                      <span className="text-xs">
+                                        {player.player_name || player.name}
+                                      </span>
+                                    </div>
+                                  </td>
+                                  <td className="py-1 px-2 text-xs">
+                                    {player.fantasy_team ? (
+                                      <Link
+                                        to={`/teams/${player.fantasy_team_id}`}
+                                        className="text-[#6D4C9F] hover:underline"
+                                        onClick={(e) => e.stopPropagation()}
+                                      >
+                                        {player.fantasy_team}
+                                      </Link>
+                                    ) : (
+                                      <span className="text-gray-400">—</span>
+                                    )}
+                                  </td>
+                                  <td className="py-1 px-2 text-xs font-medium">
+                                    {player.points || 0}
+                                  </td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Auto-refresh status indicator */}
+      {autoRefresh && (
+        <div className="fixed bottom-4 right-4 bg-[#6D4C9F] text-white py-2 px-4 rounded-full shadow-lg flex items-center text-sm animate-pulse">
+          <svg
+            className="w-4 h-4 mr-2 animate-spin"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
+            />
+          </svg>
+          Live Updates Active
         </div>
       )}
     </div>

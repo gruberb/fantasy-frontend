@@ -1,4 +1,5 @@
 import { ReactNode } from "react";
+import { Link } from "react-router-dom";
 import NavBar from "./NavBar";
 
 interface LayoutProps {
@@ -6,13 +7,92 @@ interface LayoutProps {
 }
 
 const Layout = ({ children }: LayoutProps) => {
+  const currentYear = new Date().getFullYear();
+
   return (
-    <div className="min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-gray-50">
       <NavBar />
-      <main className="container mx-auto px-4 py-8">{children}</main>
-      <footer className="bg-gray-800 text-white p-4 text-center">
-        <p>Fantasy NHL Dashboard © {new Date().getFullYear()}</p>
+      <main className="container mx-auto px-4 py-6 md:py-8">
+        {/* Subtle animation for the main content */}
+        <div className="animate-fadeIn">{children}</div>
+      </main>
+      <footer className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white p-6 text-center">
+        <div className="container mx-auto">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div>
+              <p className="font-medium">
+                Fantasy NHL Dashboard © {currentYear}
+              </p>
+            </div>
+            <div className="mt-4 md:mt-0">
+              <ul className="flex space-x-4">
+                <li>
+                  <Link
+                    to="/"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Dashboard
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/teams"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Teams
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/players"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Players
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/games"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Games
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    to="/rankings"
+                    className="text-gray-300 hover:text-white transition-colors"
+                  >
+                    Rankings
+                  </Link>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </div>
       </footer>
+
+      {/* Add styles for animations */}
+      <style jsx global>{`
+        html {
+          scroll-behavior: smooth;
+        }
+
+        @keyframes fadeIn {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .animate-fadeIn {
+          animation: fadeIn 0.3s ease-out forwards;
+        }
+      `}</style>
     </div>
   );
 };

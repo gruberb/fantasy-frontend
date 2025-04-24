@@ -17,24 +17,15 @@ const PlayerList = ({
   emptyMessage = "No players available.",
   maxHeight,
 }: PlayerListProps) => {
-  // Sort players by position and then by name
   const sortedPlayers = useMemo(() => {
+    const posOrder = { G: 1, D: 2, C: 3, LW: 4, RW: 5 };
     return [...players].sort((a, b) => {
-      // First sort by position
-      if (a.position !== b.position) {
-        // Common position order in hockey
-        const posOrder = { G: 1, D: 2, C: 3, LW: 4, RW: 5 };
-        const aOrder = posOrder[a.position as keyof typeof posOrder] || 99;
-        const bOrder = posOrder[b.position as keyof typeof posOrder] || 99;
-        return aOrder - bOrder;
-      }
-
-      // Then by jersey number
+      const aOrder = posOrder[a.position as keyof typeof posOrder] || 99;
+      const bOrder = posOrder[b.position as keyof typeof posOrder] || 99;
+      if (aOrder !== bOrder) return aOrder - bOrder;
       if (a.jersey_number !== b.jersey_number) {
         return (a.jersey_number || 0) - (b.jersey_number || 0);
       }
-
-      // Finally by name
       return a.name.localeCompare(b.name);
     });
   }, [players]);
@@ -46,64 +37,82 @@ const PlayerList = ({
   return (
     <div>
       {title && <h3 className="font-bold text-lg mb-2">{title}</h3>}
-
       <div
-        className={`bg-white rounded-lg shadow-md overflow-hidden overflow-x-auto ${maxHeight ? "overflow-y-auto" : ""}`}
+        className={`bg-white rounded-lg shadow-sm overflow-x-auto border border-gray-100 ${maxHeight ? "overflow-y-auto" : ""}`}
         style={{ maxHeight }}
       >
-        <table className="min-w-full">
-          <thead className="bg-gray-100">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="py-2 px-4 text-left">#</th>
-              <th className="py-2 px-4 text-left">Player</th>
-              {showTeam && <th className="py-2 px-4 text-left">Team</th>}
-              <th className="py-2 px-4 text-left">Actions</th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                #
+              </th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Player
+              </th>
+              {showTeam && (
+                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                  Team
+                </th>
+              )}
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-100">
             {sortedPlayers.map((player) => (
-              <tr key={player.id} className="border-t hover:bg-gray-50">
-                <td className="py-2 px-4">{player.jersey_number}</td>
-                <td className="py-2 px-4">
+              <tr key={player.id} className="hover:bg-gray-50">
+                <td className="py-3 px-4 whitespace-nowrap">
+                  {player.jersey_number}
+                </td>
+                <td className="py-3 px-4 whitespace-nowrap">
                   <div className="flex items-center">
                     {player.image_url ? (
                       <img
                         src={player.image_url}
                         alt={player.name}
-                        className="w-10 h-10 object-cover rounded-full mr-3"
+                        className="h-10 w-10 rounded-full"
                       />
                     ) : (
-                      <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                        <span className="text-xs font-medium">
+                      <div className="h-10 w-10 rounded-full bg-[#6D4C9F]/10 flex items-center justify-center">
+                        <span className="text-xs font-medium text-[#6D4C9F]">
                           {player.name.substring(0, 2).toUpperCase()}
                         </span>
                       </div>
                     )}
-                    <span className="font-medium">{player.name}</span>
+                    <div className="ml-4">
+                      <div className="text-sm font-medium text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                        {player.name}
+                      </div>
+                      <div className="text-xs text-gray-500">
+                        {player.position}
+                      </div>
+                    </div>
                   </div>
                 </td>
                 {showTeam && (
-                  <td className="py-2 px-4">
+                  <td className="py-3 px-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {player.team_logo ? (
+                      {player.team_logo && (
                         <img
                           src={player.team_logo}
                           alt={player.nhl_team || ""}
-                          className="w-6 h-6 mr-2"
+                          className="h-6 w-6 mr-2"
                         />
-                      ) : null}
+                      )}
                       <span>
                         {player.nhl_team || player.teamAbbreviation || ""}
                       </span>
                     </div>
                   </td>
                 )}
-                <td className="py-2 px-4">
+                <td className="py-3 px-4 whitespace-nowrap">
                   <Link
                     to={`/teams/${player.team_id || player.fantasy_team_id}`}
-                    className="text-blue-600 hover:underline"
+                    className="text-[#6D4C9F] hover:text-[#5A3A87] hover:underline font-medium"
                   >
-                    View Team
+                    View Team →
                   </Link>
                 </td>
               </tr>

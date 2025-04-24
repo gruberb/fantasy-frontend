@@ -1,28 +1,20 @@
-import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
 import { Link } from "react-router-dom";
+import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
+
+// Import components
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
+import GameCard from "../components/GameCard";
 import RankingsTable from "../components/RankingsTable";
-import GamesList from "../components/GamesList";
-import DailyRankingsCard from "../components/DailyRankingsCard";
 import TopSkaters from "../components/TopSkaters";
 
 const HomePage = () => {
-  // Calculate yesterday's date
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
+  // State for active tab
+  const [activeTab, setActiveTab] = useState("rankings");
 
   // Fetch data for the dashboard
-  const {
-    data: teams,
-    isLoading: teamsLoading,
-    error: teamsError,
-  } = useQuery({
-    queryKey: ["teams"],
-    queryFn: api.getTeams,
-  });
-
   const {
     data: rankings,
     isLoading: rankingsLoading,
@@ -42,17 +34,6 @@ const HomePage = () => {
     retry: 1, // Only retry once to avoid excessive retries
   });
 
-  // New query for yesterday's rankings
-  const {
-    data: yesterdayRankings,
-    isLoading: yesterdayRankingsLoading,
-    error: yesterdayRankingsError,
-  } = useQuery({
-    queryKey: ["yesterdayRankings"],
-    queryFn: () => api.getYesterdayRankings(),
-    retry: 1,
-  });
-
   const {
     data: topSkatersData,
     isLoading: topSkatersLoading,
@@ -62,175 +43,227 @@ const HomePage = () => {
     queryFn: () => api.getTopSkaters(),
   });
 
-  // Loading state - show partial content while loading
-  if (
-    teamsLoading &&
-    rankingsLoading &&
-    gamesLoading &&
-    yesterdayRankingsLoading
-  ) {
-    return <LoadingSpinner size="large" message="Loading dashboard data..." />;
-  }
+  // Function to render the games tab content
+  const renderGamesTab = () => {
+    if (gamesLoading) {
+      return <LoadingSpinner message="Loading today's games..." />;
+    }
 
-  // Critical error - if everything failed
-  if (
-    (teamsError && rankingsError && gamesError && yesterdayRankingsError) ||
-    (!teams && !rankings && !todaysGamesData && !yesterdayRankings)
-  ) {
+    if (gamesError) {
+      return <ErrorMessage message="Could not load today's games." />;
+    }
+
+    const games = todaysGamesData?.games || [];
+
+    if (games.length === 0) {
+      return (
+        <div className="bg-white rounded-lg shadow-sm p-6 text-center border border-gray-100">
+          <p className="text-gray-500">No games scheduled for today.</p>
+          <Link
+            to="/games"
+            className="inline-block mt-4 px-4 py-2 bg-[#6D4C9F] text-white rounded-md hover:bg-[#5A3A87] transition-colors"
+          >
+            View Games Calendar
+          </Link>
+        </div>
+      );
+    }
+
     return (
-      <ErrorMessage message="Failed to load dashboard data. Please try again." />
-    );
-  }
+      <div className="space-y-4">
+        {games.map((game) => {
+          // Format time string
+          let timeString;
+          try {
+            const gameDate = new Date(game.start_time);
+            timeString = gameDate.toLocaleTimeString([], {
+              hour: "numeric",
+              minute: "2-digit",
+              hour12: true,
+            });
+          } catch (e) {
+            timeString = "Time TBD";
+          }
 
-  const games = todaysGamesData?.games || [];
+          // Get game status
+          const gameStatus = game.game_state || "SCHEDULED";
+
+          return (
+            <GameCard
+              key={game.id}
+              game={game}
+              timeString={timeString}
+              gameStatus={gameStatus}
+            />
+          );
+        })}
+      </div>
+    );
+  };
+
+  // Function to render the rankings tab content
+  const renderRankingsTab = () => {
+    if (rankingsLoading) {
+      return <LoadingSpinner message="Loading rankings..." />;
+    }
+
+    if (rankingsError) {
+      return <ErrorMessage message="Could not load rankings data." />;
+    }
+
+    return <RankingsTable rankings={rankings} />;
+  };
+
+  // Function to render the players tab content
+  const renderPlayersTab = () => {
+    if (topSkatersLoading) {
+      return <LoadingSpinner message="Loading top players..." />;
+    }
+
+    if (topSkatersError) {
+      return <ErrorMessage message="Could not load top players data." />;
+    }
+
+    return <TopSkaters data={topSkatersData} isLoading={false} error={null} />;
+  };
+
+  // Loading state for summary stats
+  const isLoadingSummary = gamesLoading || rankingsLoading;
+
+  // Extract summary stats
+  const gamesSummary = todaysGamesData?.summary || {
+    total_games: 0,
+    total_teams_playing: 0,
+    team_players_count: [],
+  };
+
+  // Get most represented team
+  const mostPlayersTeam =
+    gamesSummary.team_players_count.length > 0
+      ? gamesSummary.team_players_count[0].nhl_team
+      : "N/A";
+
+  // Get player count for that team
+  const mostPlayersCount =
+    gamesSummary.team_players_count.length > 0
+      ? gamesSummary.team_players_count[0].player_count
+      : 0;
 
   return (
-    <div className="space-y-8">
-      <section>
-        <h1 className="text-3xl font-bold mb-6">Fantasy NHL Dashboard</h1>
-        <p className="text-lg text-gray-600 mb-4">
-          Welcome to your Fantasy NHL Dashboard. Track teams, players, games,
-          and rankings all in one place.
-        </p>
-      </section>
+    <div className="max-w-6xl mx-auto">
+      {/* Header with stats */}
+      <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
+        <h1 className="text-3xl font-bold mb-2">Fantasy NHL Dashboard</h1>
+        <p className="text-lg opacity-90 mb-6">Todays Games overview:</p>
 
-      {/* Rankings Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Team Rankings</h2>
-          <Link to="/rankings" className="text-blue-600 hover:underline">
-            View All Rankings →
-          </Link>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <div className="text-sm opacity-80">Total Games</div>
+            <div className="text-2xl font-bold">
+              {isLoadingSummary ? (
+                <div className="h-8 w-8 bg-white/20 rounded animate-pulse"></div>
+              ) : (
+                gamesSummary.total_games
+              )}
+            </div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <div className="text-sm opacity-80">Teams Playing</div>
+            <div className="text-2xl font-bold">
+              {isLoadingSummary ? (
+                <div className="h-8 w-8 bg-white/20 rounded animate-pulse"></div>
+              ) : (
+                gamesSummary.total_teams_playing
+              )}
+            </div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <div className="text-sm opacity-80">Most Players</div>
+            <div className="text-2xl font-bold">
+              {isLoadingSummary ? (
+                <div className="h-8 w-16 bg-white/20 rounded animate-pulse"></div>
+              ) : (
+                mostPlayersTeam
+              )}
+            </div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <div className="text-sm opacity-80">Player Count</div>
+            <div className="text-2xl font-bold">
+              {isLoadingSummary ? (
+                <div className="h-8 w-8 bg-white/20 rounded animate-pulse"></div>
+              ) : (
+                mostPlayersCount
+              )}
+            </div>
+          </div>
         </div>
+      </div>
 
-        {rankingsLoading ? (
-          <LoadingSpinner message="Loading rankings..." />
-        ) : rankingsError ? (
-          <ErrorMessage message="Could not load rankings data." />
-        ) : (
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <RankingsTable rankings={rankings} title="" limit={7} />
-          </div>
-        )}
-      </section>
+      {/* Tab navigation */}
+      <div className="border-b border-gray-200 mb-6">
+        <nav className="flex space-x-8">
+          <button
+            onClick={() => setActiveTab("rankings")}
+            className={`py-4 px-1 inline-flex items-center border-b-2 font-medium text-sm ${
+              activeTab === "rankings"
+                ? "border-[#6D4C9F] text-[#6D4C9F]"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Rankings
+          </button>
+          <button
+            onClick={() => setActiveTab("games")}
+            className={`py-4 px-1 inline-flex items-center border-b-2 font-medium text-sm ${
+              activeTab === "games"
+                ? "border-[#6D4C9F] text-[#6D4C9F]"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Today's Games
+          </button>
+          <button
+            onClick={() => setActiveTab("players")}
+            className={`py-4 px-1 inline-flex items-center border-b-2 font-medium text-sm ${
+              activeTab === "players"
+                ? "border-[#6D4C9F] text-[#6D4C9F]"
+                : "border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300"
+            }`}
+          >
+            Top Players
+          </button>
+        </nav>
+      </div>
 
-      {/* Yesterday's Rankings Section */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">Yesterday's Results</h2>
-        {yesterdayRankingsLoading ? (
-          <LoadingSpinner message="Loading yesterday's rankings..." />
-        ) : yesterdayRankingsError ? (
-          <ErrorMessage message="Could not load yesterday's rankings data." />
-        ) : (
-          <DailyRankingsCard
-            rankings={yesterdayRankings || []}
-            date={yesterday}
-            title=""
-            limit={7}
-          />
-        )}
-      </section>
+      {/* Tab content */}
+      <div className="mb-8">
+        {activeTab === "rankings" && renderRankingsTab()}
+        {activeTab === "games" && renderGamesTab()}
+        {activeTab === "players" && renderPlayersTab()}
+      </div>
 
-      {/* Today's Games Section */}
-      <section>
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-bold">Today's Games</h2>
-          <Link to="/games" className="text-blue-600 hover:underline">
-            View All Games →
-          </Link>
-        </div>
-
-        {gamesLoading ? (
-          <LoadingSpinner message="Loading games..." />
-        ) : gamesError ? (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <ErrorMessage message="Could not load today's games." />
-            <div className="mt-4 text-center">
-              <Link
-                to="/games"
-                className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-              >
-                View Games Calendar
-              </Link>
-            </div>
-          </div>
-        ) : games.length === 0 ? (
-          <div className="bg-white rounded-lg shadow-md p-6 text-center">
-            <p className="text-gray-500">No games scheduled for today.</p>
-            <Link
-              to="/games"
-              className="inline-block mt-4 px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700"
-            >
-              View Games Calendar
-            </Link>
-          </div>
-        ) : (
-          <div className="bg-white rounded-lg shadow-md p-4">
-            <GamesList games={games} title="" limit={8} />
-          </div>
-        )}
-      </section>
-
-      <section>
-        <TopSkaters
-          data={topSkatersData}
-          isLoading={topSkatersLoading}
-          error={topSkatersError}
-        />
-      </section>
-
-      {/* Teams Overview */}
-      <section>
-        <h2 className="text-2xl font-bold mb-4">Teams Overview</h2>
-        {teamsLoading ? (
-          <LoadingSpinner message="Loading teams..." />
-        ) : teamsError ? (
-          <ErrorMessage message="Could not load teams data." />
-        ) : (
-          <div className="bg-white rounded-lg shadow-md p-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-              <Link to="/teams" className="btn btn-primary text-center">
-                View All Teams
-              </Link>
-              <Link to="/players" className="btn btn-primary text-center">
-                View All Players
-              </Link>
-              <Link to="/games" className="btn btn-primary text-center">
-                View Games
-              </Link>
-              <Link to="/rankings" className="btn btn-primary text-center">
-                View Rankings
-              </Link>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-              <div className="bg-blue-50 p-4 rounded-lg">
-                <div className="text-sm font-medium mb-1">Fantasy Teams</div>
-                <div className="text-2xl font-bold">{teams?.length || 0}</div>
-              </div>
-
-              <div className="bg-green-50 p-4 rounded-lg">
-                <div className="text-sm font-medium mb-1">Today's Games</div>
-                <div className="text-2xl font-bold">{games?.length || 0}</div>
-              </div>
-
-              <div className="bg-yellow-50 p-4 rounded-lg">
-                <div className="text-sm font-medium mb-1">Current Season</div>
-                <div className="text-2xl font-bold">2024-2025</div>
-              </div>
-
-              <div className="bg-purple-50 p-4 rounded-lg">
-                <div className="text-sm font-medium mb-1">Top Team</div>
-                <div className="text-2xl font-bold">
-                  {rankings && rankings.length > 0
-                    ? rankings.sort((a, b) => a.rank - b.rank)[0].team_name
-                    : "N/A"}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
-      </section>
+      {/* Action buttons */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <Link
+          to="/teams"
+          className="bg-[#6D4C9F] hover:bg-[#5A3A87] text-white py-3 px-4 rounded-md shadow-sm font-medium transition-colors text-center"
+        >
+          View All Teams
+        </Link>
+        <Link
+          to="/games"
+          className="bg-[#041E42] hover:bg-[#0A2D5A] text-white py-3 px-4 rounded-md shadow-sm font-medium transition-colors text-center"
+        >
+          Game Center
+        </Link>
+        <Link
+          to="/rankings"
+          className="bg-gradient-to-r from-[#AF1E2D] to-[#C8102E] hover:from-[#9A1B28] hover:to-[#B30E29] text-white py-3 px-4 rounded-md shadow-sm font-medium transition-colors text-center"
+        >
+          View Full Rankings
+        </Link>
+      </div>
     </div>
   );
 };

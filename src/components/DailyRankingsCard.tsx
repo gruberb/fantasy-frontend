@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { toLocalDateString } from "../utils/timezone";
 
 // Interfaces remain the same
 interface PlayerHighlight {
@@ -36,7 +37,7 @@ const DailyRankingsCard = ({
   limit = 5,
 }: DailyRankingsCardProps) => {
   let rankingsArray: RankingItem[] = [];
-
+  console.log("drc", date);
   if (rankings && Array.isArray(rankings)) {
     rankingsArray = rankings;
   } else if (
@@ -49,7 +50,7 @@ const DailyRankingsCard = ({
 
   if (!rankingsArray || rankingsArray.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6">
+      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
         {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
         <p className="text-gray-500">
           No rankings data available for this date.
@@ -59,11 +60,8 @@ const DailyRankingsCard = ({
   }
 
   // Format date for display
-  const formattedDate = date.toLocaleDateString("en-US", {
-    weekday: "long",
-    month: "long",
-    day: "numeric",
-  });
+  const formattedDate = toLocalDateString(new Date(date));
+  // const formattedDate = dateStringToLocalDate(date);
 
   // Sort rankings by rank
   const sortedRankings = [...rankingsArray].sort((a, b) => a.rank - b.rank);
@@ -73,7 +71,7 @@ const DailyRankingsCard = ({
     limit && limit > 0 ? sortedRankings.slice(0, limit) : sortedRankings;
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
+    <div className="bg-white rounded-lg shadow-sm p-4 border border-gray-100">
       <div className="flex justify-between items-center mb-4">
         <div>
           <h2 className="text-xl font-bold">{title}</h2>
@@ -81,8 +79,8 @@ const DailyRankingsCard = ({
         </div>
         {limit && limit > 0 && rankingsArray.length > limit && (
           <Link
-            to="/games"
-            className="text-gray-600 hover:underline flex items-center"
+            to="/rankings"
+            className="text-[#6D4C9F] hover:underline flex items-center font-medium"
           >
             View Full Results <span className="ml-1">→</span>
           </Link>
@@ -90,28 +88,48 @@ const DailyRankingsCard = ({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full">
-          <thead className="bg-gray-100">
+        <table className="min-w-full divide-y divide-gray-100">
+          <thead className="bg-gray-50">
             <tr>
-              <th className="py-3 px-4 text-left">Rank</th>
-              <th className="py-3 px-4 text-left">Team</th>
-              <th className="py-3 px-4 text-left">Points</th>
-              <th className="py-3 px-4 text-left hidden md:table-cell">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Rank
+              </th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Team
+              </th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Points
+              </th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden md:table-cell">
                 Top Player
               </th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="bg-white divide-y divide-gray-50">
             {displayRankings.map((team) => (
               <tr
                 key={team.team_id}
-                className="border-t hover:bg-gray-50 transition-colors duration-150"
+                className="hover:bg-gray-50 transition-colors"
               >
-                <td className="py-3 px-4 font-bold">{team.rank}</td>
-                <td className="py-3 px-4">
+                <td className="py-3 px-4 whitespace-nowrap">
+                  <div
+                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${
+                      team.rank === 1
+                        ? "bg-yellow-100 text-yellow-800 border border-yellow-200"
+                        : team.rank === 2
+                          ? "bg-gray-100 text-gray-800 border border-gray-200"
+                          : team.rank === 3
+                            ? "bg-orange-100 text-orange-800 border border-orange-200"
+                            : "bg-white border border-gray-200"
+                    }`}
+                  >
+                    {team.rank}
+                  </div>
+                </td>
+                <td className="py-3 px-4 whitespace-nowrap">
                   <Link
                     to={`/teams/${team.team_id}`}
-                    className="text-gray-800 hover:underline flex items-center"
+                    className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium flex items-center"
                   >
                     {team.team_name}
                     <span className="ml-1 text-gray-500 text-sm inline-block">
@@ -119,8 +137,10 @@ const DailyRankingsCard = ({
                     </span>
                   </Link>
                 </td>
-                <td className="py-3 px-4 font-semibold">{team.daily_points}</td>
-                <td className="py-3 px-4 hidden md:table-cell">
+                <td className="py-3 px-4 font-semibold whitespace-nowrap">
+                  {team.daily_points}
+                </td>
+                <td className="py-3 px-4 hidden md:table-cell whitespace-nowrap">
                   {team.player_highlights &&
                   team.player_highlights.length > 0 ? (
                     <div className="flex items-center">
@@ -130,22 +150,41 @@ const DailyRankingsCard = ({
                           alt={team.player_highlights[0].player_name}
                           className="w-8 h-8 rounded-full mr-2"
                         />
-                      ) : null}
+                      ) : (
+                        <div className="w-8 h-8 bg-[#6D4C9F]/10 rounded-full flex items-center justify-center mr-2">
+                          <span className="text-xs font-medium text-[#6D4C9F]">
+                            {team.player_highlights[0].player_name
+                              .substring(0, 2)
+                              .toUpperCase()}
+                          </span>
+                        </div>
+                      )}
                       <div>
                         {team.player_highlights[0].nhl_id ? (
                           <a
                             href={`https://www.nhl.com/player/${team.player_highlights[0].nhl_id}`}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="font-medium text-gray-800 hover:underline flex items-center"
+                            className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
                           >
                             {team.player_highlights[0].player_name}
-                            <span className="ml-1 text-gray-500 text-sm inline-block">
-                              ↗
-                            </span>
+                            <svg
+                              className="w-3 h-3 ml-1 text-gray-500"
+                              fill="none"
+                              stroke="currentColor"
+                              viewBox="0 0 24 24"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path
+                                strokeLinecap="round"
+                                strokeLinejoin="round"
+                                strokeWidth={2}
+                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
+                              />
+                            </svg>
                           </a>
                         ) : (
-                          <div className="font-medium">
+                          <div className="font-medium text-gray-900">
                             {team.player_highlights[0].player_name}
                           </div>
                         )}

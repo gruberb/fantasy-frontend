@@ -1,24 +1,22 @@
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
+  ResponsiveContainer,
   BarChart,
   Bar,
   XAxis,
   YAxis,
   Tooltip,
   Legend,
-  ResponsiveContainer,
 } from "recharts";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 
 const TeamDetailPage = () => {
-  // Get team ID from URL
   const { teamId } = useParams<{ teamId: string }>();
   const id = parseInt(teamId || "0", 10);
 
-  // Fetch team data
   const { data: teams, isLoading: teamsLoading } = useQuery({
     queryKey: ["teams"],
     queryFn: api.getTeams,
@@ -35,25 +33,19 @@ const TeamDetailPage = () => {
     queryFn: api.getTeamBets,
   });
 
-  // Loading state
   if (teamsLoading || pointsLoading || betsLoading) {
     return <LoadingSpinner size="large" message="Loading team data..." />;
   }
 
-  // Get current team
   const team = teams?.find((t) => t.id === id);
 
   if (!team || !teamPoints) {
     return <ErrorMessage message="Team not found or data unavailable" />;
   }
 
-  // Find this team's bets
   const currentTeamBets = teamBets?.find((tb) => tb.team_id === id)?.bets || [];
-  currentTeamBets.sort((a, b) => {
-    return b.num_players - a.num_players;
-  });
+  currentTeamBets.sort((a, b) => b.num_players - a.num_players);
 
-  // Position breakdown data
   const positionCounts = teamPoints.players.reduce(
     (acc: Record<string, number>, player) => {
       acc[player.position] = (acc[player.position] || 0) + 1;
@@ -62,26 +54,21 @@ const TeamDetailPage = () => {
     {},
   );
 
-  const players = teamPoints.players.sort((a, b) => {
-    return b.total_points - a.total_points;
-  });
-
+  const players = teamPoints.players.sort(
+    (a, b) => b.total_points - a.total_points,
+  );
   const positionData = Object.entries(positionCounts).map(
-    ([position, count]) => ({
-      position,
-      count,
-    }),
+    ([position, count]) => ({ position, count }),
   );
 
   return (
-    <div>
+    <div className="max-w-6xl mx-auto">
       <div className="mb-4">
-        <Link to="/teams" className="text-blue-600 hover:underline">
+        <Link to="/teams" className="btn btn-secondary">
           ← Back to Teams
         </Link>
       </div>
 
-      {/* Team Header */}
       <div className="flex items-center space-x-4 mb-8">
         {team.team_logo ? (
           <img
@@ -96,7 +83,6 @@ const TeamDetailPage = () => {
             </span>
           </div>
         )}
-
         <div>
           <h1 className="text-3xl font-bold">{team.name}</h1>
           <p className="text-xl text-gray-600">Fantasy Team</p>
@@ -110,29 +96,25 @@ const TeamDetailPage = () => {
         {/* Team Stats */}
         <section className="card">
           <h2 className="text-2xl font-bold mb-4">Team Stats</h2>
-
           <div className="space-y-4">
-            <div className="flex items-center justify-between border-b pb-2">
+            <div className="flex justify-between items-center border-b pb-2">
               <span className="font-medium">Goals</span>
               <span className="font-bold text-xl">
                 {teamPoints.team_totals.goals}
               </span>
             </div>
-
-            <div className="flex items-center justify-between border-b pb-2">
+            <div className="flex justify-between items-center border-b pb-2">
               <span className="font-medium">Assists</span>
               <span className="font-bold text-xl">
                 {teamPoints.team_totals.assists}
               </span>
             </div>
-
-            <div className="flex items-center justify-between border-b pb-2">
+            <div className="flex justify-between items-center border-b pb-2">
               <span className="font-medium">Total Points</span>
               <span className="font-bold text-xl">
                 {teamPoints.team_totals.total_points}
               </span>
             </div>
-
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="bg-blue-50 p-4 rounded-lg text-center">
                 <div className="text-sm font-medium mb-1">Goals</div>
@@ -150,87 +132,119 @@ const TeamDetailPage = () => {
           </div>
         </section>
 
-        {/* Team Players */}
+        {/* Players by Position (Bar Chart) */}
         <section className="card">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-2xl font-bold">Players by Position</h2>
-          </div>
-
+          <h2 className="text-2xl font-bold mb-4">Players by Position</h2>
           {positionData.length > 0 ? (
-            <div>
-              <div className="h-64 mb-4">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={positionData}>
-                    <XAxis dataKey="position" />
-                    <YAxis />
-                    <Tooltip />
-                    <Legend />
-                    <Bar
-                      dataKey="count"
-                      name="Number of Players"
-                      fill="#041E42"
-                    />
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+            <div className="h-64 mb-4">
+              <ResponsiveContainer width="100%" height="100%">
+                <BarChart data={positionData}>
+                  <XAxis dataKey="position" />
+                  <YAxis />
+                  <Tooltip />
+                  <Legend />
+                  <Bar
+                    dataKey="count"
+                    name="Number of Players"
+                    fill="#041E42"
+                  />
+                </BarChart>
+              </ResponsiveContainer>
             </div>
           ) : (
             <p className="text-gray-500">No position data available.</p>
           )}
         </section>
 
-        {/* Player List */}
+        {/* Player Roster */}
         <section className="card">
           <h2 className="text-2xl font-bold mb-4">Player Roster</h2>
-
           {players.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="min-w-full bg-white">
-                <thead className="bg-gray-100">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="py-2 px-4 text-left">Player</th>
-                    <th className="py-2 px-4 text-left">NHL Team</th>
-                    <th className="py-2 px-4 text-left">Points</th>
-                    <th className="py-2 px-4 text-left">Goals</th>
-                    <th className="py-2 px-4 text-left">Assists</th>
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Player
+                    </th>
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      NHL Team
+                    </th>
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Points
+                    </th>
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Goals
+                    </th>
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Assists
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white divide-y divide-gray-100">
                   {players.map((player, index) => (
-                    <tr key={index} className="border-t hover:bg-gray-50">
-                      <td className="py-2 px-4">
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="py-3 px-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {player.image_url ? (
                             <img
                               src={player.image_url}
                               alt={player.name}
-                              className="w-10 h-10 rounded-full mr-3 object-cover"
+                              className="h-10 w-10 rounded-full"
                             />
                           ) : (
-                            <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center mr-3">
-                              <span className="text-xs font-medium">
+                            <div className="h-10 w-10 rounded-full bg-[#6D4C9F]/10 flex items-center justify-center">
+                              <span className="text-xs font-medium text-[#6D4C9F]">
                                 {player.name.substring(0, 2).toUpperCase()}
                               </span>
                             </div>
                           )}
-                          <span>{player.name}</span>
+                          <div className="ml-4">
+                            <div className="text-sm font-medium text-gray-900">
+                              {player.name}
+                            </div>
+                            <div className="text-xs text-gray-500">
+                              {player.position}
+                            </div>
+                          </div>
                         </div>
                       </td>
-                      <td className="py-2 px-4">
-                        <div className="flex items-center">
-                          {player.team_logo ? (
-                            <img
-                              src={player.team_logo}
-                              alt={`${player.nhl_team} logo`}
-                              className="w-6 h-6 mr-2"
-                            />
-                          ) : null}
-                          <span>{player.nhl_team}</span>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <a
+                          href={`https://www.nhl.com/${player.nhlTeamUrlSlug}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="inline-flex items-center group"
+                        >
+                          <div className="flex items-center">
+                            {player.team_logo ? (
+                              <img
+                                src={player.team_logo}
+                                alt={`${player.nhl_team} logo`}
+                                className="h-6 w-6 mr-2"
+                              />
+                            ) : null}
+                            <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                              {player.nhl_team}
+                            </span>
+                          </div>
+                        </a>
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <div className="text-sm font-semibold text-gray-900">
+                          {player.total_points}
                         </div>
                       </td>
-                      <td className="py-2 px-4">{player.total_points}</td>
-                      <td className="py-2 px-4">{player.goals}</td>
-                      <td className="py-2 px-4">{player.assists}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {player.goals}
+                        </div>
+                      </td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        <div className="text-sm text-gray-900">
+                          {player.assists}
+                        </div>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -241,35 +255,39 @@ const TeamDetailPage = () => {
           )}
         </section>
 
-        {/* Team Bets */}
         {currentTeamBets.length > 0 && (
           <section className="card">
             <h2 className="text-2xl font-bold mb-4">NHL Team Bets</h2>
-
             <div className="overflow-x-auto">
-              <table className="min-w-full bg-white">
-                <thead className="bg-gray-100">
+              <table className="min-w-full divide-y divide-gray-100">
+                <thead className="bg-gray-50">
                   <tr>
-                    <th className="py-2 px-4 text-left">NHL Team</th>
-                    <th className="py-2 px-4 text-left">Number of Players</th>
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      NHL Team
+                    </th>
+                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Number of Players
+                    </th>
                   </tr>
                 </thead>
-                <tbody>
+                <tbody className="bg-white divide-y divide-gray-100">
                   {currentTeamBets.map((bet, index) => (
-                    <tr key={index} className="border-t hover:bg-gray-50">
-                      <td className="py-2 px-4">
+                    <tr key={index} className="hover:bg-gray-50">
+                      <td className="py-3 px-4 whitespace-nowrap">
                         <div className="flex items-center">
                           {bet.team_logo ? (
                             <img
                               src={bet.team_logo}
                               alt={`${bet.nhl_team} logo`}
-                              className="w-6 h-6 mr-2"
+                              className="h-6 w-6 mr-2"
                             />
                           ) : null}
                           <span>{bet.nhl_team}</span>
                         </div>
                       </td>
-                      <td className="py-2 px-4">{bet.num_players}</td>
+                      <td className="py-3 px-4 whitespace-nowrap">
+                        {bet.num_players}
+                      </td>
                     </tr>
                   ))}
                 </tbody>

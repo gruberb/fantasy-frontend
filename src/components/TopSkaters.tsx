@@ -1,10 +1,8 @@
-// src/components/TopSkaters.tsx
 import React from "react";
 import { TopSkatersResponse, TopSkater } from "../api/client";
 import LoadingSpinner from "./LoadingSpinner";
 import ErrorMessage from "./ErrorMessage";
 import { Link } from "react-router-dom";
-// Import the utility that generates the correct URL slug
 import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
 
 interface TopSkatersProps {
@@ -28,70 +26,77 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
       <div>
         <h3 className="text-xl font-bold mb-2">Top 10 Scorers</h3>
         {data?.goals && data.goals.length > 0 ? (
-          <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table className="min-w-full">
-              <thead className="bg-gray-100">
+          <div className="card overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="py-3 px-4 text-left">Player</th>
-                  <th className="py-3 px-4 text-left">Team</th>
-                  <th className="py-3 px-4 text-left">Fantasy Team</th>
-                  <th className="py-3 px-4 text-left">Goals</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Player
+                  </th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Team
+                  </th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Fantasy Team
+                  </th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Goals
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-100">
                 {data.goals.map((player: TopSkater) => (
                   <tr
                     key={`goal-${player.id}`}
-                    className="border-t hover:bg-gray-50 transition-colors duration-150"
+                    className="hover:bg-gray-50 transition-colors duration-150"
                   >
-                    <td className="py-3 px-4 whitespace-nowrap flex items-center space-x-2">
-                      <img
-                        src={player.headshot}
-                        alt={`${player.first_name} ${player.last_name}`}
-                        className="w-6 h-6 rounded-full"
-                      />
-                      <a
-                        href={`https://www.nhl.com/player/${player.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-800 hover:underline flex items-center whitespace-nowrap"
-                      >
-                        {player.last_name}
-                        <span className="ml-1 text-gray-500 text-sm inline-block">
-                          ↗
-                        </span>
-                      </a>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center group">
+                        <div className="flex-shrink-0 h-6 w-6">
+                          <img
+                            src={player.headshot}
+                            alt={`${player.first_name} ${player.last_name}`}
+                            className="w-6 h-6 rounded-full"
+                          />
+                        </div>
+                        <div className="ml-2">
+                          <a
+                            href={`https://www.nhl.com/player/${player.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium group-hover:underline"
+                          >
+                            {player.last_name}
+                          </a>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <a
-                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(
-                          player.team_abbrev,
-                        )}`}
+                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.team_abbrev)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center hover:underline"
+                        className="inline-flex items-center group"
                       >
-                        <img
-                          src={player.team_logo}
-                          alt={player.team_abbrev}
-                          className="w-5 h-5 rounded"
-                        />
-                        <span>{player.team_abbrev}</span>
-                        <span className="ml-1 text-gray-500 text-sm inline-block">
-                          ↗
-                        </span>
+                        <div className="flex items-center">
+                          <img
+                            src={player.team_logo}
+                            alt={player.team_abbrev}
+                            className="h-5 w-5 rounded mr-2"
+                          />
+                          <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                            {player.team_abbrev}
+                          </span>
+                        </div>
                       </a>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {player.fantasy_team ? (
                         <Link
                           to={`/teams/${player.fantasy_team.team_id}`}
-                          className="inline-flex items-center hover:underline"
+                          className="inline-flex items-center hover:underline text-[#6D4C9F] font-medium"
                         >
                           <span>{player.fantasy_team.team_name}</span>
-                          <span className="ml-1 text-gray-500 text-sm inline-block">
-                            →
-                          </span>
                         </Link>
                       ) : (
                         <span className="text-gray-500">—</span>
@@ -114,70 +119,77 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
       <div>
         <h3 className="text-xl font-bold mb-2">Top 10 Assists</h3>
         {data?.assists && data.assists.length > 0 ? (
-          <div className="overflow-x-auto bg-white rounded-lg shadow-md">
-            <table className="min-w-full">
-              <thead className="bg-gray-100">
+          <div className="card overflow-x-auto">
+            <table className="min-w-full divide-y divide-gray-100">
+              <thead className="bg-gray-50">
                 <tr>
-                  <th className="py-3 px-4 text-left">Player</th>
-                  <th className="py-3 px-4 text-left">NHL</th>
-                  <th className="py-3 px-4 text-left">Team</th>
-                  <th className="py-3 px-4 text-left">Assists</th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Player
+                  </th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    NHL
+                  </th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Team
+                  </th>
+                  <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    Assists
+                  </th>
                 </tr>
               </thead>
-              <tbody>
+              <tbody className="bg-white divide-y divide-gray-100">
                 {data.assists.map((player: TopSkater) => (
                   <tr
                     key={`assist-${player.id}`}
-                    className="border-t hover:bg-gray-50 transition-colors duration-150"
+                    className="hover:bg-gray-50 transition-colors duration-150"
                   >
-                    <td className="py-3 px-4 whitespace-nowrap flex items-center space-x-2">
-                      <img
-                        src={player.headshot}
-                        alt={`${player.first_name} ${player.last_name}`}
-                        className="w-6 h-6 rounded-full"
-                      />
-                      <a
-                        href={`https://www.nhl.com/player/${player.id}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-800 hover:underline flex items-center whitespace-nowrap"
-                      >
-                        {player.last_name}
-                        <span className="ml-1 text-gray-500 text-sm inline-block">
-                          ↗
-                        </span>
-                      </a>
+                    <td className="py-3 px-4 whitespace-nowrap">
+                      <div className="flex items-center group">
+                        <div className="flex-shrink-0 h-6 w-6">
+                          <img
+                            src={player.headshot}
+                            alt={`${player.first_name} ${player.last_name}`}
+                            className="w-6 h-6 rounded-full"
+                          />
+                        </div>
+                        <div className="ml-2">
+                          <a
+                            href={`https://www.nhl.com/player/${player.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium group-hover:underline"
+                          >
+                            {player.last_name}
+                          </a>
+                        </div>
+                      </div>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <a
-                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(
-                          player.team_abbrev,
-                        )}`}
+                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.team_abbrev)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center hover:underline"
+                        className="inline-flex items-center group"
                       >
-                        <img
-                          src={player.team_logo}
-                          alt={player.team_abbrev}
-                          className="w-5 h-5 rounded"
-                        />
-                        <span>{player.team_abbrev}</span>
-                        <span className="ml-1 text-gray-500 text-sm inline-block">
-                          ↗
-                        </span>
+                        <div className="flex items-center">
+                          <img
+                            src={player.team_logo}
+                            alt={player.team_abbrev}
+                            className="h-5 w-5 rounded mr-2"
+                          />
+                          <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                            {player.team_abbrev}
+                          </span>
+                        </div>
                       </a>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       {player.fantasy_team ? (
                         <Link
                           to={`/teams/${player.fantasy_team.team_id}`}
-                          className="inline-flex items-center hover:underline"
+                          className="inline-flex items-center hover:underline text-[#6D4C9F] font-medium"
                         >
                           <span>{player.fantasy_team.team_name}</span>
-                          <span className="ml-1 text-gray-500 text-sm inline-block">
-                            →
-                          </span>
                         </Link>
                       ) : (
                         <span className="text-gray-500">—</span>
