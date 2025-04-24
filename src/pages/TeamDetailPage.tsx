@@ -231,17 +231,17 @@ const TeamDetailPage = () => {
                         </a>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="text-sm font-semibold text-gray-900">
+                        <div className="text-sm h-7 font-semibold text-gray-900">
                           {player.total_points}
                         </div>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm h-7 text-gray-900">
                           {player.goals}
                         </div>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="text-sm text-gray-900">
+                        <div className="text-sm h-7 text-gray-900">
                           {player.assists}
                         </div>
                       </td>
@@ -265,7 +265,7 @@ const TeamDetailPage = () => {
                     <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       NHL Team
                     </th>
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                    <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Number of Players
                     </th>
                   </tr>
@@ -273,7 +273,7 @@ const TeamDetailPage = () => {
                 <tbody className="bg-white divide-y divide-gray-100">
                   {currentTeamBets.map((bet, index) => (
                     <tr key={index} className="hover:bg-gray-50">
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3 px-4 whitespace-nowrap text-center">
                         <div className="flex items-center">
                           {bet.team_logo ? (
                             <img
@@ -282,10 +282,10 @@ const TeamDetailPage = () => {
                               className="h-6 w-6 mr-2"
                             />
                           ) : null}
-                          <span>{bet.nhl_team}</span>
+                          <span>{bet.nhl_team_name}</span>
                         </div>
                       </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
+                      <td className="py-3 px-4 whitespace-nowrap text-center">
                         {bet.num_players}
                       </td>
                     </tr>

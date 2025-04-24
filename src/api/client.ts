@@ -59,6 +59,7 @@ export interface Player {
 
 export interface TeamBet {
   nhl_team: string;
+  nhl_team_name: string;
   num_players: number;
   team_logo?: string;
 }
