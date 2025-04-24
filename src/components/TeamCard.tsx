@@ -17,9 +17,9 @@ const TeamCard = ({ team, stats, className = "" }: TeamCardProps) => {
   return (
     <Link to={`/teams/${team.id}`} className={`card ${className}`}>
       <div className="flex items-center space-x-4">
-        {team.team_logo ? (
+        {team.teamLogo ? (
           <img
-            src={team.team_logo}
+            src={team.teamLogo}
             alt={`${team.name} logo`}
             className="w-16 h-16 object-contain"
           />

@@ -23,8 +23,8 @@ const PlayerList = ({
       const aOrder = posOrder[a.position as keyof typeof posOrder] || 99;
       const bOrder = posOrder[b.position as keyof typeof posOrder] || 99;
       if (aOrder !== bOrder) return aOrder - bOrder;
-      if (a.jersey_number !== b.jersey_number) {
-        return (a.jersey_number || 0) - (b.jersey_number || 0);
+      if (a.jerseyNumber !== b.jerseyNumber) {
+        return (a.jerseyNumber || 0) - (b.jerseyNumber || 0);
       }
       return a.name.localeCompare(b.name);
     });
@@ -64,13 +64,13 @@ const PlayerList = ({
             {sortedPlayers.map((player) => (
               <tr key={player.id} className="hover:bg-gray-50">
                 <td className="py-3 px-4 whitespace-nowrap">
-                  {player.jersey_number}
+                  {player.jerseyNumber}
                 </td>
                 <td className="py-3 px-4 whitespace-nowrap">
                   <div className="flex items-center">
-                    {player.image_url ? (
+                    {player.imageUrl ? (
                       <img
-                        src={player.image_url}
+                        src={player.imageUrl}
                         alt={player.name}
                         className="h-10 w-10 rounded-full"
                       />
@@ -94,22 +94,22 @@ const PlayerList = ({
                 {showTeam && (
                   <td className="py-3 px-4 whitespace-nowrap">
                     <div className="flex items-center">
-                      {player.team_logo && (
+                      {player.teamLogo && (
                         <img
-                          src={player.team_logo}
-                          alt={player.nhl_team || ""}
+                          src={player.teamLogo}
+                          alt={player.nhlTeam || ""}
                           className="h-6 w-6 mr-2"
                         />
                       )}
                       <span>
-                        {player.nhl_team || player.teamAbbreviation || ""}
+                        {player.nhlTeam || player.teamAbbreviation || ""}
                       </span>
                     </div>
                   </td>
                 )}
                 <td className="py-3 px-4 whitespace-nowrap">
                   <Link
-                    to={`/teams/${player.team_id || player.fantasy_team_id}`}
+                    to={`/teams/${player.teamId || player.fantasyTeamId}`}
                     className="text-[#6D4C9F] hover:text-[#5A3A87] hover:underline font-medium"
                   >
                     View Team →

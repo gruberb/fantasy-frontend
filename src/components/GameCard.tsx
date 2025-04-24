@@ -120,12 +120,12 @@ const GameCard: React.FC<GameCardProps> = ({
   };
 
   // Get team colors
-  const awayTeamColor = getTeamPrimaryColor(game.away_team);
-  const homeTeamColor = getTeamPrimaryColor(game.home_team);
+  const awayTeamColor = getTeamPrimaryColor(game.awayTeam);
+  const homeTeamColor = getTeamPrimaryColor(game.homeTeam);
 
   // Helper function to determine series display
   const getSeriesDisplay = (isAwayTeam: boolean): string | null => {
-    if (!game.series_status || !game.series_status.round) {
+    if (!game.seriesStatus || !game.seriesStatus.round) {
       return null;
     }
 
@@ -134,12 +134,12 @@ const GameCard: React.FC<GameCardProps> = ({
       bottomSeedTeamAbbrev,
       topSeedWins,
       bottomSeedWins,
-    } = game.series_status;
+    } = game.seriesStatus;
 
     // Get the team's abbreviation
     const teamAbbrev = isAwayTeam
-      ? game.away_team.substring(0, 3).toUpperCase()
-      : game.home_team.substring(0, 3).toUpperCase();
+      ? game.awayTeam.substring(0, 3).toUpperCase()
+      : game.homeTeam.substring(0, 3).toUpperCase();
 
     // Determine if this team is the top seed
     const isTopSeed = topSeedTeamAbbrev === teamAbbrev;
@@ -153,7 +153,7 @@ const GameCard: React.FC<GameCardProps> = ({
   };
 
   // Check if game is a playoff game
-  const isPlayoffGame = game.series_status && game.series_status.round > 0;
+  const isPlayoffGame = game.seriesStatus && game.seriesStatus.round > 0;
 
   // Add pulse animation for LIVE games
   const animationClass =
@@ -192,10 +192,10 @@ const GameCard: React.FC<GameCardProps> = ({
               {/* Away team */}
               <div className="flex-1">
                 <div className="flex items-center">
-                  {game.away_team_logo ? (
+                  {game.awayTeamLogo ? (
                     <img
-                      src={game.away_team_logo}
-                      alt={`${game.away_team} logo`}
+                      src={game.awayTeamLogo}
+                      alt={`${game.awayTeam} logo`}
                       className="w-12 h-12 mr-3"
                     />
                   ) : (
@@ -207,12 +207,12 @@ const GameCard: React.FC<GameCardProps> = ({
                         className="text-sm font-bold"
                         style={{ color: awayTeamColor }}
                       >
-                        {game.away_team.substring(0, 3)}
+                        {game.awayTeam.substring(0, 3)}
                       </span>
                     </div>
                   )}
                   <div>
-                    <div className="text-lg font-bold">{game.away_team}</div>
+                    <div className="text-lg font-bold">{game.awayTeam}</div>
                     {isPlayoffGame && (
                       <div className="text-xs text-gray-500">
                         {getSeriesDisplay(true)}
@@ -224,14 +224,14 @@ const GameCard: React.FC<GameCardProps> = ({
 
               {/* Score */}
               <div className="px-4 text-center">
-                {game.away_score !== undefined &&
-                game.away_score !== null &&
-                game.home_score !== undefined &&
-                game.home_score !== null ? (
+                {game.awayScore !== undefined &&
+                game.awayScore !== null &&
+                game.homeScore !== undefined &&
+                game.homeScore !== null ? (
                   <div className="flex items-center">
-                    <div className="text-3xl font-bold">{game.away_score}</div>
+                    <div className="text-3xl font-bold">{game.awayScore}</div>
                     <div className="mx-2 text-gray-300">-</div>
-                    <div className="text-3xl font-bold">{game.home_score}</div>
+                    <div className="text-3xl font-bold">{game.homeScore}</div>
                   </div>
                 ) : (
                   <div className="text-lg font-bold text-gray-400">VS</div>
@@ -247,17 +247,17 @@ const GameCard: React.FC<GameCardProps> = ({
               <div className="flex-1 text-right">
                 <div className="flex items-center justify-end">
                   <div className="text-right">
-                    <div className="text-lg font-bold">{game.home_team}</div>
+                    <div className="text-lg font-bold">{game.homeTeam}</div>
                     {isPlayoffGame && (
                       <div className="text-xs text-gray-500">
                         {getSeriesDisplay(false)}
                       </div>
                     )}
                   </div>
-                  {game.home_team_logo ? (
+                  {game.homeTeamLogo ? (
                     <img
-                      src={game.home_team_logo}
-                      alt={`${game.home_team} logo`}
+                      src={game.homeTeamLogo}
+                      alt={`${game.homeTeam} logo`}
                       className="w-12 h-12 ml-3"
                     />
                   ) : (
@@ -269,7 +269,7 @@ const GameCard: React.FC<GameCardProps> = ({
                         className="text-sm font-bold"
                         style={{ color: homeTeamColor }}
                       >
-                        {game.home_team.substring(0, 3)}
+                        {game.homeTeam.substring(0, 3)}
                       </span>
                     </div>
                   )}

@@ -107,9 +107,9 @@ const TeamsPage = () => {
               className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-all duration-300 border border-gray-100 hover:translate-y-px"
             >
               <div className="flex items-center space-x-4">
-                {team.team_logo ? (
+                {team.teamLogo ? (
                   <img
-                    src={team.team_logo}
+                    src={team.teamLogo}
                     alt={`${team.name} logo`}
                     className="w-16 h-16 object-contain"
                   />

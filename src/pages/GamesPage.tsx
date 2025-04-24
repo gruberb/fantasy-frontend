@@ -188,7 +188,7 @@ const GamesPage = () => {
   // Check if any games are live
   const hasLiveGames =
     gamesData?.games.some(
-      (game) => (game.game_state || "").toUpperCase() === "LIVE",
+      (game) => (game.gameState || "").toUpperCase() === "LIVE",
     ) || false;
 
   // Loading state
@@ -228,7 +228,7 @@ const GamesPage = () => {
   const { games, summary } = gamesData;
 
   // Get unique NHL teams playing on this date
-  const teamsPlaying = summary.team_players_count.map((t) => t.nhl_team);
+  const teamsPlaying = summary.teamPlayersCount.map((t) => t.nhlTeam);
 
   // Filter games by selected team
   const filteredGames =
@@ -236,7 +236,7 @@ const GamesPage = () => {
       ? games
       : games.filter(
           (game) =>
-            game.home_team === filterTeam || game.away_team === filterTeam,
+            game.homeTeam === filterTeam || game.awayTeam === filterTeam,
         );
 
   return (
@@ -330,21 +330,19 @@ const GamesPage = () => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
         <div className="bg-white p-4 rounded-lg shadow-md">
           <div className="text-sm text-gray-600">Total Games</div>
-          <div className="text-2xl font-bold">{summary.total_games}</div>
+          <div className="text-2xl font-bold">{summary.totalGames}</div>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
           <div className="text-sm text-gray-600">Teams Playing</div>
-          <div className="text-2xl font-bold">
-            {summary.total_teams_playing}
-          </div>
+          <div className="text-2xl font-bold">{summary.totalTeamsPlaying}</div>
         </div>
 
         <div className="bg-white p-4 rounded-lg shadow-md">
           <div className="text-sm text-gray-600">Team with most bets</div>
           <div className="text-2xl font-bold">
-            {summary.team_players_count.length > 0
-              ? summary.team_players_count[0].nhl_team
+            {summary.teamPlayersCount.length > 0
+              ? summary.teamPlayersCount[0].nhlTeam
               : "N/A"}
           </div>
         </div>
@@ -354,8 +352,8 @@ const GamesPage = () => {
             Fantasy Teams involved today
           </div>
           <div className="text-2xl font-bold">
-            {summary.team_players_count.length > 0
-              ? summary.team_players_count[0].player_count
+            {summary.teamPlayersCount.length > 0
+              ? summary.teamPlayersCount[0].playerCount
               : "0"}
           </div>
         </div>
@@ -490,7 +488,7 @@ const GamesPage = () => {
               let timeString;
               try {
                 // Just use the ISO date directly
-                const gameDate = new Date(game.start_time);
+                const gameDate = new Date(game.startTime);
                 timeString = gameDate.toLocaleTimeString([], {
                   hour: "numeric",
                   minute: "2-digit",
@@ -501,15 +499,15 @@ const GamesPage = () => {
               }
 
               // Game status
-              const gameStatus = game.game_state || "SCHEDULED";
+              const gameStatus = game.gameState || "SCHEDULED";
 
               // Check if game is complete
               const isGameComplete =
                 gameStatus === "FINAL" || gameStatus === "OFF";
 
               // Get team colors
-              const awayTeamColor = getTeamPrimaryColor(game.away_team);
-              const homeTeamColor = getTeamPrimaryColor(game.home_team);
+              const awayTeamColor = getTeamPrimaryColor(game.awayTeam);
+              const homeTeamColor = getTeamPrimaryColor(game.homeTeam);
 
               return (
                 <div
@@ -553,10 +551,10 @@ const GamesPage = () => {
                           {/* Away team */}
                           <div className="flex-1">
                             <div className="flex items-center">
-                              {game.away_team_logo ? (
+                              {game.awayTeamLogo ? (
                                 <img
-                                  src={game.away_team_logo}
-                                  alt={`${game.away_team} logo`}
+                                  src={game.awayTeamLogo}
+                                  alt={`${game.awayTeam} logo`}
                                   className="w-12 h-12 mr-3"
                                 />
                               ) : (
@@ -570,21 +568,21 @@ const GamesPage = () => {
                                     className="text-sm font-bold"
                                     style={{ color: awayTeamColor }}
                                   >
-                                    {game.away_team.substring(0, 3)}
+                                    {game.awayTeam.substring(0, 3)}
                                   </span>
                                 </div>
                               )}
                               <div>
                                 <div className="text-lg font-bold">
-                                  {game.away_team}
+                                  {game.awayTeam}
                                 </div>
-                                {game.series_status &&
-                                  game.series_status.topSeedTeamAbbrev && (
+                                {game.seriesStatus &&
+                                  game.seriesStatus.topSeedTeamAbbrev && (
                                     <div className="text-xs text-gray-500">
-                                      {game.series_status.topSeedTeamAbbrev ===
-                                      game.away_team.substring(0, 3)
-                                        ? `${game.series_status.topSeedWins}-${game.series_status.bottomSeedWins}`
-                                        : `${game.series_status.bottomSeedWins}-${game.series_status.topSeedWins}`}
+                                      {game.seriesStatus.topSeedTeamAbbrev ===
+                                      game.awayTeam.substring(0, 3)
+                                        ? `${game.seriesStatus.topSeedWins}-${game.seriesStatus.bottomSeedWins}`
+                                        : `${game.seriesStatus.bottomSeedWins}-${game.seriesStatus.topSeedWins}`}
                                     </div>
                                   )}
                               </div>
@@ -593,18 +591,18 @@ const GamesPage = () => {
 
                           {/* Score */}
                           <div className="px-4 text-center flex flex-col">
-                            {game.away_score !== undefined &&
-                            game.away_score !== null &&
-                            game.home_score !== undefined &&
-                            game.home_score !== null ? (
+                            {game.awayScore !== undefined &&
+                            game.awayScore !== null &&
+                            game.homeScore !== undefined &&
+                            game.homeScore !== null ? (
                               <>
                                 <div className="flex items-center justify-center">
                                   <div className="text-3xl font-bold">
-                                    {game.away_score}
+                                    {game.awayScore}
                                   </div>
                                   <div className="mx-2 text-gray-300">-</div>
                                   <div className="text-3xl font-bold">
-                                    {game.home_score}
+                                    {game.homeScore}
                                   </div>
                                 </div>
 
@@ -665,22 +663,22 @@ const GamesPage = () => {
                             <div className="flex items-center justify-end">
                               <div className="text-right">
                                 <div className="text-lg font-bold">
-                                  {game.home_team}
+                                  {game.homeTeam}
                                 </div>
-                                {game.series_status &&
-                                  game.series_status.topSeedTeamAbbrev && (
+                                {game.seriesStatus &&
+                                  game.seriesStatus.topSeedTeamAbbrev && (
                                     <div className="text-xs text-gray-500">
-                                      {game.series_status.topSeedTeamAbbrev ===
-                                      game.home_team.substring(0, 3)
-                                        ? `${game.series_status.topSeedWins}-${game.series_status.bottomSeedWins}`
-                                        : `${game.series_status.bottomSeedWins}-${game.series_status.topSeedWins}`}
+                                      {game.seriesStatus.topSeedTeamAbbrev ===
+                                      game.homeTeam.substring(0, 3)
+                                        ? `${game.seriesStatus.topSeedWins}-${game.seriesStatus.bottomSeedWins}`
+                                        : `${game.seriesStatus.bottomSeedWins}-${game.seriesStatus.topSeedWins}`}
                                     </div>
                                   )}
                               </div>
-                              {game.home_team_logo ? (
+                              {game.homeTeamLogo ? (
                                 <img
-                                  src={game.home_team_logo}
-                                  alt={`${game.home_team} logo`}
+                                  src={game.homeTeamLogo}
+                                  alt={`${game.homeTeam} logo`}
                                   className="w-12 h-12 ml-3"
                                 />
                               ) : (
@@ -694,7 +692,7 @@ const GamesPage = () => {
                                     className="text-sm font-bold"
                                     style={{ color: homeTeamColor }}
                                   >
-                                    {game.home_team.substring(0, 3)}
+                                    {game.homeTeam.substring(0, 3)}
                                   </span>
                                 </div>
                               )}
@@ -750,7 +748,7 @@ const GamesPage = () => {
                               className="w-3 h-3 mr-2"
                               style={{ backgroundColor: awayTeamColor }}
                             ></div>
-                            {game.away_team} Players
+                            {game.awayTeam} Players
                           </h3>
                           <div className="overflow-x-auto">
                             <table className="min-w-full">
@@ -768,24 +766,24 @@ const GamesPage = () => {
                                 </tr>
                               </thead>
                               <tbody>
-                                {game.away_team_players.map((player, idx) => (
+                                {game.awayTeamPlayers.map((player, idx) => (
                                   <tr
                                     key={idx}
                                     className="border-t hover:bg-gray-50"
                                   >
                                     <td className="py-1 px-2">
                                       <div className="flex items-center">
-                                        {player.image_url ? (
+                                        {player.imageUrl ? (
                                           <img
-                                            src={player.image_url}
-                                            alt={player.player_name || ""}
+                                            src={player.imageUrl}
+                                            alt={player.playerName || ""}
                                             className="w-6 h-6 rounded-full mr-2"
                                           />
                                         ) : (
                                           <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
                                             <span className="text-xs font-medium">
                                               {(
-                                                player.player_name ||
+                                                player.playerName ||
                                                 player.name ||
                                                 ""
                                               )
@@ -795,18 +793,18 @@ const GamesPage = () => {
                                           </div>
                                         )}
                                         <span className="text-xs">
-                                          {player.player_name || player.name}
+                                          {player.playerName || player.name}
                                         </span>
                                       </div>
                                     </td>
                                     <td className="py-1 px-2 text-xs">
-                                      {player.fantasy_team ? (
+                                      {player.fantasyTeam ? (
                                         <Link
-                                          to={`/teams/${player.fantasy_team_id}`}
+                                          to={`/teams/${player.fantasyTeamId}`}
                                           className="text-[#6D4C9F] hover:underline"
                                           onClick={(e) => e.stopPropagation()}
                                         >
-                                          {player.fantasy_team}
+                                          {player.fantasyTeam}
                                         </Link>
                                       ) : (
                                         <span className="text-gray-400">—</span>
@@ -829,7 +827,7 @@ const GamesPage = () => {
                               className="w-3 h-3 mr-2"
                               style={{ backgroundColor: homeTeamColor }}
                             ></div>
-                            {game.home_team} Players
+                            {game.homeTeam} Players
                           </h3>
                           <table className="min-w-full">
                             <thead className="bg-gray-50">
@@ -846,24 +844,24 @@ const GamesPage = () => {
                               </tr>
                             </thead>
                             <tbody>
-                              {game.home_team_players.map((player, idx) => (
+                              {game.homeTeamPlayers.map((player, idx) => (
                                 <tr
                                   key={idx}
                                   className="border-t hover:bg-gray-50"
                                 >
                                   <td className="py-1 px-2">
                                     <div className="flex items-center">
-                                      {player.image_url ? (
+                                      {player.imageUrl ? (
                                         <img
-                                          src={player.image_url}
-                                          alt={player.player_name || ""}
+                                          src={player.imageUrl}
+                                          alt={player.playerName || ""}
                                           className="w-6 h-6 rounded-full mr-2"
                                         />
                                       ) : (
                                         <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
                                           <span className="text-xs font-medium">
                                             {(
-                                              player.player_name ||
+                                              player.playerName ||
                                               player.name ||
                                               ""
                                             )
@@ -873,18 +871,18 @@ const GamesPage = () => {
                                         </div>
                                       )}
                                       <span className="text-xs">
-                                        {player.player_name || player.name}
+                                        {player.playerName || player.name}
                                       </span>
                                     </div>
                                   </td>
                                   <td className="py-1 px-2 text-xs">
-                                    {player.fantasy_team ? (
+                                    {player.fantasyTeam ? (
                                       <Link
-                                        to={`/teams/${player.fantasy_team_id}`}
+                                        to={`/teams/${player.fantasyTeamId}`}
                                         className="text-[#6D4C9F] hover:underline"
                                         onClick={(e) => e.stopPropagation()}
                                       >
-                                        {player.fantasy_team}
+                                        {player.fantasyTeam}
                                       </Link>
                                     ) : (
                                       <span className="text-gray-400">—</span>

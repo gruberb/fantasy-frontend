@@ -75,7 +75,7 @@ const HomePage = () => {
           // Format time string
           let timeString;
           try {
-            const gameDate = new Date(game.start_time);
+            const gameDate = new Date(game.startTime);
             timeString = gameDate.toLocaleTimeString([], {
               hour: "numeric",
               minute: "2-digit",
@@ -86,7 +86,7 @@ const HomePage = () => {
           }
 
           // Get game status
-          const gameStatus = game.game_state || "SCHEDULED";
+          const gameStatus = game.gameState || "SCHEDULED";
 
           return (
             <GameCard
@@ -132,21 +132,21 @@ const HomePage = () => {
 
   // Extract summary stats
   const gamesSummary = todaysGamesData?.summary || {
-    total_games: 0,
-    total_teams_playing: 0,
-    team_players_count: [],
+    totalGames: 0,
+    totalTeamsPlaying: 0,
+    teamPlayersCount: [],
   };
 
   // Get most represented team
   const mostPlayersTeam =
-    gamesSummary.team_players_count.length > 0
-      ? gamesSummary.team_players_count[0].nhl_team
+    gamesSummary.teamPlayersCount.length > 0
+      ? gamesSummary.teamPlayersCount[0].nhlTeam
       : "N/A";
 
   // Get player count for that team
   const mostPlayersCount =
-    gamesSummary.team_players_count.length > 0
-      ? gamesSummary.team_players_count[0].player_count
+    gamesSummary.teamPlayersCount.length > 0
+      ? gamesSummary.teamPlayersCount[0].playerCount
       : 0;
 
   return (

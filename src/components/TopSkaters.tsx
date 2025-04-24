@@ -59,7 +59,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                         <div className="flex-shrink-0 h-6 w-6">
                           <img
                             src={player.headshot}
-                            alt={`${player.first_name} ${player.last_name}`}
+                            alt={`${player.firstName} ${player.lastName}`}
                             className="w-6 h-6 rounded-full"
                           />
                         </div>
@@ -70,7 +70,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                             rel="noopener noreferrer"
                             className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium group-hover:underline"
                           >
-                            {player.last_name}
+                            {player.lastName}
                           </a>
                         </div>
                         <svg
@@ -91,19 +91,19 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <a
-                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.team_abbrev)}`}
+                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.teamAbbrev)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center group"
                       >
                         <div className="flex items-center">
                           <img
-                            src={player.team_logo}
-                            alt={player.team_abbrev}
+                            src={player.teamLogo}
+                            alt={player.teamAbbrev}
                             className="h-5 w-5 rounded mr-2"
                           />
                           <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline hidden sm:table-cell">
-                            {player.team_abbrev}
+                            {player.teamAbbrev}
                           </span>
                           <span>
                             <svg
@@ -125,12 +125,12 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                       </a>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
-                      {player.fantasy_team ? (
+                      {player.fantasyTeam ? (
                         <Link
-                          to={`/teams/${player.fantasy_team.team_id}`}
+                          to={`/teams/${player.fantasyTeam.teamId}`}
                           className="inline-flex items-center hover:underline text-[#6D4C9F] font-medium"
                         >
-                          <span>{player.fantasy_team.team_name}</span>
+                          <span>{player.fantasyTeam.teamName}</span>
                         </Link>
                       ) : (
                         <span className="text-gray-500">—</span>
@@ -182,7 +182,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                         <div className="flex-shrink-0 h-6 w-6">
                           <img
                             src={player.headshot}
-                            alt={`${player.first_name} ${player.last_name}`}
+                            alt={`${player.firstName} ${player.lastName}`}
                             className="w-6 h-6 rounded-full"
                           />
                         </div>
@@ -193,7 +193,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                             rel="noopener noreferrer"
                             className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium group-hover:underline"
                           >
-                            {player.last_name}
+                            {player.lastName}
                           </a>
                         </div>
                         <span>
@@ -216,19 +216,19 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
                       <a
-                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.team_abbrev)}`}
+                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.teamAbbrev)}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="inline-flex items-center group"
                       >
                         <div className="flex items-center">
                           <img
-                            src={player.team_logo}
-                            alt={player.team_abbrev}
+                            src={player.teamLogo}
+                            alt={player.teamAbbrev}
                             className="h-5 w-5 rounded mr-2"
                           />
                           <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline hidden sm:table-cell">
-                            {player.team_abbrev}
+                            {player.teamAbbrev}
                           </span>
                           <span>
                             {" "}
@@ -251,12 +251,12 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
                       </a>
                     </td>
                     <td className="py-3 px-4 whitespace-nowrap">
-                      {player.fantasy_team ? (
+                      {player.fantasyTeam ? (
                         <Link
-                          to={`/teams/${player.fantasy_team.team_id}`}
+                          to={`/teams/${player.fantasyTeam.teamId}`}
                           className="inline-flex items-center hover:underline text-[#6D4C9F] font-medium"
                         >
-                          <span>{player.fantasy_team.team_name}</span>
+                          <span>{player.fantasyTeam.teamName}</span>
                         </Link>
                       ) : (
                         <span className="text-gray-500">—</span>

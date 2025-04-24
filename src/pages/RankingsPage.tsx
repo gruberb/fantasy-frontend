@@ -9,7 +9,6 @@ import {
   toLocalDateString,
   dateStringToLocalDate,
   formatDisplayDate,
-  isSameLocalDay,
 } from "../utils/timezone";
 
 const RankingsPage = () => {

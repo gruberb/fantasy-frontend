@@ -7,87 +7,87 @@ export interface Team {
   id: number;
   name: string;
   abbreviation?: string;
-  team_logo?: string;
+  teamLogo?: string;
 }
 
 export interface PlayerStats {
   name: string;
-  nhl_team: string;
-  nhl_id: number;
+  nhlTeam: string;
+  nhlId: number;
   position: string;
   goals: number;
   assists: number;
-  total_points: number;
-  image_url?: string;
-  team_logo?: string;
+  totalPoints: number;
+  imageUrl?: string;
+  teamLogo?: string;
 }
 
 export interface TeamPoints {
-  team_id: number;
-  team_name: string;
+  teamId: number;
+  teamName: string;
   players: PlayerStats[];
-  team_totals: {
+  teamTotals: {
     goals: number;
     assists: number;
-    total_points: number;
+    totalPoints: number;
   };
 }
 
 export interface Ranking {
   rank: number;
-  team_id: number;
-  team_name: string;
+  teamId: number;
+  teamName: string;
   goals: number;
   assists: number;
-  total_points: number;
+  totalPoints: number;
 }
 
 export interface Player {
   id?: number;
   name: string;
-  team_id?: number;
+  teamId?: number;
   position: string;
-  jersey_number?: number;
-  nhl_team?: string;
-  fantasy_team?: string;
-  fantasy_team_id?: number;
-  fantasy_team_name?: string;
-  image_url?: string;
-  team_logo?: string;
-  player_name?: string; // Alternative name field used in some responses
+  jerseyNumber?: number;
+  nhlTeam?: string;
+  fantasyTeam?: string;
+  fantasyTeamId?: number;
+  fantasyTeamName?: string;
+  imageUrl?: string;
+  teamLogo?: string;
+  playerName?: string; // Alternative name field used in some responses
 }
 
 export interface TeamBet {
-  nhl_team: string;
-  nhl_team_name: string;
-  num_players: number;
-  team_logo?: string;
+  nhlTeam: string;
+  nhlTeamName: string;
+  numPlayers: number;
+  teamLogo?: string;
 }
 
 export interface TeamBetsResponse {
-  team_id: number;
-  team_name: string;
+  teamId: number;
+  teamName: string;
   bets: TeamBet[];
 }
 
 export interface Game {
   id: number;
-  home_team: string;
-  away_team: string;
-  start_time: string;
+  homeTeam: string;
+  awayTeam: string;
+  startTime: string;
   venue: string;
-  home_team_players: Player[];
-  away_team_players: Player[];
-  home_team_logo?: string;
-  away_team_logo?: string;
-  home_score?: number | null;
-  away_score?: number | null;
-  home_team_id?: number;
-  away_team_id?: number;
+  homeTeamPlayers: Player[];
+  awayTeamPlayers: Player[];
+  homeTeamLogo?: string;
+  awayTeamLogo?: string;
+  homeScore?: number | null;
+  awayScore?: number | null;
+  homeTeamId?: number;
+  awayTeamId?: number;
   status?: string;
-  game_state?: string;
+  gameState?: string;
   period?: string;
-  series_status: {
+  seriesStatus: {
     round: number;
     seriesTitle: string;
     topSeedTeamAbbrev: string;
@@ -102,47 +102,47 @@ export interface GamesResponse {
   date: string;
   games: Game[];
   summary: {
-    total_games: number;
-    total_teams_playing: number;
-    team_players_count: {
-      nhl_team: string;
-      player_count: number;
+    totalGames: number;
+    totalTeamsPlaying: number;
+    teamPlayersCount: {
+      nhlTeam: string;
+      playerCount: number;
     }[];
   };
 }
 
 export interface DailyFantasyRanking {
   rank: number;
-  team_id: number;
-  team_name: string;
-  daily_points: number;
-  player_highlights: {
-    player_name: string;
+  teamId: number;
+  teamName: string;
+  dailyPoints: number;
+  playerHighlights: {
+    playerName: string;
     points: number;
-    nhl_team: string;
-    nhl_id?: number;
-    image_url?: string;
+    nhlTeam: string;
+    nhlId?: number;
+    imageUrl?: string;
   }[];
 }
 
 export interface TopSkater {
   id: number;
-  first_name: string;
-  last_name: string;
-  sweater_number?: number;
+  firstName: string;
+  lastName: string;
+  sweaterNumber?: number;
   headshot: string;
-  team_abbrev: string;
-  team_name: string;
-  team_logo: string;
+  teamAbbrev: string;
+  teamName: string;
+  teamLogo: string;
   position: string;
   value: number;
   category: string;
-  fantasy_team: FantasyTeam;
+  fantasyTeam: FantasyTeam;
 }
 
 export interface FantasyTeam {
-  team_id: number;
-  team_name: string;
+  teamId: number;
+  teamName: string;
 }
 
 export interface TopSkatersResponse {

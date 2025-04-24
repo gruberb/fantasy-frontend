@@ -3,19 +3,19 @@ import { toLocalDateString } from "../utils/timezone";
 
 // Interfaces remain the same
 interface PlayerHighlight {
-  player_name: string;
+  playerName: string;
   points: number;
-  nhl_team: string;
-  image_url?: string;
-  nhl_id?: number;
+  nhlTeam: string;
+  imageUrl?: string;
+  nhlId?: number;
 }
 
 interface RankingItem {
   rank: number;
-  team_id: number;
-  team_name: string;
-  daily_points: number;
-  player_highlights: PlayerHighlight[];
+  teamId: number;
+  teamName: string;
+  dailyPoints: number;
+  playerHighlights: PlayerHighlight[];
 }
 
 interface DailyRankingsResponse {
@@ -108,7 +108,7 @@ const DailyRankingsCard = ({
           <tbody className="bg-white divide-y divide-gray-50">
             {displayRankings.map((team) => (
               <tr
-                key={team.team_id}
+                key={team.teamId}
                 className="hover:bg-gray-50 transition-colors"
               >
                 <td className="py-3 px-4 whitespace-nowrap">
@@ -128,56 +128,55 @@ const DailyRankingsCard = ({
                 </td>
                 <td className="py-3 px-4 whitespace-nowrap">
                   <Link
-                    to={`/teams/${team.team_id}`}
+                    to={`/teams/${team.teamId}`}
                     className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium flex items-center"
                   >
-                    {team.team_name}
+                    {team.teamName}
                   </Link>
                 </td>
                 <td className="py-3 px-4 font-semibold whitespace-nowrap">
-                  {team.daily_points}
+                  {team.dailyPoints}
                 </td>
                 <td className="py-3 px-4 whitespace-nowrap">
-                  {team.player_highlights &&
-                  team.player_highlights.length > 0 ? (
+                  {team.playerHighlights && team.playerHighlights.length > 0 ? (
                     <div className="flex items-center">
-                      {team.player_highlights[0].image_url ? (
+                      {team.playerHighlights[0].imageUrl ? (
                         <img
-                          src={team.player_highlights[0].image_url}
-                          alt={team.player_highlights[0].player_name}
+                          src={team.playerHighlights[0].imageUrl}
+                          alt={team.playerHighlights[0].playerName}
                           className="w-8 h-8 rounded-full mr-2"
                         />
                       ) : (
                         <div className="w-8 h-8 bg-[#6D4C9F]/10 rounded-full flex items-center justify-center mr-2">
                           <span className="text-xs font-medium text-[#6D4C9F]">
-                            {team.player_highlights[0].player_name
+                            {team.playerHighlights[0].playerName
                               .substring(0, 2)
                               .toUpperCase()}
                           </span>
                         </div>
                       )}
                       <div>
-                        {team.player_highlights[0].nhl_id ? (
+                        {team.playerHighlights[0].nhlId ? (
                           <a
-                            href={`https://www.nhl.com/player/${team.player_highlights[0].nhl_id}`}
+                            href={`https://www.nhl.com/player/${team.playerHighlights[0].nhlId}`}
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
                           >
                             {/* Full name for md and above */}
                             <span className="hidden md:inline">
-                              {team.player_highlights[0].player_name}
+                              {team.playerHighlights[0].playerName}
                             </span>
                             {/* Abbreviated name for small screens */}
                             <span className="md:hidden">
                               {(() => {
                                 const nameParts =
-                                  team.player_highlights[0].player_name.split(
+                                  team.playerHighlights[0].playerName.split(
                                     " ",
                                   );
                                 return nameParts.length >= 2
                                   ? `${nameParts[1]} ${nameParts[0].charAt(0)}.`
-                                  : team.player_highlights[0].player_name;
+                                  : team.playerHighlights[0].playerName;
                               })()}
                             </span>
                             <svg
@@ -198,23 +197,23 @@ const DailyRankingsCard = ({
                         ) : (
                           <div className="font-medium text-gray-900">
                             <span className="hidden md:inline">
-                              {team.player_highlights[0].player_name}
+                              {team.playerHighlights[0].playerName}
                             </span>
                             <span className="md:hidden">
                               {(() => {
                                 const nameParts =
-                                  team.player_highlights[0].player_name.split(
+                                  team.playerHighlights[0].playerName.split(
                                     " ",
                                   );
                                 return nameParts.length >= 2
                                   ? `${nameParts[1]} ${nameParts[0].charAt(0)}.`
-                                  : team.player_highlights[0].player_name;
+                                  : team.playerHighlights[0].playerName;
                               })()}
                             </span>
                           </div>
                         )}
                         <div className="text-xs text-gray-500">
-                          {team.player_highlights[0].points} pts
+                          {team.playerHighlights[0].points} pts
                         </div>
                       </div>
                     </div>

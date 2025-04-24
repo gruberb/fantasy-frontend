@@ -66,7 +66,7 @@ const GamesList = ({
 
           try {
             // Parse the ISO 8601 date string directly
-            const gameDate = new Date(game.start_time);
+            const gameDate = new Date(game.startTime);
 
             // Format for display
             timeString = gameDate.toLocaleTimeString([], {
@@ -86,7 +86,7 @@ const GamesList = ({
           }
 
           // Game status
-          const gameStatus = game.game_state || "SCHEDULED";
+          const gameStatus = game.gameState || "SCHEDULED";
 
           return (
             <GameCard

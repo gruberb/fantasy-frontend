@@ -43,8 +43,8 @@ const TeamDetailPage = () => {
     return <ErrorMessage message="Team not found or data unavailable" />;
   }
 
-  const currentTeamBets = teamBets?.find((tb) => tb.team_id === id)?.bets || [];
-  currentTeamBets.sort((a, b) => b.num_players - a.num_players);
+  const currentTeamBets = teamBets?.find((tb) => tb.teamId === id)?.bets || [];
+  currentTeamBets.sort((a, b) => b.numPlayers - a.numPlayers);
 
   const positionCounts = teamPoints.players.reduce(
     (acc: Record<string, number>, player) => {
@@ -55,7 +55,7 @@ const TeamDetailPage = () => {
   );
 
   const players = teamPoints.players.sort(
-    (a, b) => b.total_points - a.total_points,
+    (a, b) => b.totalPoints - a.totalPoints,
   );
   const positionData = Object.entries(positionCounts).map(
     ([position, count]) => ({ position, count }),
@@ -70,9 +70,9 @@ const TeamDetailPage = () => {
       </div>
 
       <div className="flex items-center space-x-4 mb-8">
-        {team.team_logo ? (
+        {team.teamLogo ? (
           <img
-            src={team.team_logo}
+            src={team.teamLogo}
             alt={`${team.name} logo`}
             className="w-24 h-24 object-contain"
           />
@@ -87,7 +87,7 @@ const TeamDetailPage = () => {
           <h1 className="text-3xl font-bold">{team.name}</h1>
           <p className="text-xl text-gray-600">Fantasy Team</p>
           <p className="text-lg text-gray-500">
-            Total Points: {teamPoints.team_totals.total_points}
+            Total Points: {teamPoints.teamTotals.totalPoints}
           </p>
         </div>
       </div>
@@ -100,32 +100,32 @@ const TeamDetailPage = () => {
             <div className="flex justify-between items-center border-b pb-2">
               <span className="font-medium">Goals</span>
               <span className="font-bold text-xl">
-                {teamPoints.team_totals.goals}
+                {teamPoints.teamTotals.goals}
               </span>
             </div>
             <div className="flex justify-between items-center border-b pb-2">
               <span className="font-medium">Assists</span>
               <span className="font-bold text-xl">
-                {teamPoints.team_totals.assists}
+                {teamPoints.teamTotals.assists}
               </span>
             </div>
             <div className="flex justify-between items-center border-b pb-2">
               <span className="font-medium">Total Points</span>
               <span className="font-bold text-xl">
-                {teamPoints.team_totals.total_points}
+                {teamPoints.teamTotals.totalPoints}
               </span>
             </div>
             <div className="grid grid-cols-2 gap-4 mt-4">
               <div className="bg-blue-50 p-4 rounded-lg text-center">
                 <div className="text-sm font-medium mb-1">Goals</div>
                 <div className="text-3xl font-bold">
-                  {teamPoints.team_totals.goals}
+                  {teamPoints.teamTotals.goals}
                 </div>
               </div>
               <div className="bg-green-50 p-4 rounded-lg text-center">
                 <div className="text-sm font-medium mb-1">Assists</div>
                 <div className="text-3xl font-bold">
-                  {teamPoints.team_totals.assists}
+                  {teamPoints.teamTotals.assists}
                 </div>
               </div>
             </div>
@@ -186,9 +186,9 @@ const TeamDetailPage = () => {
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="py-3 px-4 whitespace-nowrap">
                         <div className="flex items-center">
-                          {player.image_url ? (
+                          {player.imageUrl ? (
                             <img
-                              src={player.image_url}
+                              src={player.imageUrl}
                               alt={player.name}
                               className="h-10 w-10 rounded-full"
                             />
@@ -217,22 +217,22 @@ const TeamDetailPage = () => {
                           className="inline-flex items-center group"
                         >
                           <div className="flex items-center">
-                            {player.team_logo ? (
+                            {player.teamLogo ? (
                               <img
-                                src={player.team_logo}
-                                alt={`${player.nhl_team} logo`}
+                                src={player.teamLogo}
+                                alt={`${player.nhlTeam} logo`}
                                 className="h-6 w-6 mr-2"
                               />
                             ) : null}
                             <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                              {player.nhl_team}
+                              {player.nhlTeam}
                             </span>
                           </div>
                         </a>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         <div className="text-sm h-7 font-semibold text-gray-900">
-                          {player.total_points}
+                          {player.totalPoints}
                         </div>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
@@ -275,18 +275,18 @@ const TeamDetailPage = () => {
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="py-3 px-4 whitespace-nowrap text-center">
                         <div className="flex items-center">
-                          {bet.team_logo ? (
+                          {bet.teamLogo ? (
                             <img
-                              src={bet.team_logo}
-                              alt={`${bet.nhl_team} logo`}
+                              src={bet.teamLogo}
+                              alt={`${bet.nhlTeam} logo`}
                               className="h-6 w-6 mr-2"
                             />
                           ) : null}
-                          <span>{bet.nhl_team_name}</span>
+                          <span>{bet.nhlTeamName}</span>
                         </div>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap text-center">
-                        {bet.num_players}
+                        {bet.numPlayers}
                       </td>
                     </tr>
                   ))}

@@ -82,9 +82,9 @@ const RankingsTable = ({
           <tbody>
             {displayRankings.map((team) => (
               <tr
-                key={team.team_id}
+                key={team.teamId}
                 className="border-b border-gray-50 transition-colors duration-150 hover:bg-[#f8f7ff] cursor-pointer"
-                onClick={() => navigate(`/teams/${team.team_id}`)}
+                onClick={() => navigate(`/teams/${team.teamId}`)}
               >
                 <td className="py-3 px-4">
                   <div
@@ -93,13 +93,13 @@ const RankingsTable = ({
                     {team.rank}
                   </div>
                 </td>
-                <td className="py-3 px-4 font-medium">{team.team_name}</td>
+                <td className="py-3 px-4 font-medium">{team.teamName}</td>
                 {/* These cells will be hidden on small screens using responsive classes */}
                 <td className="py-3 px-4 hidden md:table-cell">{team.goals}</td>
                 <td className="py-3 px-4 hidden md:table-cell">
                   {team.assists}
                 </td>
-                <td className="py-3 px-4 font-bold">{team.total_points}</td>
+                <td className="py-3 px-4 font-bold">{team.totalPoints}</td>
               </tr>
             ))}
           </tbody>

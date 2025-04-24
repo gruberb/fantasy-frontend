@@ -2,19 +2,19 @@ import { Link } from "react-router-dom";
 
 // Define the expected structure based on the actual API response
 interface PlayerHighlight {
-  player_name: string;
+  playerName: string;
   points: number;
-  nhl_team: string;
-  image_url?: string;
-  nhl_id?: number;
+  nhlTeam: string;
+  imageUrl?: string;
+  nhlId?: number;
 }
 
 interface RankingItem {
   rank: number;
-  team_id: number;
-  team_name: string;
-  daily_points: number;
-  player_highlights: PlayerHighlight[];
+  teamId: number;
+  teamName: string;
+  dailyPoints: number;
+  playerHighlights: PlayerHighlight[];
 }
 
 interface DailyRankingsResponse {
@@ -92,7 +92,7 @@ const GameDaySummary = ({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
         {sortedRankings.map((team) => (
           <div
-            key={team.team_id}
+            key={team.teamId}
             className="border border-gray-100 rounded-md p-3 hover:bg-gray-50 transition-colors"
           >
             <div className="flex justify-between items-center">
@@ -111,43 +111,43 @@ const GameDaySummary = ({
                   {team.rank}
                 </div>
                 <Link
-                  to={`/teams/${team.team_id}`}
+                  to={`/teams/${team.teamId}`}
                   className="font-medium hover:text-[#6D4C9F] hover:underline"
                 >
-                  {team.team_name}
+                  {team.teamName}
                 </Link>
               </div>
-              <div className="text-lg font-bold">{team.daily_points} pts</div>
+              <div className="text-lg font-bold">{team.dailyPoints} pts</div>
             </div>
 
-            {team.player_highlights && team.player_highlights.length > 0 && (
+            {team.playerHighlights && team.playerHighlights.length > 0 && (
               <div className="mt-2 text-sm text-gray-600">
                 <p className="font-medium">Top performers:</p>
                 <div className="flex flex-wrap gap-2 mt-1">
-                  {team.player_highlights.slice(0, 2).map((player, idx) => (
+                  {team.playerHighlights.slice(0, 2).map((player, idx) => (
                     <div key={idx} className="flex items-center">
-                      {player.image_url ? (
+                      {player.imageUrl ? (
                         <img
-                          src={player.image_url}
-                          alt={player.player_name}
+                          src={player.imageUrl}
+                          alt={player.playerName}
                           className="w-6 h-6 rounded-full mr-1"
                         />
                       ) : (
                         <div className="w-6 h-6 bg-[#6D4C9F]/10 rounded-full flex items-center justify-center mr-1">
                           <span className="text-xs font-medium text-[#6D4C9F]">
-                            {player.player_name.substring(0, 2).toUpperCase()}
+                            {player.playerName.substring(0, 2).toUpperCase()}
                           </span>
                         </div>
                       )}
-                      {player.nhl_id ? (
+                      {player.nhlId ? (
                         <a
-                          href={`https://www.nhl.com/player/${player.nhl_id}`}
+                          href={`https://www.nhl.com/player/${player.nhlId}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-gray-800 hover:text-[#6D4C9F] hover:underline flex items-center"
                         >
                           <span>
-                            {player.player_name}: {player.points} pts
+                            {player.playerName}: {player.points} pts
                           </span>
                           <svg
                             className="w-3 h-3 ml-1 text-gray-500"
@@ -166,7 +166,7 @@ const GameDaySummary = ({
                         </a>
                       ) : (
                         <span>
-                          {player.player_name}: {player.points} pts
+                          {player.playerName}: {player.points} pts
                         </span>
                       )}
                     </div>

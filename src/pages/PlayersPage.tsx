@@ -3,7 +3,6 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
-import { Link } from "react-router-dom";
 
 const PlayersPage = () => {
   // State for filters
@@ -48,11 +47,11 @@ const PlayersPage = () => {
         for (const player of teamData.players) {
           players.push({
             ...player,
-            teamName: teamData.team_name,
-            teamId: teamData.team_id,
-            teamAbbreviation: player.nhl_team || "",
+            teamName: teamData.teamName,
+            teamId: teamData.teamId,
+            teamAbbreviation: player.nhlTeam || "",
             // Generate the URL slug for the NHL team website
-            nhlTeamUrlSlug: getNHLTeamUrlSlug(player.nhl_team || ""),
+            nhlTeamUrlSlug: getNHLTeamUrlSlug(player.nhlTeam || ""),
           });
         }
       }
@@ -74,7 +73,7 @@ const PlayersPage = () => {
         const matchesSearch =
           player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           player.teamName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          player.nhl_team?.toLowerCase().includes(searchTerm.toLowerCase());
+          player.nhlTeam?.toLowerCase().includes(searchTerm.toLowerCase());
 
         // Position filter
         const matchesPosition =
@@ -90,10 +89,10 @@ const PlayersPage = () => {
         } else if (sortBy === "team") {
           return a.teamName?.localeCompare(b.teamName || "") || 0;
         } else if (sortBy === "nhlTeam") {
-          return (a.nhl_team || "").localeCompare(b.nhl_team || "");
+          return (a.nhlTeam || "").localeCompare(b.nhlTeam || "");
         } else if (sortBy === "points") {
           // Sort descending by total_points
-          return b.total_points - a.total_points;
+          return b.totalPoints - a.totalPoints;
         }
         return 0;
       });
@@ -107,7 +106,7 @@ const PlayersPage = () => {
 
     const grouped = {};
     for (const player of filteredPlayers) {
-      const groupKey = groupByTeam === true ? player.teamName : player.nhl_team;
+      const groupKey = groupByTeam === true ? player.teamName : player.nhlTeam;
       if (!groupKey) continue;
 
       if (!grouped[groupKey]) {
@@ -324,15 +323,15 @@ const PlayersPage = () => {
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="py-3 px-4 whitespace-nowrap">
                         <a
-                          href={`https://www.nhl.com/player/${player.nhl_id}`}
+                          href={`https://www.nhl.com/player/${player.nhlId}`}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center group"
                         >
                           <div className="flex-shrink-0 h-10 w-10">
-                            {player.image_url ? (
+                            {player.imageUrl ? (
                               <img
-                                src={player.image_url}
+                                src={player.imageUrl}
                                 alt={player.name}
                                 className="h-10 w-10 rounded-full"
                               />
@@ -380,15 +379,15 @@ const PlayersPage = () => {
                           className="inline-flex items-center group"
                         >
                           <div className="flex items-center">
-                            {player.team_logo ? (
+                            {player.teamLogo ? (
                               <img
-                                src={player.team_logo}
-                                alt={`${player.nhl_team} logo`}
+                                src={player.teamLogo}
+                                alt={`${player.nhlTeam} logo`}
                                 className="h-6 w-6 mr-2"
                               />
                             ) : null}
                             <span className="text-sm  hidden sm:table-cell text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                              {player.nhl_team}
+                              {player.nhlTeam}
                             </span>
                             <svg
                               className="w-3 h-3 ml-1 text-gray-500"
@@ -409,7 +408,7 @@ const PlayersPage = () => {
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap">
                         <div className="text-sm font-semibold text-gray-900">
-                          {player.total_points}
+                          {player.totalPoints}
                         </div>
                       </td>
                       <td className="py-3 px-4 whitespace-nowrap hidden sm:table-cell">
