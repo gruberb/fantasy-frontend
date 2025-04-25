@@ -172,12 +172,13 @@ const HomePage = () => {
 
   return (
     <div className="max-w-6xl mx-auto">
-      {/* Header with stats */}
+      {/* Header with stats - first row */}
       <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
         <h1 className="text-3xl font-bold mb-2">Fantasy NHL Dashboard</h1>
-        <p className="text-lg opacity-90 mb-6">Todays Games overview:</p>
+        <p className="text-lg opacity-90 mb-6">Today's Games overview:</p>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {/* First row - standard stats */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
           <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
             <div className="text-sm opacity-80">Team with most bets</div>
             <div className="text-2xl font-bold">
@@ -200,44 +201,51 @@ const HomePage = () => {
               )}
             </div>
           </div>
-          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
-            <div className="text-sm opacity-80">Active Playoffs Teams</div>
-            <div className="flex flex-wrap gap-2 mt-2">
-              {playoffsLoading ? (
-                <div className="h-8 w-16 bg-white/20 rounded animate-pulse"></div>
-              ) : (
-                Array.from(teamsInPlayoffs).map((teamAbbrev) => {
-                  const teamLogo = getTeamLogoUrl(teamAbbrev);
-                  const url_slug = getNHLTeamUrlSlug(teamAbbrev);
-                  return (
-                    <div
-                      key={teamAbbrev}
-                      className="bg-white/20 rounded-full p-1 flex items-center justify-center"
-                      title={teamAbbrev}
+        </div>
+
+        {/* Second row - playoff teams that takes full width */}
+        <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+          <div className="text-sm opacity-80 mb-3">Active Playoffs Teams</div>
+          <div className="flex flex-wrap gap-3">
+            {playoffsLoading ? (
+              <div className="h-8 w-16 bg-white/20 rounded animate-pulse"></div>
+            ) : (
+              Array.from(teamsInPlayoffs).map((teamAbbrev) => {
+                const teamLogo = getTeamLogoUrl(teamAbbrev);
+                const url_slug = getNHLTeamUrlSlug(teamAbbrev);
+                return (
+                  <div
+                    key={teamAbbrev}
+                    className="bg-white/20 rounded-lg p-2 flex items-center justify-center"
+                    title={teamAbbrev}
+                  >
+                    <a
+                      href={`https://www.nhl.com/${url_slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex flex-col items-center group"
                     >
-                      <a
-                        href={`https://www.nhl.com/${url_slug}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="inline-flex items-center group"
-                      >
-                        {teamLogo ? (
-                          <img
-                            src={teamLogo}
-                            alt={teamAbbrev}
-                            className="w-8 h-8 object-contain"
-                          />
-                        ) : (
-                          <span className="text-xs font-bold text-white px-2 py-1">
+                      {teamLogo ? (
+                        <img
+                          src={teamLogo}
+                          alt={teamAbbrev}
+                          className="w-12 h-12 object-contain mb-1"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-white/10 rounded-full flex items-center justify-center mb-1">
+                          <span className="text-sm font-bold text-white">
                             {teamAbbrev}
                           </span>
-                        )}
-                      </a>
-                    </div>
-                  );
-                })
-              )}
-            </div>
+                        </div>
+                      )}
+                      <span className="text-xs font-medium text-white">
+                        {teamAbbrev}
+                      </span>
+                    </a>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
       </div>
