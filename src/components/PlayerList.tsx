@@ -109,7 +109,7 @@ const PlayerList = ({
                 )}
                 <td className="py-3 px-4 whitespace-nowrap">
                   <Link
-                    to={`/teams/${player.teamId || player.fantasyTeamId}`}
+                    to={`/teams/${player.teamId || player.fantasyTeam}`}
                     className="text-[#6D4C9F] hover:text-[#5A3A87] hover:underline font-medium"
                   >
                     View Team →

@@ -5,10 +5,10 @@ import { api } from "../api/client";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import FantasyTeamSummary from "../components/FantasyTeamSummary";
+import DatePickerHeader from "../components/DatePickerHeader";
 import {
   toLocalDateString,
   dateStringToLocalDate,
-  formatDisplayDate,
   isSameLocalDay,
 } from "../utils/timezone";
 
@@ -67,9 +67,21 @@ const GamesPage = () => {
   };
 
   // State for filters
-  const [filterTeam, setFilterTeam] = useState<string>("all");
-  const [expandedGame, setExpandedGame] = useState<number | null>(null);
+  const [filterTeam] = useState<string>("all");
+  const [expandedGames, setExpandedGames] = useState<Set<number>>(new Set());
   const [autoRefresh, setAutoRefresh] = useState<boolean>(false);
+
+  const toggleGameExpansion = (gameId: number) => {
+    setExpandedGames((prevExpandedGames) => {
+      const newExpandedGames = new Set(prevExpandedGames);
+      if (newExpandedGames.has(gameId)) {
+        newExpandedGames.delete(gameId);
+      } else {
+        newExpandedGames.add(gameId);
+      }
+      return newExpandedGames;
+    });
+  };
 
   // Auto-refresh for live games
   useEffect(() => {
@@ -103,17 +115,6 @@ const GamesPage = () => {
       }
       return api.getGames(selectedDate);
     },
-    retry: 1,
-  });
-
-  // Fetch daily fantasy rankings for the selected date
-  const {
-    data: dailyRankings,
-    isLoading: dailyRankingsLoading,
-    error: dailyRankingsError,
-  } = useQuery({
-    queryKey: ["dailyRankings", selectedDate],
-    queryFn: () => api.getDailyFantasySummary(selectedDate),
     retry: 1,
   });
 
@@ -165,59 +166,14 @@ const GamesPage = () => {
     return "#041E42"; // NHL blue
   };
 
-  const addDaysToDateString = (dateString: string, days: number): string => {
-    const date = dateStringToLocalDate(dateString); // get local date
-    date.setDate(date.getDate() + days); // add (or subtract) days in local time
-    return toLocalDateString(date); // convert back to YYYY-MM-DD
-  };
-
-  const removeDaysFromString = (dateString: string, days: number): string => {
-    const date = dateStringToLocalDate(dateString); // get local date
-    date.setDate(date.getDate() - days); // add (or subtract) days in local time
-    return toLocalDateString(date); // convert back to YYYY-MM-DD
-  };
-
-  // Build date range for the date picker
-  const getDateRange = () => {
-    const dates = [];
-    const today = new Date(); // local
-    for (let i = -14; i <= 0; i++) {
-      // Create a local date offset by i days from 'today'
-      const date = new Date(today);
-      date.setDate(today.getDate() + i);
-
-      // Convert to local YYYY-MM-DD
-      const dateString = toLocalDateString(date);
-
-      const isToday = i === 0;
-      const isYesterday = i === -1;
-
-      dates.push({
-        value: dateString,
-        label: isToday
-          ? "Today"
-          : isYesterday
-            ? "Yesterday"
-            : toLocalDateString(date),
-        isToday,
-        isYesterday,
-      });
-    }
-    return dates;
-  };
-
-  const dateRange = getDateRange();
-
-  // Format date for display
-  const formattedDisplayDate = formatDisplayDate(
-    dateStringToLocalDate(selectedDate),
-  );
-
   // Check if any games are live
   const hasLiveGames =
-    gamesData?.games.some(
-      (game) => (game.gameState || "").toUpperCase() === "LIVE",
-    ) || false;
+    (gamesData?.games &&
+      gamesData.games.length > 0 &&
+      gamesData.games.some(
+        (game) => (game.gameState || "").toUpperCase() === "LIVE",
+      )) ||
+    false;
 
   // Function to render the games tab content
   const renderGamesTab = () => {
@@ -247,10 +203,13 @@ const GamesPage = () => {
       );
     }
 
-    if (!gamesData) {
+    // Add proper null checking
+    if (gamesData?.games && gamesData.games.length === 0) {
       return (
         <div className="bg-white rounded-lg shadow-md p-6 text-center">
-          <ErrorMessage message="No game data available for the selected date." />
+          <p className="text-gray-500">
+            No game data available for the selected date.
+          </p>
         </div>
       );
     }
@@ -337,7 +296,7 @@ const GamesPage = () => {
             </div>
           </div>
 
-          {filteredGames.length === 0 ? (
+          {!filteredGames || filteredGames.length === 0 ? (
             <div className="bg-white rounded-lg shadow-md p-12 text-center">
               <p className="text-gray-500">
                 No games scheduled for this date with the selected filters.
@@ -574,18 +533,14 @@ const GamesPage = () => {
                     <div className="border-t">
                       <button
                         className="w-full py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center"
-                        onClick={() =>
-                          setExpandedGame(
-                            expandedGame === game.id ? null : game.id,
-                          )
-                        }
+                        onClick={() => toggleGameExpansion(game.id)}
                       >
                         <span>
-                          {expandedGame === game.id ? "Hide" : "Show"} Player
+                          {expandedGames.has(game.id) ? "Hide" : "Show"} Player
                           Details
                         </span>
                         <svg
-                          className={`ml-2 h-5 w-5 transform ${expandedGame === game.id ? "rotate-180" : ""} transition-transform duration-200`}
+                          className={`ml-2 h-5 w-5 transform ${expandedGames.has(game.id) ? "rotate-180" : ""} transition-transform duration-200`}
                           fill="none"
                           viewBox="0 0 24 24"
                           stroke="currentColor"
@@ -600,7 +555,7 @@ const GamesPage = () => {
                       </button>
 
                       {/* Collapsible content */}
-                      {expandedGame === game.id && (
+                      {expandedGames.has(game.id) && (
                         <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-6">
                           {/* Away team players */}
                           <div>
@@ -659,19 +614,7 @@ const GamesPage = () => {
                                         </div>
                                       </td>
                                       <td className="py-1 px-2 text-xs">
-                                        {player.fantasyTeam ? (
-                                          <Link
-                                            to={`/teams/${player.fantasyTeamId}`}
-                                            className="text-[#6D4C9F] hover:underline"
-                                            onClick={(e) => e.stopPropagation()}
-                                          >
-                                            {player.fantasyTeam}
-                                          </Link>
-                                        ) : (
-                                          <span className="text-gray-400">
-                                            —
-                                          </span>
-                                        )}
+                                        {player.fantasyTeam}
                                       </td>
                                       <td className="py-1 px-2 text-xs font-medium">
                                         {player.points || 0}
@@ -739,17 +682,7 @@ const GamesPage = () => {
                                       </div>
                                     </td>
                                     <td className="py-1 px-2 text-xs">
-                                      {player.fantasyTeam ? (
-                                        <Link
-                                          to={`/teams/${player.fantasyTeamId}`}
-                                          className="text-[#6D4C9F] hover:underline"
-                                          onClick={(e) => e.stopPropagation()}
-                                        >
-                                          {player.fantasyTeam}
-                                        </Link>
-                                      ) : (
-                                        <span className="text-gray-400">—</span>
-                                      )}
+                                      {player.fantasyTeam}
                                     </td>
                                     <td className="py-1 px-2 text-xs font-medium">
                                       {player.points || 0}
@@ -780,91 +713,12 @@ const GamesPage = () => {
   return (
     <div>
       {/* Page header */}
-      <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-3xl font-bold mb-2 pb-2">Game Center</h1>
-        <p className="text-lg opacity-90 mb-4">
-          Follow up on all match days, scores and the top players of the day.
-        </p>
-        <div className="bg-white/10 p-2 m-2 rounded-lg shadow-sm mb-6 border border-white/20">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            {/* Date header */}
-            <h2 className="text-lg md:text-xl font-medium mb-4 md:mb-0">
-              {formattedDisplayDate}
-            </h2>
-            {/* Date controls */}
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => {
-                  const prevDate = removeDaysFromString(selectedDate, 1);
-                  updateSelectedDate(prevDate);
-                }}
-                className="p-1 md:p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
-                aria-label="Previous day"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-
-              <select
-                value={selectedDate}
-                onChange={(e) => updateSelectedDate(e.target.value)}
-                className="p-1 md:p-2 bg-white/10 border border-white/20 rounded-md text-center text-white focus:outline-none focus:ring-2 focus:ring-white/50"
-              >
-                {dateRange.map((date) => (
-                  <option key={date.value} value={date.value}>
-                    {date.isToday ? `Today` : date.label}
-                  </option>
-                ))}
-              </select>
-
-              <button
-                onClick={() => {
-                  const nextDate = addDaysToDateString(selectedDate, 1);
-                  updateSelectedDate(nextDate);
-                }}
-                className="p-1 md:p-2 rounded-md bg-white/10 border border-white/20 text-white hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
-                aria-label="Next day"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  className="h-5 w-5"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-
-              <button
-                onClick={() =>
-                  updateSelectedDate(toLocalDateString(new Date()))
-                }
-                className="ml-2 px-2 md:px-3 py-1 md:py-2 bg-white/10 border border-white/20 text-white rounded-md hover:bg-white/20 transition-colors focus:outline-none focus:ring-2 focus:ring-white/50"
-              >
-                Today
-              </button>
-            </div>
-          </div>
-        </div>
-      </div>
+      <DatePickerHeader
+        title="Game Center"
+        subtitle="Follow up on all match days, scores and the top players of the day."
+        selectedDate={selectedDate}
+        onDateChange={updateSelectedDate}
+      />
 
       {/* Tab navigation */}
       <div className="border-b border-gray-200 mb-6">

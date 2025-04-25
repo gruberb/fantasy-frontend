@@ -173,6 +173,7 @@ const NavBar = () => {
             </NavLink>
             <NavLink
               to={`/games/${toLocalDateString(new Date())}`}
+              onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 isActive || isGamesRouteActive()
                   ? activeLinkClass

@@ -32,7 +32,6 @@ interface FantasyTeamSummaryProps {
 const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   selectedDate,
 }) => {
-  const [expandedTeam, setExpandedTeam] = useState<number | null>(null);
   const [fantasyTeamCounts, setFantasyTeamCounts] = useState<
     FantasyTeamCount[]
   >([]);
@@ -40,6 +39,8 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   const [sortBy, setSortBy] = useState<
     "playerCount" | "teamName" | "totalPoints"
   >("playerCount");
+
+  const [expandedTeams, setExpandedTeams] = useState<Set<number>>(new Set());
   const [expandAll, setExpandAll] = useState<boolean>(false);
   const [nameToIdMap, setNameToIdMap] = useState<Record<string, number>>({});
 
@@ -80,6 +81,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   useEffect(() => {
     if (
       gamesData?.games &&
+      gamesData.games.length > 0 &&
       teams &&
       !teamsLoading &&
       !gamesLoading &&
@@ -304,12 +306,21 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
     if (expandAll) {
       setExpandAll(false);
     }
-    setExpandedTeam(expandedTeam === teamId ? null : teamId);
+
+    setExpandedTeams((prevExpandedTeams) => {
+      const newExpandedTeams = new Set(prevExpandedTeams);
+      if (newExpandedTeams.has(teamId)) {
+        newExpandedTeams.delete(teamId);
+      } else {
+        newExpandedTeams.add(teamId);
+      }
+      return newExpandedTeams;
+    });
   };
 
   const toggleExpandAll = () => {
     setExpandAll(!expandAll);
-    setExpandedTeam(null); // Reset individual expansion when toggling expand all
+    expandedTeams.clear(); // Reset individual expansion when toggling expand all
   };
 
   // Sort the teams based on criteria
@@ -338,7 +349,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
         <div className="mt-4 text-sm text-gray-500">
           <p>Games loaded: {gamesData?.games?.length || 0}</p>
           <p>Teams loaded: {teams?.length || 0}</p>
-          {gamesData?.games?.length > 0 && (
+          {gamesData?.games && gamesData.games.length > 0 && (
             <p>
               First game has {gamesData.games[0].homeTeamPlayers?.length || 0}{" "}
               home players and {gamesData.games[0].awayTeamPlayers?.length || 0}{" "}
@@ -433,7 +444,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
               </div>
               <div>
                 <svg
-                  className={`w-5 h-5 text-gray-400 transform transition-transform ${expandedTeam === team.teamId || expandAll ? "rotate-180" : ""}`}
+                  className={`w-5 h-5 text-gray-400 transform transition-transform ${expandedTeams.has(team.teamId) || expandAll ? "rotate-180" : ""}`}
                   fill="none"
                   viewBox="0 0 24 24"
                   stroke="currentColor"
@@ -449,7 +460,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
             </div>
 
             {/* Collapsible player details */}
-            {(expandedTeam === team.teamId || expandAll) && (
+            {(expandedTeams.has(team.teamId) || expandAll) && (
               <div className="border-t border-gray-100 bg-gray-50">
                 <div className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-100">
                   Players

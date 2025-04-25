@@ -45,14 +45,11 @@ export interface Ranking {
 export interface Player {
   id?: number;
   name: string;
-  teamId?: number;
   position: string;
   points?: number;
   jerseyNumber?: number;
   nhlTeam?: string;
   fantasyTeam?: string;
-  fantasyTeamId?: number;
-  fantasyTeamName?: string;
   imageUrl?: string;
   teamLogo?: string;
   playerName?: string; // Alternative name field used in some responses
