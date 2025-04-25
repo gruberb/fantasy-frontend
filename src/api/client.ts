@@ -148,6 +148,32 @@ export interface TopSkatersResponse {
   assists?: TopSkater[];
 }
 
+export interface PlayoffTeam {
+  id: number;
+  abbrev: string;
+  wins: number;
+}
+
+export interface PlayoffSeries {
+  seriesLetter: string;
+  roundNumber: number;
+  seriesLabel: string;
+  bottomSeed: PlayoffTeam;
+  topSeed: PlayoffTeam;
+}
+
+export interface PlayoffRound {
+  roundNumber: number;
+  roundLabel: string;
+  roundAbbrev: string;
+  series: PlayoffSeries[];
+}
+
+export interface PlayoffsResponse {
+  currentRound: number;
+  rounds: PlayoffRound[];
+}
+
 // Helper function for API requests that handles the wrapped response structure
 async function fetchApi<T>(endpoint: string): Promise<T> {
   const url = `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
@@ -243,5 +269,9 @@ export const api = {
     return fetchApi<TopSkatersResponse>(
       `get-top-skaters?category=goals,assists&limit=${limit}`,
     );
+  },
+
+  async getPlayoffs(season: string = "20242025"): Promise<PlayoffsResponse> {
+    return fetchApi<PlayoffsResponse>(`playoffs?season=${season}`);
   },
 };

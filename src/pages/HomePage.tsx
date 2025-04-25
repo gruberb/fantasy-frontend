@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
+import { usePlayoffsData } from "../hooks/usePlayoffsData";
 
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
@@ -12,10 +13,13 @@ import { getYesterdayString, dateStringToLocalDate } from "../utils/timezone";
 import DailyRankingsCard from "../components/DailyRankingsCard";
 
 import { toLocalDateString } from "../utils/timezone";
+import { getTeamLogoUrl, getNHLTeamUrlSlug } from "../utils/nhlTeams";
 
 const HomePage = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState("rankings");
+
+  const { teamsInPlayoffs, isLoading: playoffsLoading } = usePlayoffsData();
 
   // Get yesterday's date string
   const yesterdayString = getYesterdayString();
@@ -193,6 +197,45 @@ const HomePage = () => {
                 <div className="h-8 w-8 bg-white/20 rounded animate-pulse"></div>
               ) : (
                 mostPlayersCount
+              )}
+            </div>
+          </div>
+          <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4">
+            <div className="text-sm opacity-80">Active Playoffs Teams</div>
+            <div className="flex flex-wrap gap-2 mt-2">
+              {playoffsLoading ? (
+                <div className="h-8 w-16 bg-white/20 rounded animate-pulse"></div>
+              ) : (
+                Array.from(teamsInPlayoffs).map((teamAbbrev) => {
+                  const teamLogo = getTeamLogoUrl(teamAbbrev);
+                  const url_slug = getNHLTeamUrlSlug(teamAbbrev);
+                  return (
+                    <div
+                      key={teamAbbrev}
+                      className="bg-white/20 rounded-full p-1 flex items-center justify-center"
+                      title={teamAbbrev}
+                    >
+                      <a
+                        href={`https://www.nhl.com/${url_slug}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center group"
+                      >
+                        {teamLogo ? (
+                          <img
+                            src={teamLogo}
+                            alt={teamAbbrev}
+                            className="w-8 h-8 object-contain"
+                          />
+                        ) : (
+                          <span className="text-xs font-bold text-white px-2 py-1">
+                            {teamAbbrev}
+                          </span>
+                        )}
+                      </a>
+                    </div>
+                  );
+                })
               )}
             </div>
           </div>

@@ -1,3 +1,4 @@
+import { useMemo } from "react";
 import { useParams, Link } from "react-router-dom";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -10,12 +11,16 @@ import {
   Legend,
 } from "recharts";
 import { api } from "../api/client";
+import { usePlayoffsData } from "../hooks/usePlayoffsData";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 
 const TeamDetailPage = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const id = parseInt(teamId || "0", 10);
+
+  // ALWAYS call all hooks at the top level, unconditionally
+  const { isTeamInPlayoffs, isLoading: playoffsLoading } = usePlayoffsData();
 
   const { data: teams, isLoading: teamsLoading } = useQuery({
     queryKey: ["teams"],
@@ -33,32 +38,68 @@ const TeamDetailPage = () => {
     queryFn: api.getTeamBets,
   });
 
-  if (teamsLoading || pointsLoading || betsLoading) {
+  // Calculate playoff-related data using useMemo
+  // This way the calculations only happen when dependencies change, not on every render
+  const playoffStats = useMemo(() => {
+    // Default values when data isn't loaded yet
+    const defaultStats = {
+      teamsInPlayoffsCount: 0,
+      teamsInPlayoffs: [],
+      sortedPlayersInPlayoffsCount: 0,
+      sortedPlayersInPlayoffs: [],
+    };
+
+    // Only calculate if all dependencies are available
+    if (!teamPoints || !teamBets || playoffsLoading || !isTeamInPlayoffs) {
+      return defaultStats;
+    }
+
+    // Find the team's bets
+    const currentTeamBets = teamBets.find((tb) => tb.teamId === id)?.bets || [];
+
+    // Check if players array exists before accessing it
+    const players = teamPoints?.players || [];
+
+    // Filter for teams and players in playoffs
+    const teamsInPlayoffs = currentTeamBets.filter((bet) =>
+      isTeamInPlayoffs(bet.nhlTeam),
+    );
+
+    const playersInPlayoffs = players.filter((player) =>
+      isTeamInPlayoffs(player.nhlTeam || ""),
+    );
+
+    const sortedPlayersInPlayoffs = [...playersInPlayoffs].sort(
+      (a, b) => b.totalPoints - a.totalPoints,
+    );
+
+    return {
+      teamsInPlayoffsCount: teamsInPlayoffs.length,
+      teamsInPlayoffs,
+      sortedPlayersInPlayoffsCount: playersInPlayoffs.length,
+      sortedPlayersInPlayoffs,
+    };
+  }, [id, teamPoints, teamBets, playoffsLoading, isTeamInPlayoffs]);
+
+  // Early return for loading state
+  if (teamsLoading || pointsLoading || betsLoading || playoffsLoading) {
     return <LoadingSpinner size="large" message="Loading team data..." />;
   }
 
+  // Error handling after all hooks are called
   const team = teams?.find((t) => t.id === id);
-
   if (!team || !teamPoints) {
     return <ErrorMessage message="Team not found or data unavailable" />;
   }
 
+  // Safe access to data
   const currentTeamBets = teamBets?.find((tb) => tb.teamId === id)?.bets || [];
-  currentTeamBets.sort((a, b) => b.numPlayers - a.numPlayers);
-
-  const positionCounts = teamPoints.players.reduce(
-    (acc: Record<string, number>, player) => {
-      acc[player.position] = (acc[player.position] || 0) + 1;
-      return acc;
-    },
-    {},
+  const sortedTeamBets = [...currentTeamBets].sort(
+    (a, b) => b.numPlayers - a.numPlayers,
   );
-
-  const players = teamPoints.players.sort(
+  const players = teamPoints?.players || [];
+  const sortedPlayers = [...players].sort(
     (a, b) => b.totalPoints - a.totalPoints,
-  );
-  const positionData = Object.entries(positionCounts).map(
-    ([position, count]) => ({ position, count }),
   );
 
   return (
@@ -132,34 +173,110 @@ const TeamDetailPage = () => {
           </div>
         </section>
 
-        {/* Players by Position (Bar Chart) */}
-        <section className="card">
-          <h2 className="text-2xl font-bold mb-4">Players by Position</h2>
-          {positionData.length > 0 ? (
-            <div className="h-64 mb-4">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart data={positionData}>
-                  <XAxis dataKey="position" />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  <Bar
-                    dataKey="count"
-                    name="Number of Players"
-                    fill="#041E42"
-                  />
-                </BarChart>
-              </ResponsiveContainer>
+        {/* Playoff Stats Section */}
+        <section className="card mt-8">
+          <h2 className="text-2xl font-bold mb-4">Playoff Status</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div>
+              <h3 className="text-lg font-medium mb-3">
+                NHL Teams in Playoffs
+              </h3>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex justify-between mb-2">
+                  <span>Teams in Playoffs:</span>
+                  <span className="font-bold">
+                    {playoffStats.teamsInPlayoffsCount} /{" "}
+                    {currentTeamBets.length}
+                  </span>
+                </div>
+
+                {playoffStats.teamsInPlayoffs.length > 0 ? (
+                  <div className="mt-3">
+                    <h4 className="text-sm font-medium mb-2">
+                      Teams Still Active:
+                    </h4>
+                    <div className="flex flex-wrap gap-2">
+                      {playoffStats.teamsInPlayoffs.map((team) => (
+                        <div
+                          key={team.nhlTeam}
+                          className="flex items-center bg-gray-50 text-gray-800 px-3 py-1 rounded border border-gray-200"
+                        >
+                          {team.teamLogo && (
+                            <img
+                              src={team.teamLogo}
+                              alt={team.nhlTeam}
+                              className="w-5 h-5 mr-2"
+                            />
+                          )}
+                          <span className="text-sm font-medium">
+                            {team.nhlTeamName}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm mt-2">
+                    No teams in playoffs
+                  </p>
+                )}
+              </div>
             </div>
-          ) : (
-            <p className="text-gray-500">No position data available.</p>
-          )}
+
+            <div>
+              <h3 className="text-lg font-medium mb-3">Playoffs Stats</h3>
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <div className="flex justify-between mb-2">
+                  <span>Players in Playoffs</span>
+                  <span className="font-bold">
+                    {playoffStats.sortedPlayersInPlayoffsCount} /{" "}
+                    {players.length}
+                  </span>
+                </div>
+
+                {playoffStats.sortedPlayersInPlayoffsCount > 0 ? (
+                  <div className="mt-3">
+                    <h4 className="text-sm font-medium mb-2">Top 5 Players</h4>
+                    <div className="flex flex-col gap-2">
+                      {playoffStats.sortedPlayersInPlayoffs
+                        .slice(0, 5)
+                        .map((player) => (
+                          <div key={player.name} className="flex items-center">
+                            {player.imageUrl ? (
+                              <img
+                                src={player.imageUrl}
+                                alt={player.name}
+                                className="w-6 h-6 rounded-full mr-2"
+                              />
+                            ) : (
+                              <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                <span className="text-xs font-medium">
+                                  {player.name.substring(0, 2).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <span className="text-sm">{player.name}</span>
+                            <span className="ml-auto text-sm font-bold">
+                              {player.totalPoints} pts
+                            </span>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                ) : (
+                  <p className="text-gray-500 text-sm mt-2">
+                    No players in playoffs
+                  </p>
+                )}
+              </div>
+            </div>
+          </div>
         </section>
 
         {/* Player Roster */}
         <section className="card">
           <h2 className="text-2xl font-bold mb-4">Player Roster</h2>
-          {players.length > 0 ? (
+          {sortedPlayers.length > 0 ? (
             <div className="overflow-x-auto">
               <table className="min-w-full divide-y divide-gray-100">
                 <thead className="bg-gray-50">
@@ -182,7 +299,7 @@ const TeamDetailPage = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {players.map((player, index) => (
+                  {sortedPlayers.map((player, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="py-3 px-4 whitespace-nowrap">
                         <div className="flex items-center">
@@ -255,7 +372,7 @@ const TeamDetailPage = () => {
           )}
         </section>
 
-        {currentTeamBets.length > 0 && (
+        {sortedTeamBets.length > 0 && (
           <section className="card">
             <h2 className="text-2xl font-bold mb-4">NHL Team Bets</h2>
             <div className="overflow-x-auto">
@@ -271,7 +388,7 @@ const TeamDetailPage = () => {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-100">
-                  {currentTeamBets.map((bet, index) => (
+                  {sortedTeamBets.map((bet, index) => (
                     <tr key={index} className="hover:bg-gray-50">
                       <td className="py-3 px-4 whitespace-nowrap text-center">
                         <div className="flex items-center">

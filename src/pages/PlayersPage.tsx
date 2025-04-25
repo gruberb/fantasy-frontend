@@ -1,36 +1,41 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
+import { usePlayoffsData } from "../hooks/usePlayoffsData";
 import LoadingSpinner from "../components/LoadingSpinner";
 import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
 
 const PlayersPage = () => {
-  // State for filters
+  // Always call this hook at the top level
+  const { isTeamInPlayoffs } = usePlayoffsData();
+
+  // All state variables
+  const [inPlayoffsFilter, setInPlayoffsFilter] = useState<boolean | null>(
+    null,
+  );
   const [searchTerm, setSearchTerm] = useState("");
   const [positionFilter, setPositionFilter] = useState("all");
   const [sortBy, setSortBy] = useState("points");
   const [groupByTeam, setGroupByTeam] = useState(true);
 
-  // Fetch teams to get team names
+  // All React Query hooks
   const { data: teams, isLoading: teamsLoading } = useQuery({
     queryKey: ["teams"],
     queryFn: api.getTeams,
   });
 
-  // Fetch all team details to get players
   const { data: teamPointsData, isLoading: playersLoading } = useQuery({
     queryKey: ["allTeamPlayers"],
     queryFn: async () => {
       if (!teams || !Array.isArray(teams)) return [];
 
-      // Fetch points data for each team which includes player info
       const promises = teams.map((team) => api.getTeamPoints(team.id));
       return Promise.all(promises);
     },
     enabled: !!teams && Array.isArray(teams),
   });
 
-  // Process all players from all teams
+  // Process all players with useMemo
   const allPlayers = useMemo(() => {
     if (
       !teamPointsData ||
@@ -41,7 +46,6 @@ const PlayersPage = () => {
     }
 
     const players = [];
-    // Flatten players from all teams
     for (const teamData of teamPointsData) {
       if (teamData && teamData.players && Array.isArray(teamData.players)) {
         for (const player of teamData.players) {
@@ -50,7 +54,6 @@ const PlayersPage = () => {
             teamName: teamData.teamName,
             teamId: teamData.teamId,
             teamAbbreviation: player.nhlTeam || "",
-            // Generate the URL slug for the NHL team website
             nhlTeamUrlSlug: getNHLTeamUrlSlug(player.nhlTeam || ""),
           });
         }
@@ -59,29 +62,33 @@ const PlayersPage = () => {
     return players;
   }, [teamPointsData]);
 
-  // Get unique positions for filter
+  // Additional useMemo hooks after all basic hooks
   const positions = useMemo(() => {
     const posSet = new Set(allPlayers.map((player) => player.position));
     return Array.from(posSet).sort();
   }, [allPlayers]);
 
-  // Apply filters and sorting
   const filteredPlayers = useMemo(() => {
     return allPlayers
       .filter((player) => {
-        // Text search
         const matchesSearch =
           player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
           player.teamName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           player.nhlTeam?.toLowerCase().includes(searchTerm.toLowerCase());
 
-        // Position filter
         const matchesPosition =
           positionFilter === "all" || player.position === positionFilter;
 
-        return matchesSearch && matchesPosition;
+        const matchesPlayoff =
+          inPlayoffsFilter === null ||
+          (inPlayoffsFilter
+            ? isTeamInPlayoffs(player.nhlTeam || "")
+            : !isTeamInPlayoffs(player.nhlTeam || ""));
+
+        return matchesSearch && matchesPosition && matchesPlayoff;
       })
       .sort((a, b) => {
+        // Sorting logic
         if (sortBy === "name") {
           return a.name.localeCompare(b.name);
         } else if (sortBy === "position") {
@@ -91,14 +98,19 @@ const PlayersPage = () => {
         } else if (sortBy === "nhlTeam") {
           return (a.nhlTeam || "").localeCompare(b.nhlTeam || "");
         } else if (sortBy === "points") {
-          // Sort descending by total_points
           return b.totalPoints - a.totalPoints;
         }
         return 0;
       });
-  }, [allPlayers, searchTerm, positionFilter, sortBy]);
+  }, [
+    allPlayers,
+    searchTerm,
+    positionFilter,
+    sortBy,
+    inPlayoffsFilter,
+    isTeamInPlayoffs,
+  ]);
 
-  // Group players by team if groupByTeam is true
   const groupedPlayers = useMemo(() => {
     if (!groupByTeam) {
       return { "All Players": filteredPlayers };
@@ -117,12 +129,12 @@ const PlayersPage = () => {
     return grouped;
   }, [filteredPlayers, groupByTeam]);
 
-  // Loading state
+  // Loading check after all hooks
   if (teamsLoading || playersLoading) {
     return <LoadingSpinner size="large" message="Loading players data..." />;
   }
 
-  // No data state
+  // No data check after all hooks
   if (allPlayers.length === 0) {
     return (
       <div className="text-center py-8">
@@ -211,6 +223,32 @@ const PlayersPage = () => {
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-white mb-1">
+                Playoff Status
+              </label>
+              <select
+                value={
+                  inPlayoffsFilter === null
+                    ? "all"
+                    : inPlayoffsFilter
+                      ? "in"
+                      : "out"
+                }
+                onChange={(e) => {
+                  const val = e.target.value;
+                  if (val === "all") setInPlayoffsFilter(null);
+                  else if (val === "in") setInPlayoffsFilter(true);
+                  else setInPlayoffsFilter(false);
+                }}
+                className="w-full p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+              >
+                <option value="all">All Players</option>
+                <option value="in">In Playoffs</option>
+                <option value="out">Eliminated</option>
+              </select>
+            </div>
+
             {/* Checkbox Filter */}
             <div className="flex items-end">
               <div className="flex h-8">
@@ -293,7 +331,12 @@ const PlayersPage = () => {
             <div className="flex items-center mb-2">
               <h2 className="text-xl font-bold text-gray-800">{teamName}</h2>
               <span className="ml-2 text-sm text-gray-500 px-2 py-1 bg-gray-100 rounded-full">
-                {players.length} players
+                {players.length} players (
+                {
+                  players.filter((p) => isTeamInPlayoffs(p.nhlTeam || ""))
+                    .length
+                }{" "}
+                still in Playoffs)
               </span>
             </div>
 
@@ -320,7 +363,10 @@ const PlayersPage = () => {
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-50">
                   {players.map((player, index) => (
-                    <tr key={index} className="hover:bg-gray-50">
+                    <tr
+                      key={index}
+                      className={`hover:bg-gray-50 ${!isTeamInPlayoffs(player.nhlTeam || "") ? "opacity-60" : ""}`}
+                    >
                       <td className="py-3 px-4 whitespace-nowrap">
                         <a
                           href={`https://www.nhl.com/player/${player.nhlId}`}

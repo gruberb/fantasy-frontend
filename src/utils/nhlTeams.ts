@@ -272,3 +272,8 @@ export function getNHLTeamShortName(teamIdentifier: string): string {
 
   return teamIdentifier;
 }
+
+// Define a mapping for team logos
+export function getTeamLogoUrl(abbreviation: string): string {
+  return `https://assets.nhle.com/logos/nhl/svg/${abbreviation}_light.svg`;
+}

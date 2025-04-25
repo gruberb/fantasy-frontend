@@ -1,10 +1,14 @@
-import { useState } from "react";
+// src/pages/RankingsPage.tsx - Fix the missing imports and playoffRankings
+
+import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
+import { usePlayoffsData } from "../hooks/usePlayoffsData";
 import LoadingSpinner from "../components/LoadingSpinner";
 import ErrorMessage from "../components/ErrorMessage";
 import DailyRankingsCard from "../components/DailyRankingsCard";
 import RankingsTable from "../components/RankingsTable";
+import PlayoffRankingsTable from "../components/PlayoffsRankingTable";
 import DatePickerHeader from "../components/DatePickerHeader";
 import { toLocalDateString, dateStringToLocalDate } from "../utils/timezone";
 
@@ -17,6 +21,8 @@ const RankingsPage = () => {
     return toLocalDateString(yesterday);
   });
 
+  const { isTeamInPlayoffs } = usePlayoffsData();
+
   const {
     data: rankings,
     isLoading: rankingsLoading,
@@ -25,6 +31,68 @@ const RankingsPage = () => {
     queryKey: ["rankings"],
     queryFn: () => api.getRankings(),
   });
+
+  const { data: teamBets, isLoading: teamBetsLoading } = useQuery({
+    queryKey: ["teamBets"],
+    queryFn: api.getTeamBets,
+  });
+
+  const teamIds = rankings?.map((team) => team.teamId) || [];
+
+  const { data: allTeamPoints, isLoading: teamPointsLoading } = useQuery({
+    queryKey: ["allTeamPoints"],
+    queryFn: async () => {
+      if (!teamIds.length) return {};
+
+      // Fetch all team points data in parallel
+      const results = await Promise.all(
+        teamIds.map((id) => api.getTeamPoints(id).catch(() => null)),
+      );
+
+      // Create a map of teamId -> points data
+      return results.reduce((acc, data, index) => {
+        if (data) acc[teamIds[index]] = data;
+        return acc;
+      }, {});
+    },
+    enabled: teamIds.length > 0,
+  });
+
+  // Calculate playoff rankings
+  const playoffRankings = useMemo(() => {
+    if (!rankings || !teamBets || !allTeamPoints || !isTeamInPlayoffs)
+      return [];
+
+    return rankings
+      .map((team) => {
+        const teamBet = teamBets.find((tb) => tb.teamId === team.teamId);
+        const bets = teamBet?.bets || [];
+
+        const teamsInPlayoffs = bets.filter((bet) =>
+          isTeamInPlayoffs(bet.nhlTeam),
+        ).length;
+        const totalTeams = bets.length;
+
+        // Safely access team points data
+        const teamPoints = allTeamPoints[team.teamId];
+        const players = teamPoints?.players || [];
+        const playersInPlayoffs = players.filter((p) =>
+          isTeamInPlayoffs(p.nhlTeam || ""),
+        ).length;
+        const totalPlayers = players.length;
+
+        return {
+          ...team,
+          teamsInPlayoffs,
+          totalTeams,
+          playersInPlayoffs,
+          totalPlayers,
+          // Weight players higher than teams since they're harder to get right
+          playoffScore: teamsInPlayoffs * 10 + playersInPlayoffs * 5,
+        };
+      })
+      .sort((a, b) => b.playoffScore - a.playoffScore);
+  }, [rankings, teamBets, allTeamPoints, isTeamInPlayoffs]);
 
   const {
     data: dailyRankings,
@@ -37,6 +105,10 @@ const RankingsPage = () => {
   });
 
   const displayDate = dateStringToLocalDate(selectedDate);
+
+  // Loading state for the playoff rankings
+  const playoffRankingsLoading =
+    rankingsLoading || teamBetsLoading || teamPointsLoading;
 
   return (
     <div>
@@ -75,6 +147,15 @@ const RankingsPage = () => {
           <div className="card overflow-x-auto">
             <RankingsTable rankings={rankings} />
           </div>
+        )}
+      </div>
+
+      {/* Playoff Rankings */}
+      <div className="mt-8">
+        {playoffRankingsLoading ? (
+          <LoadingSpinner message="Loading playoff rankings..." />
+        ) : (
+          <PlayoffRankingsTable playoffRankings={playoffRankings} />
         )}
       </div>
     </div>
