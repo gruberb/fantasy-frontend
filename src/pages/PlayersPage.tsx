@@ -1,140 +1,37 @@
-import { useState, useMemo } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "../api/client";
-import { usePlayoffsData } from "../hooks/usePlayoffsData";
-import LoadingSpinner from "../components/LoadingSpinner";
-import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
+import LoadingSpinner from "../components/common/LoadingSpinner";
+import PlayersHeader from "../components/players/PlayersHeader";
+import PlayerStatsOverview from "../components/players/PlayerStatsOverview";
+import PlayerTeamSection from "../components/players/PlayerTeamSection";
+import EmptyPlayersState from "../components/players/EmptyPlayersState";
+import { usePlayers } from "../hooks/usePlayers";
 
 const PlayersPage = () => {
-  // Always call this hook at the top level
-  const { isTeamInPlayoffs } = usePlayoffsData();
-
-  // All state variables
-  const [inPlayoffsFilter, setInPlayoffsFilter] = useState<boolean | null>(
-    null,
-  );
-  const [searchTerm, setSearchTerm] = useState("");
-  const [positionFilter, setPositionFilter] = useState("all");
-  const [sortBy, setSortBy] = useState("points");
-  const [groupByTeam, setGroupByTeam] = useState(true);
-
-  // All React Query hooks
-  const { data: teams, isLoading: teamsLoading } = useQuery({
-    queryKey: ["teams"],
-    queryFn: api.getTeams,
-  });
-
-  const { data: teamPointsData, isLoading: playersLoading } = useQuery({
-    queryKey: ["allTeamPlayers"],
-    queryFn: async () => {
-      if (!teams || !Array.isArray(teams)) return [];
-
-      const promises = teams.map((team) => api.getTeamPoints(team.id));
-      return Promise.all(promises);
-    },
-    enabled: !!teams && Array.isArray(teams),
-  });
-
-  // Process all players with useMemo
-  const allPlayers = useMemo(() => {
-    if (
-      !teamPointsData ||
-      !Array.isArray(teamPointsData) ||
-      teamPointsData.length === 0
-    ) {
-      return [];
-    }
-
-    const players = [];
-    for (const teamData of teamPointsData) {
-      if (teamData && teamData.players && Array.isArray(teamData.players)) {
-        for (const player of teamData.players) {
-          players.push({
-            ...player,
-            teamName: teamData.teamName,
-            teamId: teamData.teamId,
-            teamAbbreviation: player.nhlTeam || "",
-            nhlTeamUrlSlug: getNHLTeamUrlSlug(player.nhlTeam || ""),
-          });
-        }
-      }
-    }
-    return players;
-  }, [teamPointsData]);
-
-  // Additional useMemo hooks after all basic hooks
-  const positions = useMemo(() => {
-    const posSet = new Set(allPlayers.map((player) => player.position));
-    return Array.from(posSet).sort();
-  }, [allPlayers]);
-
-  const filteredPlayers = useMemo(() => {
-    return allPlayers
-      .filter((player) => {
-        const matchesSearch =
-          player.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          player.teamName?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          player.nhlTeam?.toLowerCase().includes(searchTerm.toLowerCase());
-
-        const matchesPosition =
-          positionFilter === "all" || player.position === positionFilter;
-
-        const matchesPlayoff =
-          inPlayoffsFilter === null ||
-          (inPlayoffsFilter
-            ? isTeamInPlayoffs(player.nhlTeam || "")
-            : !isTeamInPlayoffs(player.nhlTeam || ""));
-
-        return matchesSearch && matchesPosition && matchesPlayoff;
-      })
-      .sort((a, b) => {
-        // Sorting logic
-        if (sortBy === "name") {
-          return a.name.localeCompare(b.name);
-        } else if (sortBy === "position") {
-          return a.position.localeCompare(b.position);
-        } else if (sortBy === "team") {
-          return a.teamName?.localeCompare(b.teamName || "") || 0;
-        } else if (sortBy === "nhlTeam") {
-          return (a.nhlTeam || "").localeCompare(b.nhlTeam || "");
-        } else if (sortBy === "points") {
-          return b.totalPoints - a.totalPoints;
-        }
-        return 0;
-      });
-  }, [
+  const {
     allPlayers,
+    filteredPlayers,
+    groupedPlayers,
+    positions,
+    positionCounts,
+    isLoading,
     searchTerm,
+    setSearchTerm,
     positionFilter,
+    setPositionFilter,
     sortBy,
+    setSortBy,
     inPlayoffsFilter,
+    setInPlayoffsFilter,
+    groupByTeam,
+    setGroupByTeam,
     isTeamInPlayoffs,
-  ]);
+  } = usePlayers();
 
-  const groupedPlayers = useMemo(() => {
-    if (!groupByTeam) {
-      return { "All Players": filteredPlayers };
-    }
-
-    const grouped = {};
-    for (const player of filteredPlayers) {
-      const groupKey = groupByTeam === true ? player.teamName : player.nhlTeam;
-      if (!groupKey) continue;
-
-      if (!grouped[groupKey]) {
-        grouped[groupKey] = [];
-      }
-      grouped[groupKey].push(player);
-    }
-    return grouped;
-  }, [filteredPlayers, groupByTeam]);
-
-  // Loading check after all hooks
-  if (teamsLoading || playersLoading) {
+  // Loading check
+  if (isLoading) {
     return <LoadingSpinner size="large" message="Loading players data..." />;
   }
 
-  // No data check after all hooks
+  // No data check
   if (allPlayers.length === 0) {
     return (
       <div className="text-center py-8">
@@ -146,333 +43,42 @@ const PlayersPage = () => {
 
   return (
     <div>
-      {/* Header section */}
-      <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-3xl font-bold mb-2">NHL Players</h1>
-        <p className="text-lg opacity-90 mb-4">
-          Browse and search all fantasy hockey players
-        </p>
-        {/* Filters */}
-        <div className="bg-white/10 p-4 rounded-lg shadow-sm mb-6 border border-white/20">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
-            {/* Search Filter */}
-            <div>
-              <label className="block text-sm font-medium text-white mb-1">
-                Search
-              </label>
-              <div className="relative">
-                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                  <svg
-                    className="w-4 h-4 text-gray-300"
-                    fill="none"
-                    stroke="currentColor"
-                    viewBox="0 0 24 24"
-                    xmlns="http://www.w3.org/2000/svg"
-                  >
-                    <path
-                      strokeLinecap="round"
-                      strokeLinejoin="round"
-                      strokeWidth={2}
-                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
-                    />
-                  </svg>
-                </div>
-                <input
-                  type="text"
-                  placeholder="Search players or teams..."
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50"
-                />
-              </div>
-            </div>
+      {/* Header section with filters */}
+      <PlayersHeader
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        positionFilter={positionFilter}
+        setPositionFilter={setPositionFilter}
+        sortBy={sortBy}
+        setSortBy={setSortBy}
+        positions={positions}
+        inPlayoffsFilter={inPlayoffsFilter}
+        setInPlayoffsFilter={setInPlayoffsFilter}
+        groupByTeam={groupByTeam}
+        setGroupByTeam={setGroupByTeam}
+      />
 
-            {/* Position Filter */}
-            <div>
-              <label className="block text-sm font-medium text-white mb-1">
-                Position
-              </label>
-              <select
-                value={positionFilter}
-                onChange={(e) => setPositionFilter(e.target.value)}
-                className="w-full p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
-              >
-                <option value="all">All Positions</option>
-                {positions.map((pos) => (
-                  <option key={pos} value={pos}>
-                    {pos}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* Sort By Filter */}
-            <div>
-              <label className="block text-sm font-medium text-white mb-1">
-                Sort By
-              </label>
-              <select
-                value={sortBy}
-                onChange={(e) => setSortBy(e.target.value)}
-                className="w-full p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
-              >
-                <option value="points">Total Points</option>
-                <option value="name">Player Name</option>
-                <option value="team">Fantasy Team</option>
-                <option value="nhlTeam">NHL Team</option>
-              </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-white mb-1">
-                Playoff Status
-              </label>
-              <select
-                value={
-                  inPlayoffsFilter === null
-                    ? "all"
-                    : inPlayoffsFilter
-                      ? "in"
-                      : "out"
-                }
-                onChange={(e) => {
-                  const val = e.target.value;
-                  if (val === "all") setInPlayoffsFilter(null);
-                  else if (val === "in") setInPlayoffsFilter(true);
-                  else setInPlayoffsFilter(false);
-                }}
-                className="w-full p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
-              >
-                <option value="all">All Players</option>
-                <option value="in">In Playoffs</option>
-                <option value="out">Eliminated</option>
-              </select>
-            </div>
-
-            {/* Checkbox Filter */}
-            <div className="flex items-end">
-              <div className="flex h-8">
-                <input
-                  type="checkbox"
-                  id="groupByTeam"
-                  checked={groupByTeam}
-                  onChange={(e) => setGroupByTeam(e.target.checked)}
-                  className="mr-2 h-4 w-4 text-white focus:ring-2 focus:ring-white/50 border border-white/20 rounded"
-                />
-                <label
-                  htmlFor="groupByTeam"
-                  className="text-sm font-medium text-white"
-                >
-                  Group by Fantasy Team
-                </label>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Player stats */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border border-gray-100">
-        <div className="flex flex-wrap gap-4">
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-sm text-gray-600">Total Players</div>
-            <div className="text-xl font-bold">{allPlayers.length}</div>
-          </div>
-
-          <div className="bg-green-50 p-3 rounded-lg">
-            <div className="text-sm text-gray-600">Filtered Players</div>
-            <div className="text-xl font-bold">{filteredPlayers.length}</div>
-          </div>
-
-          {positions.map((pos) => (
-            <div
-              key={pos}
-              className="bg-gray-50 p-3 rounded-lg hidden sm:table-cell"
-            >
-              <div className="text-sm text-gray-600">{pos}</div>
-              <div className="text-xl font-bold">
-                {allPlayers.filter((p) => p.position === pos).length}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      {/* Player stats overview */}
+      <PlayerStatsOverview
+        totalPlayers={allPlayers.length}
+        filteredPlayers={filteredPlayers.length}
+        positionCounts={positionCounts}
+      />
 
       {/* Players List */}
       {Object.entries(groupedPlayers).length === 0 ? (
-        <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-gray-100">
-          <svg
-            className="w-16 h-16 text-gray-300 mx-auto mb-4"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M9.172 16.172a4 4 0 015.656 0M12 14a2 2 0 100-4 2 2 0 000 4z"
-            />
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth={1}
-              d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
-            />
-          </svg>
-          <p className="text-gray-500">
-            No players match your search criteria.
-          </p>
-        </div>
+        <EmptyPlayersState />
       ) : (
         Object.entries(groupedPlayers).map(([teamName, players]) => (
-          <div key={teamName} className="mb-6">
-            <div className="flex items-center mb-2">
-              <h2 className="text-xl font-bold text-gray-800">{teamName}</h2>
-              <span className="ml-2 text-sm text-gray-500 px-2 py-1 bg-gray-100 rounded-full">
-                {players.length} players (
-                {
-                  players.filter((p) => isTeamInPlayoffs(p.nhlTeam || ""))
-                    .length
-                }{" "}
-                still in Playoffs)
-              </span>
-            </div>
-
-            <div className="bg-white rounded-lg shadow-sm overflow-x-auto border border-gray-100">
-              <table className="min-w-full divide-y divide-gray-100">
-                <thead>
-                  <tr className="bg-gray-50">
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Name
-                    </th>
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      NHL Team
-                    </th>
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Points
-                    </th>
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
-                      Goals
-                    </th>
-                    <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider hidden sm:table-cell">
-                      Assists
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-50">
-                  {players.map((player, index) => (
-                    <tr
-                      key={index}
-                      className={`hover:bg-gray-50 ${!isTeamInPlayoffs(player.nhlTeam || "") ? "opacity-60" : ""}`}
-                    >
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <a
-                          href={`https://www.nhl.com/player/${player.nhlId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center group"
-                        >
-                          <div className="flex-shrink-0 h-10 w-10">
-                            {player.imageUrl ? (
-                              <img
-                                src={player.imageUrl}
-                                alt={player.name}
-                                className="h-10 w-10 rounded-full"
-                              />
-                            ) : (
-                              <div className="h-10 w-10 rounded-full bg-[#6D4C9F]/10 flex items-center justify-center">
-                                <span className="text-xs font-medium text-[#6D4C9F]">
-                                  {player.name.substring(0, 2).toUpperCase()}
-                                </span>
-                              </div>
-                            )}
-                          </div>
-
-                          <div className="ml-4">
-                            <div className="text-sm font-medium text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                              {player.name}
-                            </div>
-                            <div className="text-xs text-gray-500">
-                              {player.position}
-                            </div>
-                          </div>
-                          <div className="flex-shrink-0 h-7">
-                            {" "}
-                            <svg
-                              className="w-3 h-3 ml-1 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                              />
-                            </svg>
-                          </div>
-                        </a>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <a
-                          href={`https://www.nhl.com/${player.nhlTeamUrlSlug}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="inline-flex items-center group"
-                        >
-                          <div className="flex items-center">
-                            {player.teamLogo ? (
-                              <img
-                                src={player.teamLogo}
-                                alt={`${player.nhlTeam} logo`}
-                                className="h-6 w-6 mr-2"
-                              />
-                            ) : null}
-                            <span className="text-sm  hidden sm:table-cell text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                              {player.nhlTeam}
-                            </span>
-                            <svg
-                              className="w-3 h-3 ml-1 text-gray-500"
-                              fill="none"
-                              stroke="currentColor"
-                              viewBox="0 0 24 24"
-                              xmlns="http://www.w3.org/2000/svg"
-                            >
-                              <path
-                                strokeLinecap="round"
-                                strokeLinejoin="round"
-                                strokeWidth={2}
-                                d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"
-                              />
-                            </svg>
-                          </div>
-                        </a>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap">
-                        <div className="text-sm font-semibold text-gray-900">
-                          {player.totalPoints}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap hidden sm:table-cell">
-                        <div className="text-sm text-gray-900">
-                          {player.goals}
-                        </div>
-                      </td>
-                      <td className="py-3 px-4 whitespace-nowrap hidden sm:table-cell">
-                        <div className="text-sm text-gray-900">
-                          {player.assists}
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <PlayerTeamSection
+            key={teamName}
+            teamName={teamName}
+            players={players}
+            playersInPlayoffs={
+              players.filter((p) => isTeamInPlayoffs(p.nhlTeam || "")).length
+            }
+            isTeamInPlayoffs={isTeamInPlayoffs}
+          />
         ))
       )}
     </div>

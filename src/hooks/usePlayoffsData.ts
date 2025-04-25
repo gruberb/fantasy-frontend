@@ -1,4 +1,3 @@
-// src/hooks/usePlayoffsData.ts
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { useMemo, useCallback } from "react";
@@ -47,11 +46,6 @@ export function usePlayoffsData() {
     return Array.from(teamsInPlayoffs);
   }, [teamsInPlayoffs]);
 
-  // Add this function to get team logos
-  const getTeamLogoByAbbrev = useCallback((abbrev: string) => {
-    return NHL_TEAM_LOGOS[abbrev] || null;
-  }, []);
-
   return {
     playoffsData,
     isLoading,
@@ -59,6 +53,5 @@ export function usePlayoffsData() {
     teamsInPlayoffs,
     isTeamInPlayoffs,
     playoffTeamsArray,
-    getTeamLogoByAbbrev,
   };
 }

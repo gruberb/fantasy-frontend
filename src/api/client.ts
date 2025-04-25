@@ -1,178 +1,11 @@
+// src/api/client.ts
 import { getTodayString, getYesterdayString } from "../utils/timezone";
-
 import { API_URL } from "../config";
-
-// Define API types based on response structure from your Rust server
-export interface Team {
-  id: number;
-  name: string;
-  abbreviation?: string;
-  teamLogo?: string;
-}
-
-export interface PlayerStats {
-  name: string;
-  nhlTeam: string;
-  nhlId: number;
-  position: string;
-  goals: number;
-  assists: number;
-  totalPoints: number;
-  imageUrl?: string;
-  teamLogo?: string;
-}
-
-export interface TeamPoints {
-  teamId: number;
-  teamName: string;
-  players: PlayerStats[];
-  teamTotals: {
-    goals: number;
-    assists: number;
-    totalPoints: number;
-  };
-}
-
-export interface Ranking {
-  rank: number;
-  teamId: number;
-  teamName: string;
-  goals: number;
-  assists: number;
-  totalPoints: number;
-}
-
-export interface Player {
-  id?: number;
-  name: string;
-  position: string;
-  points?: number;
-  jerseyNumber?: number;
-  nhlTeam?: string;
-  fantasyTeam?: string;
-  imageUrl?: string;
-  teamLogo?: string;
-  playerName?: string; // Alternative name field used in some responses
-}
-
-export interface TeamBet {
-  nhlTeam: string;
-  nhlTeamName: string;
-  numPlayers: number;
-  teamLogo?: string;
-}
-
-export interface TeamBetsResponse {
-  teamId: number;
-  teamName: string;
-  bets: TeamBet[];
-}
-
-export interface Game {
-  id: number;
-  homeTeam: string;
-  awayTeam: string;
-  startTime: string;
-  venue: string;
-  homeTeamPlayers: Player[];
-  awayTeamPlayers: Player[];
-  homeTeamLogo?: string;
-  awayTeamLogo?: string;
-  homeScore?: number | null;
-  awayScore?: number | null;
-  homeTeamId?: number;
-  awayTeamId?: number;
-  status?: string;
-  gameState?: string;
-  period?: string;
-  seriesStatus: {
-    round: number;
-    seriesTitle: string;
-    topSeedTeamAbbrev: string;
-    topSeedWins: number;
-    bottomSeedTeamAbbrev: string;
-    bottomSeedWins: number;
-    gameNumberOfSeries: number;
-  };
-}
-
-export interface GamesResponse {
-  date: string;
-  games: Game[];
-  summary: {
-    totalGames: number;
-    totalTeamsPlaying: number;
-    teamPlayersCount: {
-      nhlTeam: string;
-      playerCount: number;
-    }[];
-  };
-}
-
-export interface DailyFantasyRanking {
-  rank: number;
-  teamId: number;
-  teamName: string;
-  dailyPoints: number;
-  playerHighlights: {
-    playerName: string;
-    points: number;
-    nhlTeam: string;
-    nhlId?: number;
-    imageUrl?: string;
-  }[];
-}
-
-export interface TopSkater {
-  id: number;
-  firstName: string;
-  lastName: string;
-  sweaterNumber?: number;
-  headshot: string;
-  teamAbbrev: string;
-  teamName: string;
-  teamLogo: string;
-  position: string;
-  value: number;
-  category: string;
-  fantasyTeam: FantasyTeam;
-}
-
-export interface FantasyTeam {
-  teamId: number;
-  teamName: string;
-}
-
-export interface TopSkatersResponse {
-  goals?: TopSkater[];
-  assists?: TopSkater[];
-}
-
-export interface PlayoffTeam {
-  id: number;
-  abbrev: string;
-  wins: number;
-}
-
-export interface PlayoffSeries {
-  seriesLetter: string;
-  roundNumber: number;
-  seriesLabel: string;
-  bottomSeed: PlayoffTeam;
-  topSeed: PlayoffTeam;
-}
-
-export interface PlayoffRound {
-  roundNumber: number;
-  roundLabel: string;
-  roundAbbrev: string;
-  series: PlayoffSeries[];
-}
-
-export interface PlayoffsResponse {
-  currentRound: number;
-  rounds: PlayoffRound[];
-}
+import { Team, TeamPoints, TeamBetsResponse } from "../types/teams";
+import { Player, GamesResponse } from "../types/games";
+import { Ranking, DailyFantasyRanking } from "../types/rankings";
+import { TopSkatersResponse } from "../types/players";
+import { PlayoffsResponse } from "../types/playoffs";
 
 // Helper function for API requests that handles the wrapped response structure
 async function fetchApi<T>(endpoint: string): Promise<T> {
@@ -201,6 +34,7 @@ async function fetchApi<T>(endpoint: string): Promise<T> {
     return jsonData as T;
   } catch (error) {
     console.error(`API request failed for ${endpoint}:`, error);
+    throw error;
   }
 }
 
