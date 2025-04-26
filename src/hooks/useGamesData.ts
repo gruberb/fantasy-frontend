@@ -80,7 +80,9 @@ export function useGamesData(dateParam?: string) {
     (gamesData?.games &&
       gamesData.games.length > 0 &&
       gamesData.games.some(
-        (game) => (game.gameState || "").toUpperCase() === "LIVE",
+        (game) =>
+          (game.gameState || "").toUpperCase() === "LIVE" ||
+          (game.gameState || "").toUpperCase() === "CRIT",
       )) ||
     false;
 
