@@ -7,6 +7,7 @@ export interface Team {
 
 export interface GamePlayer {
   fantasyTeam: string;
+  fantasyTeamId: number;
   playerName: string;
   position: string;
   nhlId: number;

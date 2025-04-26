@@ -1,3 +1,5 @@
+import { Link } from "react-router-dom";
+
 import { Game } from "../../types/games";
 
 interface GameDetailViewProps {
@@ -298,19 +300,39 @@ export default function GameDetailView({
                             ) : (
                               <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
                                 <span className="text-xs font-medium">
-                                  {(player.playerName || player.name || "")
+                                  {(player.playerName || "")
                                     .substring(0, 2)
                                     .toUpperCase()}
                                 </span>
                               </div>
                             )}
-                            <span className="text-xs">
-                              {player.playerName || player.name}
-                            </span>
+                            {player.nhlId ? (
+                              <a
+                                href={`https://www.nhl.com/player/${player.nhlId}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-xs hover:text-[#6D4C9F] hover:underline"
+                              >
+                                {player.playerName || ""}
+                              </a>
+                            ) : (
+                              <span className="text-xs">
+                                {player.playerName || ""}
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="py-1 px-2 text-xs">
-                          {player.fantasyTeam}
+                          {player.fantasyTeam ? (
+                            <Link
+                              to={`/teams/${player.fantasyTeamId || ""}`}
+                              className="hover:text-[#6D4C9F] hover:underline"
+                            >
+                              {player.fantasyTeam}
+                            </Link>
+                          ) : (
+                            "-"
+                          )}
                         </td>
                         <td className="py-1 px-2 text-xs font-medium">
                           {player.points || 0}
@@ -355,19 +377,39 @@ export default function GameDetailView({
                           ) : (
                             <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
                               <span className="text-xs font-medium">
-                                {(player.playerName || player.name || "")
+                                {(player.playerName || "")
                                   .substring(0, 2)
                                   .toUpperCase()}
                               </span>
                             </div>
                           )}
-                          <span className="text-xs">
-                            {player.playerName || player.name}
-                          </span>
+                          {player.nhlId ? (
+                            <a
+                              href={`https://www.nhl.com/player/${player.nhlId}`}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-xs hover:text-[#6D4C9F] hover:underline"
+                            >
+                              {player.playerName || ""}
+                            </a>
+                          ) : (
+                            <span className="text-xs">
+                              {player.playerName || ""}
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="py-1 px-2 text-xs">
-                        {player.fantasyTeam}
+                        {player.fantasyTeam ? (
+                          <Link
+                            to={`/teams/${player.fantasyTeamId || ""}`}
+                            className="hover:text-[#6D4C9F] hover:underline"
+                          >
+                            {player.fantasyTeam}
+                          </Link>
+                        ) : (
+                          "-"
+                        )}
                       </td>
                       <td className="py-1 px-2 text-xs font-medium">
                         {player.points || 0}
