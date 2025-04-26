@@ -12,7 +12,8 @@ const Layout = ({ children }: LayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col bg-gray-50">
       <NavBar />
-      <main className="flex-grow container mx-auto px-4 py-6 md:py-8">
+
+      <main className="flex-grow container mx-auto max-w-7xl px-4 py-6 lg:py-8">
         {/* Subtle animation for the main content */}
         <div className="animate-fadeIn">{children}</div>
       </main>

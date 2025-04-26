@@ -1,5 +1,3 @@
-// timezone.ts - Utility functions for handling timezones consistently
-
 /**
  * Gets the current date in the user's local timezone
  */

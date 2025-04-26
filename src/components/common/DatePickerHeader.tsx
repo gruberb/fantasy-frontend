@@ -56,7 +56,7 @@ const DatePickerHeader = ({
       <div className="bg-white/10 p-2 m-2 rounded-lg shadow-sm mb-6 border border-white/20">
         <div className="flex flex-col md:flex-row justify-between items-center">
           {/* Date header */}
-          <h2 className="text-lg md:text-xl p-4 font-medium mb-4 md:mb-0">
+          <h2 className="text-lg md:text-xl pl-1 font-medium mb-4 md:mb-0">
             {formattedDisplayDate}
           </h2>
 
