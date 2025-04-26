@@ -11,7 +11,6 @@ interface GamesTabContentProps {
   isLoading: boolean;
   error: unknown;
   hasLiveGames: boolean;
-  isTodaySelected: boolean;
   autoRefresh: boolean;
   setAutoRefresh: (value: boolean) => void;
   onRefresh: () => void;
@@ -25,7 +24,6 @@ export default function GamesTabContent({
   isLoading,
   error,
   hasLiveGames,
-  isTodaySelected,
   autoRefresh,
   setAutoRefresh,
   onRefresh,
@@ -33,6 +31,7 @@ export default function GamesTabContent({
   toggleGameExpansion,
   getTeamPrimaryColor,
 }: GamesTabContentProps) {
+  console.log("CHANGE DATE");
   // Loading state
   if (isLoading) {
     return (
@@ -69,7 +68,6 @@ export default function GamesTabContent({
       {/* Options */}
       <GameOptions
         hasLiveGames={hasLiveGames}
-        isTodaySelected={isTodaySelected}
         autoRefresh={autoRefresh}
         setAutoRefresh={setAutoRefresh}
         onRefresh={onRefresh}

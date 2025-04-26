@@ -25,7 +25,6 @@ const GamesPage = () => {
     autoRefresh,
     setAutoRefresh,
     hasLiveGames,
-    isTodaySelected,
     getTeamPrimaryColor,
   } = useGamesData(dateParam);
 
@@ -50,7 +49,6 @@ const GamesPage = () => {
             isLoading={gamesLoading}
             error={gamesError}
             hasLiveGames={hasLiveGames}
-            isTodaySelected={isTodaySelected}
             autoRefresh={autoRefresh}
             setAutoRefresh={setAutoRefresh}
             onRefresh={refetchGames}

@@ -75,23 +75,39 @@ export function useGamesData(dateParam?: string) {
     retry: 1,
   });
 
-  // Auto-refresh for live games
+  // Check if there are live games on the selected date
+  const hasLiveGames =
+    (gamesData?.games &&
+      gamesData.games.length > 0 &&
+      gamesData.games.some(
+        (game) => (game.gameState || "").toUpperCase() === "LIVE",
+      )) ||
+    false;
+
+  // Auto-refresh for live games - Updated Logic
   useEffect(() => {
     let intervalId: ReturnType<typeof setInterval> | null = null;
 
-    if (autoRefresh) {
+    if (autoRefresh && hasLiveGames) {
       intervalId = setInterval(() => {
-        // Only refetch if we're on today's date
-        if (isSameLocalDay(dateStringToLocalDate(selectedDate), new Date())) {
-          refetchGames();
-        }
+        // Always refetch if there are live games, regardless of selected date
+        refetchGames();
       }, 30000); // Refresh every 30 seconds
     }
 
     return () => {
       if (intervalId) clearInterval(intervalId);
     };
-  }, [autoRefresh, selectedDate, refetchGames]);
+  }, [autoRefresh, hasLiveGames, refetchGames]);
+
+  // Reset autoRefresh when date changes to prevent stale auto-refresh
+  useEffect(() => {
+    // When the selected date changes, check if we should keep autoRefresh on
+    // If there are no live games on the new date, turn off autoRefresh
+    if (autoRefresh && !hasLiveGames) {
+      setAutoRefresh(false);
+    }
+  }, [selectedDate, hasLiveGames, autoRefresh]);
 
   // Function to get team primary color
   const getTeamPrimaryColor = (teamName: string): string => {
@@ -140,14 +156,6 @@ export function useGamesData(dateParam?: string) {
     // Default color if team not found
     return "#041E42"; // NHL blue
   };
-
-  const hasLiveGames =
-    (gamesData?.games &&
-      gamesData.games.length > 0 &&
-      gamesData.games.some(
-        (game) => (game.gameState || "").toUpperCase() === "LIVE",
-      )) ||
-    false;
 
   // Check if selected date is today
   const isTodaySelected = isSameLocalDay(

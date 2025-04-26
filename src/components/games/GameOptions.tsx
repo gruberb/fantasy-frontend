@@ -1,6 +1,5 @@
 interface GameOptionsProps {
   hasLiveGames: boolean;
-  isTodaySelected: boolean;
   autoRefresh: boolean;
   setAutoRefresh: (value: boolean) => void;
   onRefresh: () => void;
@@ -8,7 +7,6 @@ interface GameOptionsProps {
 
 export default function GameOptions({
   hasLiveGames,
-  isTodaySelected,
   autoRefresh,
   setAutoRefresh,
   onRefresh,
@@ -16,7 +14,7 @@ export default function GameOptions({
   return (
     <div className="flex flex-wrap items-center gap-4 mb-4">
       {/* Live update toggle */}
-      {hasLiveGames && isTodaySelected && (
+      {hasLiveGames && (
         <div className="flex items-center">
           <input
             type="checkbox"
