@@ -1,10 +1,8 @@
-import { useState, useEffect } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "../../api/client";
-import { PlayerWithPoints } from "../../types/players";
-import { FantasyTeamCount } from "../../types/fantasy";
+import { useState } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { Link } from "react-router-dom";
+import { useFantasyTeams } from "../../hooks/useFantasyTeams";
+import type { PlayerWithPoints } from "../../types/players";
 
 interface FantasyTeamSummaryProps {
   selectedDate: string;
@@ -13,311 +11,47 @@ interface FantasyTeamSummaryProps {
 const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   selectedDate,
 }) => {
-  const [fantasyTeamCounts, setFantasyTeamCounts] = useState<
-    FantasyTeamCount[]
-  >([]);
-  const [isProcessing, setIsProcessing] = useState<boolean>(true);
+  const { gamesData, teams, fantasyTeamCounts, isLoading } =
+    useFantasyTeams(selectedDate);
+
+  // purely UI state
   const [sortBy, setSortBy] = useState<
     "playerCount" | "teamName" | "totalPoints"
   >("playerCount");
-
   const [expandedTeams, setExpandedTeams] = useState<Set<number>>(new Set());
   const [expandAll, setExpandAll] = useState<boolean>(false);
-  const [nameToIdMap, setNameToIdMap] = useState<Record<string, number>>({});
 
-  // Fetch team points data
-  const { data: teams, isLoading: teamsLoading } = useQuery({
-    queryKey: ["teams"],
-    queryFn: api.getTeams,
-  });
-
-  // Fetch games data
-  const { data: gamesData, isLoading: gamesLoading } = useQuery({
-    queryKey: ["games", selectedDate],
-    queryFn: () => api.getGames(selectedDate),
-  });
-
-  // Create a mapping of team names to IDs
-  useEffect(() => {
-    if (teams && Array.isArray(teams)) {
-      const nameMap: Record<string, number> = {};
-
-      teams.forEach((team) => {
-        // Map both full team name and lowercase version for case-insensitive matching
-        nameMap[team.name] = team.id;
-        nameMap[team.name.toLowerCase()] = team.id;
-
-        // If team has abbreviated name, map that too
-        if (team.abbreviation) {
-          nameMap[team.abbreviation] = team.id;
-          nameMap[team.abbreviation.toLowerCase()] = team.id;
-        }
-      });
-
-      setNameToIdMap(nameMap);
-    }
-  }, [teams]);
-
-  // Process data to count players per fantasy team
-  useEffect(() => {
-    if (
-      gamesData?.games &&
-      gamesData.games.length > 0 &&
-      teams &&
-      !teamsLoading &&
-      !gamesLoading &&
-      Object.keys(nameToIdMap).length > 0
-    ) {
-      setIsProcessing(true);
-
-      try {
-        const fantasyTeamMap = new Map<number, FantasyTeamCount>();
-
-        // Initialize all fantasy teams with zero players
-        teams.forEach((team) => {
-          fantasyTeamMap.set(team.id, {
-            teamId: team.id,
-            teamName: team.name,
-            teamLogo: team.teamLogo,
-            playerCount: 0,
-            players: [],
-            totalPoints: 0,
-          });
-        });
-
-        // Create a mapping from fantasy team names to team objects
-        const nameToTeamMap = new Map<string, FantasyTeamCount>();
-        teams.forEach((team) => {
-          nameToTeamMap.set(
-            team.name.toLowerCase(),
-            fantasyTeamMap.get(team.id)!,
-          );
-        });
-
-        // Count players in today's games
-        gamesData.games.forEach((game) => {
-          // Process home team players
-          if (game.homeTeamPlayers) {
-            game.homeTeamPlayers.forEach((player: any) => {
-              if (player.fantasyTeam) {
-                // Try to find the team ID using the name map
-                const teamId =
-                  nameToIdMap[player.fantasyTeam] ||
-                  nameToIdMap[player.fantasyTeam.toLowerCase()];
-
-                if (teamId !== undefined) {
-                  const team = fantasyTeamMap.get(teamId);
-                  if (team) {
-                    team.playerCount++;
-                    const playerPoints =
-                      typeof player.points === "number" ? player.points : 0;
-                    team.totalPoints += playerPoints;
-
-                    const playerWithGameInfo = {
-                      ...player,
-                      gameId: game.id,
-                      nhlTeam: game.homeTeam,
-                      teamLogo: game.homeTeamLogo,
-                    };
-
-                    team.players.push(playerWithGameInfo);
-                  }
-                } else {
-                  // If we don't have this team in our map yet, check if it's a new team name
-                  // This handles the case where the fantasy team name doesn't exactly match team names
-
-                  // For now, we'll just log this case
-                  console.log(
-                    `No team ID found for fantasy team: ${player.fantasyTeam}`,
-                  );
-
-                  // Create a pseudo-team entry for this name
-                  if (!fantasyTeamMap.has(-1)) {
-                    const pseudoTeam: FantasyTeamCount = {
-                      teamId: -1,
-                      teamName: player.fantasyTeam,
-                      playerCount: 0,
-                      players: [],
-                      totalPoints: 0,
-                    };
-                    fantasyTeamMap.set(-1, pseudoTeam);
-                  }
-
-                  const pseudoTeam = fantasyTeamMap.get(-1)!;
-                  pseudoTeam.playerCount++;
-                  const playerPoints =
-                    typeof player.points === "number" ? player.points : 0;
-                  pseudoTeam.totalPoints += playerPoints;
-
-                  const playerWithGameInfo = {
-                    ...player,
-                    gameId: game.id,
-                    nhlTeam: game.homeTeam,
-                    teamLogo: game.homeTeamLogo,
-                  };
-
-                  pseudoTeam.players.push(playerWithGameInfo);
-                }
-              }
-            });
-          }
-
-          // Process away team players
-          if (game.awayTeamPlayers) {
-            game.awayTeamPlayers.forEach((player: any) => {
-              if (player.fantasyTeam) {
-                // Try to find the team ID using the name map
-                const teamId =
-                  nameToIdMap[player.fantasyTeam] ||
-                  nameToIdMap[player.fantasyTeam.toLowerCase()];
-
-                if (teamId !== undefined) {
-                  const team = fantasyTeamMap.get(teamId);
-                  if (team) {
-                    team.playerCount++;
-                    const playerPoints =
-                      typeof player.points === "number" ? player.points : 0;
-                    team.totalPoints += playerPoints;
-
-                    const playerWithGameInfo = {
-                      ...player,
-                      gameId: game.id,
-                      nhlTeam: game.awayTeam,
-                      teamLogo: game.awayTeamLogo,
-                    };
-
-                    team.players.push(playerWithGameInfo);
-                  }
-                } else {
-                  // If we don't have this team in our map yet, treat it as a standalone team
-                  if (!fantasyTeamMap.has(-1)) {
-                    // Create a special map entry for these players with unknown teams
-                    const unknownTeam: FantasyTeamCount = {
-                      teamId: -1,
-                      teamName: player.fantasyTeam,
-                      playerCount: 0,
-                      players: [],
-                      totalPoints: 0,
-                    };
-                    fantasyTeamMap.set(-1, unknownTeam);
-                  }
-
-                  const unknownTeam = fantasyTeamMap.get(-1)!;
-                  unknownTeam.playerCount++;
-                  const playerPoints =
-                    typeof player.points === "number" ? player.points : 0;
-                  unknownTeam.totalPoints += playerPoints;
-
-                  const playerWithGameInfo = {
-                    ...player,
-                    gameId: game.id,
-                    nhlTeam: game.awayTeam,
-                    teamLogo: game.awayTeamLogo,
-                  };
-
-                  unknownTeam.players.push(playerWithGameInfo);
-                }
-              }
-            });
-          }
-        });
-
-        // Create a map to group players by fantasy team name (for those without ID matches)
-        const teamNameGroups: Record<string, PlayerWithPoints[]> = {};
-
-        // Handle the case where we have fantasy team names that don't match team names
-        if (fantasyTeamMap.has(-1)) {
-          const unknownTeam = fantasyTeamMap.get(-1)!;
-
-          // Group players by fantasy team name
-          unknownTeam.players.forEach((player) => {
-            if (player.fantasyTeam) {
-              if (!teamNameGroups[player.fantasyTeam]) {
-                teamNameGroups[player.fantasyTeam] = [];
-              }
-              teamNameGroups[player.fantasyTeam].push(player);
-            }
-          });
-
-          // Remove the placeholder team since we'll create proper teams
-          fantasyTeamMap.delete(-1);
-
-          // Create a team for each fantasy team name
-          Object.entries(teamNameGroups).forEach(
-            ([teamName, players], index) => {
-              const totalPoints = players.reduce(
-                (sum, player) => sum + (player.points || 0),
-                0,
-              );
-
-              // Create a pseudo-ID that won't conflict with real team IDs (typically 1-100)
-              const pseudoId = 10000 + index;
-
-              fantasyTeamMap.set(pseudoId, {
-                teamId: pseudoId,
-                teamName: teamName,
-                playerCount: players.length,
-                players: players,
-                totalPoints: totalPoints,
-              });
-            },
-          );
-        }
-
-        // Sort players within each team by points (descending)
-        fantasyTeamMap.forEach((team) => {
-          team.players.sort((a, b) => (b.points || 0) - (a.points || 0));
-        });
-
-        // Filter teams with players
-        const teamsArray = Array.from(fantasyTeamMap.values()).filter(
-          (team) => team.playerCount > 0,
-        );
-
-        setFantasyTeamCounts(teamsArray);
-      } catch (error) {
-        console.error("Error processing fantasy team data:", error);
-      } finally {
-        setIsProcessing(false);
-      }
-    }
-  }, [gamesData, teams, nameToIdMap, teamsLoading, gamesLoading]);
-
+  // toggle a single team
   const toggleTeamExpansion = (teamId: number) => {
-    if (expandAll) {
-      setExpandAll(false);
-    }
-
-    setExpandedTeams((prevExpandedTeams) => {
-      const newExpandedTeams = new Set(prevExpandedTeams);
-      if (newExpandedTeams.has(teamId)) {
-        newExpandedTeams.delete(teamId);
-      } else {
-        newExpandedTeams.add(teamId);
-      }
-      return newExpandedTeams;
+    if (expandAll) setExpandAll(false);
+    setExpandedTeams((prev) => {
+      const next = new Set(prev);
+      if (next.has(teamId)) next.delete(teamId);
+      else next.add(teamId);
+      return next;
     });
   };
 
+  // expand/collapse all
   const toggleExpandAll = () => {
-    setExpandAll(!expandAll);
-    expandedTeams.clear(); // Reset individual expansion when toggling expand all
+    if (expandAll) {
+      setExpandAll(false);
+      setExpandedTeams(new Set());
+    } else {
+      setExpandAll(true);
+      setExpandedTeams(new Set(fantasyTeamCounts.map((t) => t.teamId)));
+    }
   };
 
-  // Sort the teams based on criteria
+  // sorted array of teams
   const sortedTeams = [...fantasyTeamCounts].sort((a, b) => {
-    if (sortBy === "teamName") {
-      return a.teamName.localeCompare(b.teamName);
-    } else if (sortBy === "totalPoints") {
-      return b.totalPoints - a.totalPoints;
-    } else {
-      // Default sort by playerCount
-      return b.playerCount - a.playerCount;
-    }
+    if (sortBy === "teamName") return a.teamName.localeCompare(b.teamName);
+    if (sortBy === "totalPoints") return b.totalPoints - a.totalPoints;
+    return b.playerCount - a.playerCount;
   });
 
-  if (teamsLoading || gamesLoading || isProcessing) {
-    return <LoadingSpinner message="Processing fantasy team data..." />;
+  if (isLoading) {
+    return <LoadingSpinner message="Processing fantasy team data…" />;
   }
 
   if (fantasyTeamCounts.length === 0) {
@@ -337,10 +71,6 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
               away players
             </p>
           )}
-          <p>
-            Name to ID mapping created: {Object.keys(nameToIdMap).length}{" "}
-            entries
-          </p>
         </div>
       </div>
     );
@@ -406,41 +136,37 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                   </div>
                 )}
                 <div>
-                  {team.teamId > 9000 ? (
-                    // For dynamically created teams (those with no match in the teams data)
-                    <span className="font-medium">{team.teamName}</span>
-                  ) : (
-                    <Link
-                      to={`/teams/${team.teamId}`}
-                      className="font-medium hover:text-[#6D4C9F] hover:underline"
-                    >
-                      {team.teamName}
-                    </Link>
-                  )}
+                  <Link
+                    to={`/teams/${team.teamId}`}
+                    className="font-medium hover:text-[#6D4C9F] hover:underline"
+                  >
+                    {team.teamName}
+                  </Link>
                   <div className="text-sm text-gray-500">
-                    {team.playerCount} player{team.playerCount !== 1 ? "s" : ""}{" "}
-                    • {team.totalPoints} pts
+                    {team.playerCount} player
+                    {team.playerCount !== 1 ? "s" : ""} • {team.totalPoints} pts
                   </div>
                 </div>
               </div>
-              <div>
-                <svg
-                  className={`w-5 h-5 text-gray-400 transform transition-transform ${expandedTeams.has(team.teamId) || expandAll ? "rotate-180" : ""}`}
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M19 9l-7 7-7-7"
-                  />
-                </svg>
-              </div>
+              <svg
+                className={`w-5 h-5 text-gray-400 transform transition-transform ${
+                  expandedTeams.has(team.teamId) || expandAll
+                    ? "rotate-180"
+                    : ""
+                }`}
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </div>
 
-            {/* Collapsible player details */}
             {(expandedTeams.has(team.teamId) || expandAll) && (
               <div className="border-t border-gray-100 bg-gray-50">
                 <div className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-100">
@@ -448,51 +174,55 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                 </div>
                 {team.players.length > 0 ? (
                   <div className="divide-y divide-gray-100">
-                    {team.players.map((player, idx) => (
-                      <div
-                        key={idx}
-                        className="px-4 py-2 flex items-center justify-between hover:bg-gray-100"
-                      >
-                        <div className="flex items-center">
-                          {player.imageUrl ? (
-                            <img
-                              src={player.imageUrl}
-                              alt={player.playerName || ""}
-                              className="w-8 h-8 rounded-full mr-2"
-                            />
-                          ) : (
-                            <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
-                              <span className="text-xs font-medium">
-                                {(player.playerName || "")
-                                  .substring(0, 2)
-                                  .toUpperCase()}
-                              </span>
-                            </div>
-                          )}
-                          <div>
-                            <div className="text-sm font-medium">
-                              {player.playerName}
-                            </div>
-                            <div className="flex items-center text-xs text-gray-500">
-                              {player.teamLogo && (
-                                <img
-                                  src={player.teamLogo}
-                                  alt={player.nhlTeam || ""}
-                                  className="w-4 h-4 mr-1"
-                                />
-                              )}
-                              <span>
-                                {player.nhlTeam}{" "}
-                                {player.position ? `• ${player.position}` : ""}
-                              </span>
+                    {team.players.map(
+                      (player: PlayerWithPoints, idx: number) => (
+                        <div
+                          key={idx}
+                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100"
+                        >
+                          <div className="flex items-center">
+                            {player.imageUrl ? (
+                              <img
+                                src={player.imageUrl}
+                                alt={player.playerName || ""}
+                                className="w-8 h-8 rounded-full mr-2"
+                              />
+                            ) : (
+                              <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                                <span className="text-xs font-medium">
+                                  {(player.playerName || "")
+                                    .substring(0, 2)
+                                    .toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <div>
+                              <div className="text-sm font-medium">
+                                {player.playerName}
+                              </div>
+                              <div className="flex items-center text-xs text-gray-500">
+                                {player.teamLogo && (
+                                  <img
+                                    src={player.teamLogo}
+                                    alt={player.nhlTeam || ""}
+                                    className="w-4 h-4 mr-1"
+                                  />
+                                )}
+                                <span>
+                                  {player.nhlTeam}{" "}
+                                  {player.position
+                                    ? `• ${player.position}`
+                                    : ""}
+                                </span>
+                              </div>
                             </div>
                           </div>
+                          <div className="text-sm font-bold">
+                            {player.points || 0} pts
+                          </div>
                         </div>
-                        <div className="text-sm font-bold">
-                          {player.points || 0} pts
-                        </div>
-                      </div>
-                    ))}
+                      ),
+                    )}
                   </div>
                 ) : (
                   <div className="px-4 py-3 text-sm text-gray-500">

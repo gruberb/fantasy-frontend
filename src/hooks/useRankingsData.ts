@@ -4,6 +4,7 @@ import { api } from "../api/client";
 import { usePlayoffsData } from "./usePlayoffsData";
 import { toLocalDateString, dateStringToLocalDate } from "../utils/timezone";
 import { PlayoffTeamRanking } from "../types/rankings";
+import { TeamPoints } from "../types/teams";
 
 export function useRankingsData() {
   // Default to yesterday's date
@@ -39,18 +40,22 @@ export function useRankingsData() {
   const { data: allTeamPoints, isLoading: teamPointsLoading } = useQuery({
     queryKey: ["allTeamPoints"],
     queryFn: async () => {
-      if (!teamIds.length) return {};
+      if (!teamIds.length) return {} as Record<number, TeamPoints>;
 
       // Fetch all team points data in parallel
       const results = await Promise.all(
         teamIds.map((id) => api.getTeamPoints(id).catch(() => null)),
       );
 
-      // Create a map of teamId -> points data
-      return results.reduce((acc, data, index) => {
-        if (data) acc[teamIds[index]] = data;
-        return acc;
-      }, {});
+      return results.reduce(
+        (acc, data, index) => {
+          if (data) {
+            acc[teamIds[index]] = data;
+          }
+          return acc;
+        },
+        {} as Record<number, TeamPoints>,
+      );
     },
     enabled: teamIds.length > 0,
   });

@@ -1,4 +1,4 @@
-import { DailyFantasyRanking } from "../../types/rankings";
+import { RankingItem } from "../../types/rankings";
 import LoadingSpinner from "../common/LoadingSpinner";
 import ErrorMessage from "../common/ErrorMessage";
 import DailyRankingsCard from "../rankings/DailyRankingsCard";
@@ -6,7 +6,7 @@ import DailyRankingsCard from "../rankings/DailyRankingsCard";
 interface DailyRankingsProps {
   isLoading: boolean;
   error: unknown;
-  data: DailyFantasyRanking[] | undefined;
+  data: RankingItem[] | undefined;
   displayDate: Date;
 }
 

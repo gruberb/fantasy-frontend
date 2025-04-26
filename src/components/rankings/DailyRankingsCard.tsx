@@ -1,27 +1,6 @@
 import { Link } from "react-router-dom";
 import { toLocalDateString } from "../../utils/timezone";
-
-// Interfaces remain the same
-interface PlayerHighlight {
-  playerName: string;
-  points: number;
-  nhlTeam: string;
-  imageUrl?: string;
-  nhlId?: number;
-}
-
-interface RankingItem {
-  rank: number;
-  teamId: number;
-  teamName: string;
-  dailyPoints: number;
-  playerHighlights: PlayerHighlight[];
-}
-
-interface DailyRankingsResponse {
-  date: string;
-  rankings: RankingItem[];
-}
+import { DailyRankingsResponse, RankingItem } from "../../types/rankings";
 
 interface DailyRankingsCardProps {
   rankings: DailyRankingsResponse | RankingItem[];

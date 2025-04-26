@@ -1,3 +1,5 @@
+import { createPortal } from "react-dom";
+
 interface AutoRefreshIndicatorProps {
   autoRefresh: boolean;
 }
@@ -5,12 +7,25 @@ interface AutoRefreshIndicatorProps {
 export default function AutoRefreshIndicator({
   autoRefresh,
 }: AutoRefreshIndicatorProps) {
-  if (!autoRefresh) {
-    return null;
-  }
+  if (!autoRefresh) return null;
 
-  return (
-    <div className="fixed bottom-4 right-4 bg-[#6D4C9F] text-white py-2 px-4 rounded-full shadow-lg flex items-center text-sm animate-pulse">
+  // portal it straight into document.body
+  return createPortal(
+    <div
+      className="
+        fixed
+        bottom-4
+        right-34
+        bg-[#6D4C9F]
+        text-white
+        py-2 px-4
+        rounded-full
+        shadow-lg
+        flex items-center
+        text-sm
+        animate-pulse
+      "
+    >
       <svg
         className="w-4 h-4 mr-2 animate-spin"
         fill="none"
@@ -26,6 +41,7 @@ export default function AutoRefreshIndicator({
         />
       </svg>
       Live Updates Active
-    </div>
+    </div>,
+    document.body,
   );
 }

@@ -48,7 +48,7 @@ export default function GamesTab({ isLoading, error, data }: GamesTabProps) {
             minute: "2-digit",
             hour12: true,
           });
-        } catch (e) {
+        } catch {
           timeString = "Time TBD";
         }
 

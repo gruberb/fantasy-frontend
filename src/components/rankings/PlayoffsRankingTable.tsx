@@ -1,19 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import React from "react";
-
-interface PlayoffTeamRanking {
-  teamId: number;
-  teamName: string;
-  teamsInPlayoffs: number;
-  totalTeams: number;
-  playersInPlayoffs: number;
-  totalPlayers: number;
-  playoffScore: number;
-  rank?: number;
-  goals?: number;
-  assists?: number;
-  totalPoints?: number;
-}
+import { PlayoffTeamRanking } from "../../types/rankings";
 
 interface PlayoffRankingsTableProps {
   playoffRankings: PlayoffTeamRanking[];
@@ -64,10 +51,10 @@ const PlayoffRankingsTable: React.FC<PlayoffRankingsTableProps> = ({
                 Team
               </th>
               <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">
-                Teams in Playoffs
+                Players in Playoffs
               </th>
               <th className="py-3 px-4 text-left hidden md:table-cell text-sm font-semibold text-gray-700">
-                Players in Playoffs
+                Teams in Playoffs
               </th>
             </tr>
           </thead>
@@ -88,17 +75,17 @@ const PlayoffRankingsTable: React.FC<PlayoffRankingsTableProps> = ({
                 <td className="py-3 px-4 font-medium">{team.teamName}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center">
-                    <span className="font-bold mr-2">{team.totalTeams}</span>
+                    <span className="font-bold mr-2">{team.totalPlayers}</span>
                     <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                      {team.teamsInPlayoffs}
+                      {team.playersInPlayoffs}
                     </div>
                   </div>
                 </td>
                 <td className="py-3 px-4 hidden md:table-cell">
                   <div className="flex items-center">
-                    <span className="font-bold mr-2">{team.totalPlayers}</span>
+                    <span className="font-bold mr-2">{team.totalTeams}</span>
                     <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                      {team.playersInPlayoffs}
+                      {team.teamsInPlayoffs}
                     </div>
                   </div>
                 </td>

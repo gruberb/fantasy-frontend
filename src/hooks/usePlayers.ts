@@ -1,4 +1,3 @@
-// src/hooks/usePlayers.ts
 import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
 import { api } from "../api/client";

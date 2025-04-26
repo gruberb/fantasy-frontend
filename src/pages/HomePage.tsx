@@ -1,7 +1,4 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { api } from "../api/client";
-import { getYesterdayString, dateStringToLocalDate } from "../utils/timezone";
 
 import ErrorMessage from "../components/common/ErrorMessage";
 import DailyRankingsCard from "../components/rankings/DailyRankingsCard";
@@ -13,52 +10,27 @@ import PlayersTab from "../components/home/PlayersTab";
 import ActionButtons from "../components/home/ActionButtons";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
+import { useHomePageData } from "../hooks/useHomePageData";
+
 const HomePage = () => {
   // State for active tab
   const [activeTab, setActiveTab] = useState("rankings");
 
-  // Get yesterday's date string
-  const yesterdayString = getYesterdayString();
-  const yesterdayDate = dateStringToLocalDate(yesterdayString);
-
-  // Fetch data for the dashboard
   const {
-    data: rankings,
-    isLoading: rankingsLoading,
-    error: rankingsError,
-  } = useQuery({
-    queryKey: ["rankings"],
-    queryFn: () => api.getRankings(),
-  });
-
-  const {
-    data: todaysGamesData,
-    isLoading: gamesLoading,
-    error: gamesError,
-  } = useQuery({
-    queryKey: ["todaysGames"],
-    queryFn: () => api.getTodaysGames(),
-    retry: 1,
-  });
-
-  const {
-    data: topSkatersData,
-    isLoading: topSkatersLoading,
-    error: topSkatersError,
-  } = useQuery({
-    queryKey: ["topSkaters"],
-    queryFn: () => api.getTopSkaters(),
-  });
-
-  const {
-    data: yesterdayRankings,
-    isLoading: yesterdayRankingsLoading,
-    error: yesterdayRankingsError,
-  } = useQuery({
-    queryKey: ["dailyRankings", yesterdayString],
-    queryFn: () => api.getDailyFantasySummary(yesterdayString),
-    retry: 1,
-  });
+    yesterdayDate,
+    rankings,
+    rankingsLoading,
+    rankingsError,
+    todaysGamesData,
+    gamesLoading,
+    gamesError,
+    topSkatersData,
+    topSkatersLoading,
+    topSkatersError,
+    yesterdayRankings,
+    yesterdayRankingsLoading,
+    yesterdayRankingsError,
+  } = useHomePageData();
 
   // Render the active tab content
   const renderTabContent = () => {
@@ -93,7 +65,7 @@ const HomePage = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto">
+    <div>
       {/* Header with stats - first row */}
       <StatsSummary gamesData={todaysGamesData} isLoading={gamesLoading} />
 

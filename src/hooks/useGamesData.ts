@@ -77,7 +77,7 @@ export function useGamesData(dateParam?: string) {
 
   // Auto-refresh for live games
   useEffect(() => {
-    let intervalId: NodeJS.Timeout | null = null;
+    let intervalId: ReturnType<typeof setInterval> | null = null;
 
     if (autoRefresh) {
       intervalId = setInterval(() => {

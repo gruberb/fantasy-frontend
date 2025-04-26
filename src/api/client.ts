@@ -1,10 +1,9 @@
-// src/api/client.ts
 import { getTodayString, getYesterdayString } from "../utils/timezone";
 import { API_URL } from "../config";
 import { Team, TeamPoints, TeamBetsResponse } from "../types/teams";
-import { Player, GamesResponse } from "../types/games";
-import { Ranking, DailyFantasyRanking } from "../types/rankings";
-import { TopSkatersResponse } from "../types/players";
+import { GamesResponse } from "../types/games";
+import { Ranking, RankingItem } from "../types/rankings";
+import { TopSkatersResponse, Player } from "../types/players";
 import { PlayoffsResponse } from "../types/playoffs";
 
 // Helper function for API requests that handles the wrapped response structure
@@ -86,17 +85,15 @@ export const api = {
   },
 
   // Get yesterday's fantasy rankings
-  async getYesterdayRankings(): Promise<DailyFantasyRanking[]> {
+  async getYesterdayRankings(): Promise<RankingItem[]> {
     const yesterdayString = getYesterdayString();
-    return fetchApi<DailyFantasyRanking[]>(
-      `daily-rankings?date=${yesterdayString}`,
-    );
+    return fetchApi<RankingItem[]>(`daily-rankings?date=${yesterdayString}`);
   },
 
   // Get daily fantasy summary for a specific date
-  async getDailyFantasySummary(date: string): Promise<DailyFantasyRanking[]> {
+  async getDailyFantasySummary(date: string): Promise<RankingItem[]> {
     console.log(`Fetching daily rankings for ${date}`);
-    return fetchApi<DailyFantasyRanking[]>(`daily-rankings?date=${date}`);
+    return fetchApi<RankingItem[]>(`daily-rankings?date=${date}`);
   },
 
   async getTopSkaters(limit: number = 10): Promise<TopSkatersResponse> {

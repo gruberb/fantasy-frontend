@@ -15,23 +15,29 @@ export interface PlayerHighlight {
   nhlId?: number;
 }
 
-export interface DailyFantasyRanking {
-  rank: number;
-  teamId: number;
-  teamName: string;
-  dailyPoints: number;
-  playerHighlights: PlayerHighlight[];
-}
-
 export interface DailyRankingsResponse {
   date: string;
-  rankings: DailyFantasyRanking[];
+  rankings: RankingItem[];
 }
 
-export interface PlayoffTeamRanking extends Ranking {
+export interface PlayoffTeamRanking {
+  teamId: number;
+  teamName: string;
   teamsInPlayoffs: number;
   totalTeams: number;
   playersInPlayoffs: number;
   totalPlayers: number;
   playoffScore: number;
+  rank?: number;
+  goals?: number;
+  assists?: number;
+  totalPoints?: number;
+}
+
+export interface RankingItem {
+  rank: number;
+  teamId: number;
+  teamName: string;
+  dailyPoints: number;
+  playerHighlights: PlayerHighlight[];
 }

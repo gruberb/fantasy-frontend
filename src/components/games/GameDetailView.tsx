@@ -24,7 +24,7 @@ export default function GameDetailView({
       minute: "2-digit",
       hour12: true,
     });
-  } catch (e) {
+  } catch {
     timeString = "Time TBD";
   }
 

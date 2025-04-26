@@ -27,6 +27,10 @@ const TeamDetailPage = () => {
     return <LoadingSpinner size="large" message="Loading team data..." />;
   }
 
+  if (hasError || !team || !teamPoints) {
+    return <ErrorMessage message="Team not found or data unavailable" />;
+  }
+
   // Error handling
   if (hasError) {
     return <ErrorMessage message="Team not found or data unavailable" />;
