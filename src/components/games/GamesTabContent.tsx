@@ -31,7 +31,6 @@ export default function GamesTabContent({
   toggleGameExpansion,
   getTeamPrimaryColor,
 }: GamesTabContentProps) {
-  console.log("CHANGE DATE");
   // Loading state
   if (isLoading) {
     return (

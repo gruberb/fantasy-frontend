@@ -1,8 +1,25 @@
 import { FantasyTeam } from "./teams";
 
+export interface PlayerWithPoints {
+  name?: string;
+  playerName?: string;
+  position: string;
+  fantasyTeam?: string;
+  points?: number;
+  goals?: number;
+  assists?: number;
+  gameId?: number;
+  nhlTeam?: string;
+  teamLogo?: string;
+  imageUrl?: string;
+  nhlId?: number;
+}
+
 export interface Player {
   id?: number;
-  name: string;
+  nhlId?: number;
+  name?: string;
+  playerName?: string;
   position: string;
   points?: number;
   jerseyNumber?: number;
@@ -10,7 +27,8 @@ export interface Player {
   fantasyTeam?: string;
   imageUrl?: string;
   teamLogo?: string;
-  playerName?: string; // Alternative name field used in some responses
+  goals?: number;
+  assists?: number;
 }
 
 export interface PlayerStats {
@@ -51,18 +69,4 @@ export interface PlayerWithTeam extends PlayerStats {
   teamId?: number;
   teamAbbreviation?: string;
   nhlTeamUrlSlug?: string;
-}
-
-export interface PlayerWithPoints extends Player {
-  name: string;
-  position: string;
-  fantasyTeam?: string;
-  playerName?: string;
-  points?: number;
-  goals?: number;
-  assists?: number;
-  gameId?: number;
-  nhlTeam?: string;
-  teamLogo?: string;
-  imageUrl?: string;
 }

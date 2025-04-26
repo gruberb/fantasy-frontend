@@ -1,7 +1,9 @@
-import { useState } from "react";
+import { useState, useEffect, useCallback } from "react";
 import LoadingSpinner from "../common/LoadingSpinner";
 import { Link } from "react-router-dom";
 import { useFantasyTeams } from "../../hooks/useFantasyTeams";
+import { dateStringToLocalDate, isSameLocalDay } from "../../utils/timezone";
+import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 import type { PlayerWithPoints } from "../../types/players";
 
 interface FantasyTeamSummaryProps {
@@ -11,15 +13,47 @@ interface FantasyTeamSummaryProps {
 const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   selectedDate,
 }) => {
-  const { gamesData, teams, fantasyTeamCounts, isLoading } =
+  const { gamesData, fantasyTeamCounts, isLoading } =
     useFantasyTeams(selectedDate);
 
-  // purely UI state
-  const [sortBy, setSortBy] = useState<
-    "playerCount" | "teamName" | "totalPoints"
-  >("playerCount");
+  // Determine if there are live games
+  const hasLiveGames =
+    gamesData?.games?.some(
+      (game) => (game.gameState || "").toUpperCase() === "LIVE",
+    ) || false;
+
+  // Convert selectedDate to Date object
+  const selectedDateObj = dateStringToLocalDate(selectedDate);
+  const today = new Date();
+  const isToday = isSameLocalDay(selectedDateObj, today);
+  const isFuture = selectedDateObj > today;
+  const isPast = selectedDateObj < today && !isToday;
+
+  // Determine default sort based on date and game status
+  const getDefaultSort = useCallback((): "playerCount" | "totalPoints" => {
+    if (hasLiveGames) {
+      return "totalPoints";
+    }
+    if (isPast) {
+      return "totalPoints";
+    }
+    if (isToday || isFuture) {
+      return "playerCount";
+    }
+    return "playerCount"; // fallback
+  }, [hasLiveGames, isPast, isToday, isFuture]);
+
+  // Initialize state with computed default
+  const [sortBy, setSortBy] = useState<"playerCount" | "totalPoints">(
+    getDefaultSort(),
+  );
   const [expandedTeams, setExpandedTeams] = useState<Set<number>>(new Set());
   const [expandAll, setExpandAll] = useState<boolean>(false);
+
+  // Update sort when date or game status changes
+  useEffect(() => {
+    setSortBy(getDefaultSort());
+  }, [selectedDate, hasLiveGames, getDefaultSort]);
 
   // toggle a single team
   const toggleTeamExpansion = (teamId: number) => {
@@ -45,7 +79,6 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
 
   // sorted array of teams
   const sortedTeams = [...fantasyTeamCounts].sort((a, b) => {
-    if (sortBy === "teamName") return a.teamName.localeCompare(b.teamName);
     if (sortBy === "totalPoints") return b.totalPoints - a.totalPoints;
     return b.playerCount - a.playerCount;
   });
@@ -63,13 +96,24 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
         </div>
         <div className="mt-4 text-sm text-gray-500">
           <p>Games loaded: {gamesData?.games?.length || 0}</p>
-          <p>Teams loaded: {teams?.length || 0}</p>
           {gamesData?.games && gamesData.games.length > 0 && (
-            <p>
-              First game has {gamesData.games[0].homeTeamPlayers?.length || 0}{" "}
-              home players and {gamesData.games[0].awayTeamPlayers?.length || 0}{" "}
-              away players
-            </p>
+            <>
+              <p>
+                Total players found:{" "}
+                {gamesData.games.reduce(
+                  (total, game) =>
+                    total +
+                    (game.homeTeamPlayers?.length || 0) +
+                    (game.awayTeamPlayers?.length || 0),
+                  0,
+                )}
+              </p>
+              <p>
+                First game has {gamesData.games[0].homeTeamPlayers?.length || 0}{" "}
+                home players and{" "}
+                {gamesData.games[0].awayTeamPlayers?.length || 0} away players
+              </p>
+            </>
           )}
         </div>
       </div>
@@ -86,25 +130,33 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
             <label htmlFor="sort-select" className="text-sm text-gray-600">
               Sort by:
             </label>
-            <select
-              id="sort-select"
-              value={sortBy}
-              onChange={(e) =>
-                setSortBy(
-                  e.target.value as "playerCount" | "teamName" | "totalPoints",
-                )
-              }
-              className="text-sm border border-gray-300 rounded-md p-1 focus:ring-[#6D4C9F] focus:border-[#6D4C9F]"
-            >
-              <option value="playerCount">Player Count</option>
-              <option value="teamName">Team Name</option>
-              <option value="totalPoints">Total Points</option>
-            </select>
+            <div className="relative">
+              <select
+                id="sort-select"
+                value={sortBy}
+                onChange={(e) =>
+                  setSortBy(e.target.value as "playerCount" | "totalPoints")
+                }
+                className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6D4C9F]/20 focus:border-[#6D4C9F] hover:border-[#6D4C9F]/50 transition-colors cursor-pointer"
+              >
+                <option value="playerCount">Player Count</option>
+                <option value="totalPoints">Total Points</option>
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                <svg
+                  className="h-4 w-4 fill-current"
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 20 20"
+                >
+                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+                </svg>
+              </div>
+            </div>
           </div>
 
           <button
             onClick={toggleExpandAll}
-            className="text-sm px-3 py-1 bg-[#6D4C9F]/10 text-[#6D4C9F] rounded-md hover:bg-[#6D4C9F]/20 transition-colors"
+            className="text-sm px-3 py-1.5 bg-[#6D4C9F]/10 text-[#6D4C9F] rounded-md hover:bg-[#6D4C9F]/20 transition-colors focus:outline-none focus:ring-2 focus:ring-[#6D4C9F]/30"
           >
             {expandAll ? "Collapse All" : "Expand All"}
           </button>
@@ -198,7 +250,18 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                             )}
                             <div>
                               <div className="text-sm font-medium">
-                                {player.playerName}
+                                {player.nhlId ? (
+                                  <a
+                                    href={`https://www.nhl.com/player/${player.nhlId}`}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="hover:text-[#6D4C9F] hover:underline"
+                                  >
+                                    {player.playerName}
+                                  </a>
+                                ) : (
+                                  player.playerName
+                                )}
                               </div>
                               <div className="flex items-center text-xs text-gray-500">
                                 {player.teamLogo && (
@@ -209,7 +272,18 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                                   />
                                 )}
                                 <span>
-                                  {player.nhlTeam}{" "}
+                                  {player.nhlTeam ? (
+                                    <a
+                                      href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.nhlTeam)}`}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="hover:text-[#6D4C9F] hover:underline"
+                                    >
+                                      {player.nhlTeam}
+                                    </a>
+                                  ) : (
+                                    player.nhlTeam
+                                  )}{" "}
                                   {player.position
                                     ? `• ${player.position}`
                                     : ""}
