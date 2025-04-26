@@ -49,7 +49,6 @@ export function getTodayString(): string {
 export function getYesterdayString(): string {
   const yesterday = getUserLocalDate();
   yesterday.setDate(yesterday.getDate() - 1);
-  console.log("YESTERDAY", yesterday);
   return toLocalDateString(yesterday);
 }
 

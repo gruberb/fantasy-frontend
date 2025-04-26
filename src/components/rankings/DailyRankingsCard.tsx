@@ -10,13 +10,13 @@ interface DailyRankingsCardProps {
 }
 
 const DailyRankingsCard = ({
-  rankings = [],
+  rankings,
   date,
   title = "Daily Rankings",
   limit = 7,
 }: DailyRankingsCardProps) => {
   let rankingsArray: RankingItem[] = [];
-  console.log("drc", date);
+
   if (rankings && Array.isArray(rankings)) {
     rankingsArray = rankings;
   } else if (

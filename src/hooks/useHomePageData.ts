@@ -31,7 +31,7 @@ export function useHomePageData() {
 
   // Top skaters query
   const {
-    data: topSkaters,
+    data: topSkatersData,
     isLoading: topSkatersLoading,
     error: topSkatersError,
   } = useQuery({
@@ -58,7 +58,7 @@ export function useHomePageData() {
     todaysGamesData,
     gamesLoading,
     gamesError,
-    topSkaters,
+    topSkatersData,
     topSkatersLoading,
     topSkatersError,
     yesterdayRankings,
