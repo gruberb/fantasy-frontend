@@ -163,13 +163,13 @@ const NavBar = () => {
               Teams
             </NavLink>
             <NavLink
-              to="/players"
+              to="/skaters"
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Players
+              Skaters
             </NavLink>
             <NavLink
               to={`/games/${toLocalDateString(new Date())}`}
