@@ -154,13 +154,13 @@ const NavBar = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/teams"
+              to="/fantasy-teams"
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Teams
+              Fantasy Teams
             </NavLink>
             <NavLink
               to="/skaters"
