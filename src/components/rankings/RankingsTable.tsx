@@ -9,7 +9,7 @@ interface RankingsTableProps {
 
 const RankingsTable = ({
   rankings = [],
-  title = "Rankings",
+  title = " Overall Rankings",
   limit,
 }: RankingsTableProps) => {
   const navigate = useNavigate();

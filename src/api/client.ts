@@ -1,3 +1,4 @@
+// src/api/client.ts - Updated for new API endpoints
 import { getTodayString, getYesterdayString } from "../utils/timezone";
 import { API_URL } from "../config";
 import { Team, TeamPoints, TeamBetsResponse } from "../types/teams";
@@ -6,7 +7,7 @@ import { Ranking, RankingItem } from "../types/rankings";
 import { TopSkatersResponse, Player } from "../types/players";
 import { PlayoffsResponse } from "../types/playoffs";
 
-// Helper function for API requests that handles the wrapped response structure
+// Helper function for API requests
 async function fetchApi<T>(endpoint: string): Promise<T> {
   const url = `${API_URL}${endpoint.startsWith("/") ? endpoint : `/${endpoint}`}`;
 
@@ -19,18 +20,14 @@ async function fetchApi<T>(endpoint: string): Promise<T> {
     });
 
     const jsonData = await response.json();
+    console.log(jsonData);
 
-    // Handle the wrapped response structure where data is inside a "success" and "data" structure
-    if (
-      jsonData &&
-      typeof jsonData === "object" &&
-      "success" in jsonData &&
-      "data" in jsonData
-    ) {
-      return jsonData.data as T;
+    // API always returns {success: true, data: ...}
+    if (!jsonData.success) {
+      throw new Error(jsonData.error || "API request failed");
     }
 
-    return jsonData as T;
+    return jsonData.data as T;
   } catch (error) {
     console.error(`API request failed for ${endpoint}:`, error);
     throw error;
@@ -41,43 +38,32 @@ async function fetchApi<T>(endpoint: string): Promise<T> {
 export const api = {
   // Get all teams
   async getTeams(): Promise<Team[]> {
-    return fetchApi<Team[]>("teams");
+    return fetchApi<Team[]>("fantasy/teams");
   },
 
-  // Get team points
-  async getTeamPoints(
-    teamId: number,
-    season: string = "20242025",
-    gameType: number = 3,
-  ): Promise<TeamPoints> {
-    return fetchApi<TeamPoints>(
-      `teams/${teamId}/points?season=${season}&game_type=${gameType}`,
-    );
+  // Get team with players and points
+  async getTeamPoints(teamId: number): Promise<TeamPoints> {
+    return fetchApi<TeamPoints>(`fantasy/teams/${teamId}`);
   },
 
   // Get rankings
-  async getRankings(
-    season: string = "20242025",
-    gameType: number = 3,
-  ): Promise<Ranking[]> {
-    return fetchApi<Ranking[]>(
-      `rankings?season=${season}&game_type=${gameType}`,
-    );
+  async getRankings(): Promise<Ranking[]> {
+    return fetchApi<Ranking[]>("fantasy/rankings");
   },
 
   // Get players per team
   async getPlayersPerTeam(): Promise<Record<string, Player[]>> {
-    return fetchApi<Record<string, Player[]>>("players-per-team");
+    return fetchApi<Record<string, Player[]>>("fantasy/players");
   },
 
   // Get team bets
   async getTeamBets(): Promise<TeamBetsResponse[]> {
-    return fetchApi<TeamBetsResponse[]>("team-bets");
+    return fetchApi<TeamBetsResponse[]>("fantasy/team-bets");
   },
 
   // Get games for a specific date
   async getGames(date: string): Promise<GamesResponse> {
-    return fetchApi<GamesResponse>(`games?date=${date}`);
+    return fetchApi<GamesResponse>(`nhl/games?date=${date}`);
   },
 
   async getTodaysGames(): Promise<GamesResponse> {
@@ -87,22 +73,29 @@ export const api = {
   // Get yesterday's fantasy rankings
   async getYesterdayRankings(): Promise<RankingItem[]> {
     const yesterdayString = getYesterdayString();
-    return fetchApi<RankingItem[]>(`daily-rankings?date=${yesterdayString}`);
+    return fetchApi<RankingItem[]>(
+      `fantasy/rankings/daily?date=${yesterdayString}`,
+    );
   },
 
   // Get daily fantasy summary for a specific date
   async getDailyFantasySummary(date: string): Promise<RankingItem[]> {
     console.log(`Fetching daily rankings for ${date}`);
-    return fetchApi<RankingItem[]>(`daily-rankings?date=${date}`);
+    return fetchApi<RankingItem[]>(`fantasy/rankings/daily?date=${date}`);
   },
 
-  async getTopSkaters(limit: number = 10): Promise<TopSkatersResponse> {
+  async getTopSkaters(
+    limit: number,
+    season: number,
+    gameType: number,
+    formGames: number,
+  ): Promise<TopSkatersResponse> {
     return fetchApi<TopSkatersResponse>(
-      `get-top-skaters?category=goals,assists&limit=${limit}`,
+      `nhl/skaters/top?limit=${limit}&season=${season}&game_type=${gameType}&form_games=${formGames}`,
     );
   },
 
   async getPlayoffs(season: string = "20242025"): Promise<PlayoffsResponse> {
-    return fetchApi<PlayoffsResponse>(`playoffs?season=${season}`);
+    return fetchApi<PlayoffsResponse>(`nhl/playoffs?season=${season}`);
   },
 };

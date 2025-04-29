@@ -1,3 +1,4 @@
+// In src/hooks/usePlayoffsData.ts
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { useMemo, useCallback } from "react";
@@ -14,7 +15,7 @@ export function usePlayoffsData() {
 
   // Get teams still in playoffs
   const teamsInPlayoffs = useMemo(() => {
-    if (!playoffsData) return new Set<string>();
+    if (!playoffsData || !playoffsData.rounds) return new Set<string>();
 
     const teamSet = new Set<string>();
 

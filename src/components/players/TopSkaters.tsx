@@ -28,7 +28,7 @@ const TopSkaters: React.FC<TopSkatersProps> = ({ data, isLoading, error }) => {
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
       {/* Top 10 Goal Scorers */}
       <div>
-        <h3 className="text-xl font-bold mb-2">Top 10 Scorers</h3>
+        <h3 className="text-xl font-bold mb-2">Top 10 Goals</h3>
         {topGoalScorers.length > 0 ? (
           <div className="card overflow-x-auto">
             <table className="min-w-full divide-y divide-gray-100">

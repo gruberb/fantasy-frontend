@@ -36,7 +36,7 @@ export function useHomePageData() {
     error: topSkatersError,
   } = useQuery({
     queryKey: ["topSkaters"],
-    queryFn: () => api.getTopSkaters(),
+    queryFn: () => api.getTopSkaters(10, 20242025, 3, 5),
   });
 
   // Yesterday's rankings query
