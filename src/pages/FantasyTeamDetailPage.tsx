@@ -8,7 +8,7 @@ import PlayerRoster from "../components/teamDetail/PlayerRoster";
 import TeamBetsTable from "../components/teamDetail/TeamBetsTable";
 import { useTeamDetail } from "../hooks/useTeamDetail";
 
-const TeamDetailPage = () => {
+const FantasyTeamDetailPage = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const id = parseInt(teamId || "0", 10);
 
@@ -63,4 +63,4 @@ const TeamDetailPage = () => {
   );
 };
 
-export default TeamDetailPage;
+export default FantasyTeamDetailPage;

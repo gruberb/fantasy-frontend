@@ -1,7 +1,7 @@
-import { PlayerStats } from "../../types/players";
+import { SkaterStats } from "../../types/skaters";
 
 interface PlayerRosterProps {
-  players: PlayerStats[];
+  players: SkaterStats[];
 }
 
 export default function PlayerRoster({ players }: PlayerRosterProps) {

@@ -1,7 +1,7 @@
 import ErrorMessage from "../components/common/ErrorMessage";
 import DailyRankingsCard from "../components/rankings/DailyRankingsCard";
 import RankingsTab from "../components/home/RankingsTab";
-import TopSkaters from "../components/players/TopSkaters";
+import TopSkaters from "../components/skaters/TopSkaters";
 import ActionButtons from "../components/home/ActionButtons";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 
@@ -55,21 +55,6 @@ const HomePage = () => {
             date={yesterdayDate}
             title="Yesterday's Rankings"
             limit={7}
-          />
-        )}
-      </div>
-
-      {/* Top Players Section */}
-      <div className="mb-6">
-        {topSkatersLoading ? (
-          <LoadingSpinner message="Loading Top Players rankings..." />
-        ) : topSkatersError ? (
-          <ErrorMessage message="Could not load Top Players rankings." />
-        ) : (
-          <TopSkaters
-            data={topSkatersData}
-            isLoading={topSkatersLoading}
-            error={topSkatersError}
           />
         )}
       </div>

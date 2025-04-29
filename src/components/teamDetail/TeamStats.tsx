@@ -1,7 +1,7 @@
-import { TeamPoints } from "../../types/teams";
+import { FantasyTeamPoints } from "../../types/fantasyTeams";
 
 interface TeamStatsProps {
-  teamPoints: TeamPoints;
+  teamPoints: FantasyTeamPoints;
 }
 
 export default function TeamStats({ teamPoints }: TeamStatsProps) {

@@ -4,7 +4,7 @@ import { Link } from "react-router-dom";
 import { useFantasyTeams } from "../../hooks/useFantasyTeams";
 import { dateStringToLocalDate, isSameLocalDay } from "../../utils/timezone";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
-import type { PlayerWithPoints } from "../../types/players";
+import type { SkaterWithPoints } from "../../types/skaters";
 
 interface FantasyTeamSummaryProps {
   selectedDate: string;
@@ -227,7 +227,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                 {team.players.length > 0 ? (
                   <div className="divide-y divide-gray-100">
                     {team.players.map(
-                      (player: PlayerWithPoints, idx: number) => (
+                      (player: SkaterWithPoints, idx: number) => (
                         <div
                           key={idx}
                           className="px-4 py-2 flex items-center justify-between hover:bg-gray-100"

@@ -1,14 +1,14 @@
-import { PlayerStats } from "./players";
+import { SkaterStats } from "./skaters";
 
 export interface FantasyTeam {
   teamId: number;
   teamName: string;
 }
 
-export interface TeamPoints {
+export interface FantasyTeamPoints {
   teamId: number;
   teamName: string;
-  players: PlayerStats[];
+  players: SkaterStats[];
   teamTotals: {
     goals: number;
     assists: number;
@@ -16,20 +16,20 @@ export interface TeamPoints {
   };
 }
 
-export interface TeamBet {
+export interface NHLTeamBet {
   nhlTeam: string;
   nhlTeamName: string;
   numPlayers: number;
   teamLogo?: string;
 }
 
-export interface TeamBetsResponse {
+export interface NHLTeamBetsResponse {
   teamId: number;
   teamName: string;
-  bets: TeamBet[];
+  bets: NHLTeamBet[];
 }
 
-export interface Team {
+export interface NHLTeam {
   id: number;
   name: string;
   abbreviation?: string;

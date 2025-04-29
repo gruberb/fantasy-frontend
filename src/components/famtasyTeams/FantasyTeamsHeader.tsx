@@ -1,12 +1,12 @@
-interface TeamsHeaderProps {
+interface FantasyTeamsHeaderProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
 }
 
-export default function TeamsHeader({
+export default function FantasyTeamsHeader({
   searchTerm,
   setSearchTerm,
-}: TeamsHeaderProps) {
+}: FantasyTeamsHeaderProps) {
   return (
     <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
       <h1 className="text-3xl font-bold mb-2">Fantasy Teams</h1>

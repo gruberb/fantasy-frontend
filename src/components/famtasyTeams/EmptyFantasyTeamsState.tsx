@@ -1,4 +1,4 @@
-export default function EmptyTeamsState() {
+export default function EmptyFantasyTeamsState() {
   return (
     <div className="bg-white rounded-lg shadow-sm p-12 text-center border border-gray-100">
       <svg

@@ -68,20 +68,20 @@ const NavBar = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/teams"
+              to="/fantasy-teams"
               className={({ isActive }) =>
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Teams
+              Fantasy Teams
             </NavLink>
             <NavLink
-              to="/players"
+              to="/skaters"
               className={({ isActive }) =>
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Players
+              Skaters
             </NavLink>
             <NavLink
               to={`/games/${toLocalDateString(new Date())}`}

@@ -1,6 +1,6 @@
-import { FantasyTeam } from "./teams";
+import { FantasyTeam } from "./fantasyTeams";
 
-export interface PlayerWithPoints {
+export interface SkaterWithPoints {
   name?: string;
   playerName?: string;
   position: string;
@@ -15,7 +15,7 @@ export interface PlayerWithPoints {
   nhlId?: number;
 }
 
-export interface Player {
+export interface Skater {
   id?: number;
   nhlId?: number;
   name?: string;
@@ -31,7 +31,7 @@ export interface Player {
   assists?: number;
 }
 
-export interface PlayerStats {
+export interface SkaterStats {
   name: string;
   nhlTeam: string;
   nhlId: number;
@@ -54,17 +54,29 @@ export interface TopSkater {
   teamName: string;
   teamLogo: string;
   position: string;
-  value: number;
-  category: string;
-  fantasyTeam: FantasyTeam;
+  stats: {
+    points: number;
+    goals: number;
+    assists: number;
+    plusMinus?: number;
+    penaltyMins?: number;
+    goalsPp?: number;
+    goalsSh?: number;
+    faceoffPct?: number;
+    toi?: number;
+  };
+  value?: number; // For backward compatibility with existing components
+  category?: string; // For backward compatibility with existing components
+  fantasyTeam?: FantasyTeam;
 }
 
 export interface TopSkatersResponse {
-  goals?: TopSkater[];
-  assists?: TopSkater[];
+  goals?: TopSkater[]; // For backward compatibility with existing components
+  assists?: TopSkater[]; // For backward compatibility with existing components
+  skaters?: TopSkater[]; // New field for the skaters endpoint
 }
 
-export interface PlayerWithTeam extends PlayerStats {
+export interface SkaterWithTeam extends SkaterStats {
   teamName?: string;
   teamId?: number;
   teamAbbreviation?: string;

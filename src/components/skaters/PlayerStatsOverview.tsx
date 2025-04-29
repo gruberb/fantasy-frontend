@@ -3,17 +3,17 @@ interface PositionCount {
   count: number;
 }
 
-interface PlayerStatsOverviewProps {
+interface SkaterStatsOverviewProps {
   totalPlayers: number;
   filteredPlayers: number;
   positionCounts: PositionCount[];
 }
 
-export default function PlayerStatsOverview({
+export default function SkaterStatsOverview({
   totalPlayers,
   filteredPlayers,
   positionCounts,
-}: PlayerStatsOverviewProps) {
+}: SkaterStatsOverviewProps) {
   return (
     <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border border-gray-100">
       <div className="flex flex-wrap gap-4">

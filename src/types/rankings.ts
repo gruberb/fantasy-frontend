@@ -7,7 +7,7 @@ export interface Ranking {
   totalPoints: number;
 }
 
-export interface PlayerHighlight {
+export interface SkaterHighlight {
   playerName: string;
   points: number;
   nhlTeam: string;
@@ -20,7 +20,7 @@ export interface DailyRankingsResponse {
   rankings: RankingItem[];
 }
 
-export interface PlayoffTeamRanking {
+export interface PlayoffFantasyTeamRanking {
   teamId: number;
   teamName: string;
   teamsInPlayoffs: number;
@@ -39,5 +39,5 @@ export interface RankingItem {
   teamId: number;
   teamName: string;
   dailyPoints: number;
-  playerHighlights: PlayerHighlight[];
+  playerHighlights: SkaterHighlight[];
 }

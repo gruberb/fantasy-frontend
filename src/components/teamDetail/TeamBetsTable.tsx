@@ -1,8 +1,8 @@
-import { TeamBet } from "../../types/teams";
+import { NHLTeamBet } from "../../types/fantasyTeams";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 
 interface TeamBetsTableProps {
-  teamBets: TeamBet[];
+  teamBets: NHLTeamBet[];
 }
 
 export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {

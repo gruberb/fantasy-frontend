@@ -1,10 +1,10 @@
-import { TeamBet } from "../../types/teams";
-import { PlayerStats } from "../../types/players";
+import { NHLTeamBet } from "../../types/fantasyTeams";
+import { SkaterStats } from "../../types/skaters";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 
 interface PlayoffStatusProps {
-  teamsInPlayoffs: TeamBet[];
-  playersInPlayoffs: PlayerStats[];
+  teamsInPlayoffs: NHLTeamBet[];
+  playersInPlayoffs: SkaterStats[];
   totalTeams: number;
   totalPlayers: number;
 }

@@ -1,10 +1,10 @@
 // src/api/client.ts - Updated for new API endpoints
 import { getTodayString, getYesterdayString } from "../utils/timezone";
 import { API_URL } from "../config";
-import { Team, TeamPoints, TeamBetsResponse } from "../types/teams";
+import { NHLTeam, FantasyTeamPoints, NHLTeamBetsResponse } from "../types/fantasyTeams";
 import { GamesResponse } from "../types/games";
 import { Ranking, RankingItem } from "../types/rankings";
-import { TopSkatersResponse, Player } from "../types/players";
+import { TopSkatersResponse, Skater } from "../types/skaters";
 import { PlayoffsResponse } from "../types/playoffs";
 
 // Helper function for API requests
@@ -37,13 +37,13 @@ async function fetchApi<T>(endpoint: string): Promise<T> {
 // API client functions
 export const api = {
   // Get all teams
-  async getTeams(): Promise<Team[]> {
-    return fetchApi<Team[]>("fantasy/teams");
+  async getTeams(): Promise<NHLTeam[]> {
+    return fetchApi<NHLTeam[]>("fantasy/teams");
   },
 
   // Get team with players and points
-  async getTeamPoints(teamId: number): Promise<TeamPoints> {
-    return fetchApi<TeamPoints>(`fantasy/teams/${teamId}`);
+  async getTeamPoints(teamId: number): Promise<FantasyTeamPoints> {
+    return fetchApi<FantasyTeamPoints>(`fantasy/teams/${teamId}`);
   },
 
   // Get rankings
@@ -52,13 +52,13 @@ export const api = {
   },
 
   // Get players per team
-  async getPlayersPerTeam(): Promise<Record<string, Player[]>> {
-    return fetchApi<Record<string, Player[]>>("fantasy/players");
+  async getPlayersPerTeam(): Promise<Record<string, Skater[]>> {
+    return fetchApi<Record<string, Skater[]>>("fantasy/players");
   },
 
   // Get team bets
-  async getTeamBets(): Promise<TeamBetsResponse[]> {
-    return fetchApi<TeamBetsResponse[]>("fantasy/team-bets");
+  async getTeamBets(): Promise<NHLTeamBetsResponse[]> {
+    return fetchApi<NHLTeamBetsResponse[]>("fantasy/team-bets");
   },
 
   // Get games for a specific date

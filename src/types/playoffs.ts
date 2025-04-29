@@ -1,4 +1,4 @@
-export interface PlayoffTeam {
+export interface PlaotffNHLTeam {
   id: number;
   abbrev: string;
   wins: number;
@@ -8,8 +8,8 @@ export interface PlayoffSeries {
   seriesLetter: string;
   roundNumber: number;
   seriesLabel: string;
-  bottomSeed: PlayoffTeam;
-  topSeed: PlayoffTeam;
+  bottomSeed: PlaotffNHLTeam;
+  topSeed: PlaotffNHLTeam;
 }
 
 export interface PlayoffRound {

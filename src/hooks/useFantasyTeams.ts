@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { FantasyTeamCount } from "../types/fantasy";
-import { PlayerWithPoints } from "../types/players";
+import { SkaterWithPoints } from "../types/skaters";
 
 export function useFantasyTeams(selectedDate: string) {
   const { data: gamesData, isLoading: gamesLoading } = useQuery({
@@ -20,7 +20,7 @@ export function useFantasyTeams(selectedDate: string) {
 
     // Helper to process one player list
     const processPlayers = (
-      players: PlayerWithPoints[] = [],
+      players: SkaterWithPoints[] = [],
       gameId: number,
       nhlTeam: string,
       logo: string,

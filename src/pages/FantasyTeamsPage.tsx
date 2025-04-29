@@ -1,10 +1,10 @@
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
-import TeamsHeader from "../components/teams/TeamsHeader";
-import TeamsGrid from "../components/teams/TeamsGrid";
+import TeamsHeader from "../components/famtasyTeams/FantasyTeamsHeader";
+import TeamsGrid from "../components/famtasyTeams/FantasyTeamsGrid";
 import { useTeams } from "../hooks/useTeams";
 
-const TeamsPage = () => {
+const FantasyTeamsPage = () => {
   const { teams, isLoading, error, searchTerm, setSearchTerm } = useTeams();
 
   // Loading state
@@ -28,4 +28,4 @@ const TeamsPage = () => {
   );
 };
 
-export default TeamsPage;
+export default FantasyTeamsPage;

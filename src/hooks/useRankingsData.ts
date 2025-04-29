@@ -3,8 +3,8 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { usePlayoffsData } from "./usePlayoffsData";
 import { toLocalDateString, dateStringToLocalDate } from "../utils/timezone";
-import { PlayoffTeamRanking } from "../types/rankings";
-import { TeamPoints } from "../types/teams";
+import { PlayoffFantasyTeamRanking } from "../types/rankings";
+import { FantasyTeamPoints } from "../types/fantasyTeams";
 
 export function useRankingsData() {
   // Default to yesterday's date
@@ -40,7 +40,7 @@ export function useRankingsData() {
   const { data: allTeamPoints, isLoading: teamPointsLoading } = useQuery({
     queryKey: ["allTeamPoints"],
     queryFn: async () => {
-      if (!teamIds.length) return {} as Record<number, TeamPoints>;
+      if (!teamIds.length) return {} as Record<number, FantasyTeamPoints>;
 
       // Fetch all team points data in parallel
       const results = await Promise.all(
@@ -54,7 +54,7 @@ export function useRankingsData() {
           }
           return acc;
         },
-        {} as Record<number, TeamPoints>,
+        {} as Record<number, FantasyTeamPoints>,
       );
     },
     enabled: teamIds.length > 0,
@@ -72,7 +72,7 @@ export function useRankingsData() {
   });
 
   // Calculate playoff rankings
-  const playoffRankings = useMemo<PlayoffTeamRanking[]>(() => {
+  const playoffRankings = useMemo<PlayoffFantasyTeamRanking[]>(() => {
     if (!rankings || !teamBets || !allTeamPoints || !isTeamInPlayoffs)
       return [];
 

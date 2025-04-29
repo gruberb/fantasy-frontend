@@ -1,10 +1,10 @@
-import { PlayerWithPoints } from "./players";
+import { SkaterWithPoints } from "./skaters";
 
 export interface FantasyTeamCount {
   teamId: number;
   teamName: string;
   teamLogo?: string;
   playerCount: number;
-  players: PlayerWithPoints[];
+  players: SkaterWithPoints[];
   totalPoints: number;
 }

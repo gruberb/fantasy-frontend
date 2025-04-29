@@ -1,18 +1,18 @@
-import { Team } from "../../types/teams";
-import { TeamPoints } from "../../types/teams";
+import { NHLTeam } from "../../types/fantasyTeams";
+import { FantasyTeamPoints } from "../../types/fantasyTeams";
 import { Link } from "react-router-dom";
 
 interface TeamHeaderProps {
-  team: Team;
-  teamPoints: TeamPoints;
+  team: NHLTeam;
+  teamPoints: FantasyTeamPoints;
 }
 
 export default function TeamHeader({ team, teamPoints }: TeamHeaderProps) {
   return (
     <>
       <div className="mb-4">
-        <Link to="/teams" className="btn btn-secondary">
-          ← Back to Teams
+        <Link to="/fantasy-teams" className="btn btn-secondary">
+          ← Fantasy Teams Overview
         </Link>
       </div>
 

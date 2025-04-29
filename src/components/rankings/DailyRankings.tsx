@@ -22,9 +22,7 @@ export default function DailyRankings({
 
   if (error) {
     return (
-      <div className="card">
-        <ErrorMessage message="Failed to load daily rankings. Please try again." />
-      </div>
+      <div className="card">No daily rankings available for this date.</div>
     );
   }
 

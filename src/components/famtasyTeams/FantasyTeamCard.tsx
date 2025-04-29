@@ -1,14 +1,14 @@
 import { Link } from "react-router-dom";
-import { Team } from "../../types/teams";
+import { NHLTeam } from "../../types/fantasyTeams";
 
-interface TeamCardProps {
-  team: Team;
+interface FantasyTeamCardProps {
+  team: NHLTeam;
 }
 
-export default function TeamCard({ team }: TeamCardProps) {
+export default function FantasyTeamCard({ team }: FantasyTeamCardProps) {
   return (
     <Link
-      to={`/teams/${team.id}`}
+      to={`/fantasy-teams/${team.id}`}
       className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-all duration-300 border border-gray-100 hover:translate-y-px"
     >
       <div className="flex items-center space-x-4">

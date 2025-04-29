@@ -40,7 +40,6 @@ const RankingsPage = () => {
 
       {/* Season Rankings Table */}
       <div className="mt-8">
-        <h2 className="text-2xl font-bold mb-4">Season Rankings</h2>
         <SeasonRankings
           isLoading={rankingsLoading}
           error={rankingsError}

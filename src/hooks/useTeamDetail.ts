@@ -3,8 +3,8 @@ import { useMemo } from "react";
 import { api } from "../api/client";
 import { usePlayoffsData } from "./usePlayoffsData";
 import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
-import { PlayerStats } from "../types/players";
-import { TeamBet } from "../types/teams";
+import { SkaterStats } from "../types/skaters";
+import { NHLTeamBet } from "../types/fantasyTeams";
 
 export function useTeamDetail(teamId: number) {
   // ALWAYS call all hooks at the top level, unconditionally
@@ -33,8 +33,8 @@ export function useTeamDetail(teamId: number) {
   const playoffStats = useMemo(() => {
     // Default values when data isn't loaded yet
     const defaultStats = {
-      teamsInPlayoffs: [] as TeamBet[],
-      playersInPlayoffs: [] as PlayerStats[],
+      teamsInPlayoffs: [] as NHLTeamBet[],
+      playersInPlayoffs: [] as SkaterStats[],
     };
 
     // Only calculate if all dependencies are available

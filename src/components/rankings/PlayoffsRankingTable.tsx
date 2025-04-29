@@ -1,15 +1,15 @@
 import { useNavigate } from "react-router-dom";
 import React from "react";
-import { PlayoffTeamRanking } from "../../types/rankings";
+import { PlayoffFantasyTeamRanking } from "../../types/rankings";
 
 interface PlayoffRankingsTableProps {
-  playoffRankings: PlayoffTeamRanking[];
+  playoffRankings: PlayoffFantasyTeamRanking[];
   title?: string;
 }
 
 const PlayoffRankingsTable: React.FC<PlayoffRankingsTableProps> = ({
   playoffRankings = [],
-  title = "Playoff Rankings",
+  title = "Playoff Stats",
 }) => {
   const navigate = useNavigate();
 

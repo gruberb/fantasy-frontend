@@ -1,4 +1,4 @@
-interface PlayersHeaderProps {
+interface SkatersHeaderProps {
   searchTerm: string;
   setSearchTerm: (term: string) => void;
   positionFilter: string;
@@ -24,7 +24,7 @@ export default function PlayersHeader({
   setInPlayoffsFilter,
   groupByTeam,
   setGroupByTeam,
-}: PlayersHeaderProps) {
+}: SkatersHeaderProps) {
   return (
     <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
       <h1 className="text-3xl font-bold mb-2">NHL Players</h1>

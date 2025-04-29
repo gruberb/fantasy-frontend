@@ -1,8 +1,8 @@
-import { PlayerWithTeam } from "../../types/players";
+import { SkaterWithTeam } from "../../types/skaters";
 
 interface PlayerTeamSectionProps {
   teamName: string;
-  players: PlayerWithTeam[];
+  players: SkaterWithTeam[];
   playersInPlayoffs: number;
   isTeamInPlayoffs: (team: string) => boolean;
 }
