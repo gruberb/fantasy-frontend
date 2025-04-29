@@ -138,7 +138,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
           <tr className="border-b border-gray-200">
             {/* --- Sticky Header Column 1: Rank --- */}
             <th
-              className={`${thBaseClasses} ${thStickyTopClasses} sticky left-0 z-30 w-16 bg-gray-50`} // Highest z-index for corner, fixed width
+              className={`py-4 px-4 whitespace-nowrap text-left text-sm font-semibold tracking-wider ${thStickyTopClasses} sticky left-0 z-30 w-6 bg-gray-50`} // Highest z-index for corner, fixed width
             >
               #
             </th>
@@ -230,7 +230,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
             const isEvenRow = index % 2 === 0;
             // Use Tailwind classes for background and ensure they are applied to sticky cells
             const rowBgClass = isEvenRow ? "bg-white" : "bg-gray-50";
-            const tdBaseClass = `py-4 px-5 break-words text-base border-b border-gray-100 ${rowBgClass}`; // Apply bg here
+            const tdBaseClass = `text-center py-4 px-5 break-words text-base border-b border-gray-100 ${rowBgClass}`; // Apply bg here
             const tdStickyBaseClass = `sticky z-10 border-b border-gray-100`; // z-10 for body cells, below header
 
             return (
@@ -240,13 +240,13 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
               >
                 {/* --- Sticky Body Column 1: Rank --- */}
                 <td
-                  className={`${tdBaseClass} ${tdStickyBaseClass} left-0 w-16 font-medium`} // Match width, sticky left
+                  className={`py-4 px-5 break-words text-base border-b border-gray-100 ${rowBgClass} ${tdStickyBaseClass} left-0 w-6 font-medium`} // Match width, sticky left
                 >
                   {index + 1}
                 </td>
                 {/* --- Sticky Body Column 2: Player --- */}
                 <td
-                  className={`${tdBaseClass} ${tdStickyBaseClass} left-16`} // Sticky left, offset by w-16
+                  className={`py-2 px-2 break-words text-base border-b border-gray-100 ${rowBgClass} ${tdStickyBaseClass} left-16 text-left`} // Sticky left, offset by w-16
                 >
                   <div className="flex items-center">
                     <div className="ml-0 sm:ml-4">
