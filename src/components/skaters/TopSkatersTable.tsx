@@ -113,17 +113,25 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
 
   // Define shared styles for header cells for consistency
   const thBaseClasses =
-    "py-4 px-5 text-left text-sm font-semibold uppercase tracking-wider";
-  const thStickyTopClasses = "sticky top-0 z-20 bg-gray-50"; // Stick below 67px header, z-20 for header row
+    "py-4 px-5 whitespace-nowrap text-left text-sm font-semibold tracking-wider";
+  const thStickyTopClasses = "sticky top-[62px] z-20 bg-gray-50";
 
   return (
     // Added overflow-x-auto to allow horizontal scrolling of the table content
     // You might need max-height and overflow-y-auto here if you want vertical scroll contained within this div
     <div
-      className="overflow-x-auto overflow-y-auto relative border border-gray-200 rounded-lg shadow-sm"
-      style={{ maxHeight: "calc(100vh - 150px)" }}
+      className="
+        overflow-y-auto
+        overflow-x-hidden
+        h-max                  /* height: max-content; grows with table */
+        max-h-[calc(100vh-150px)]  /* cap at viewport-150px */
+        relative
+        border border-gray-200
+        rounded-lg
+        shadow-sm
+      "
     >
-      <table className="min-w-full table-auto border-collapse">
+      <table className="w-full table-fixed border-collapse">
         {/* Apply sticky positioning and background to the entire thead is simpler */}
         {/* but applying to TH gives more control over individual backgrounds if needed */}
         <thead>
@@ -206,16 +214,6 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
             >
               <button
                 className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("faceoffPct")}
-              >
-                FO% {getSortIcon("faceoffPct")}
-              </button>
-            </th>
-            <th
-              className={`${thBaseClasses} ${thStickyTopClasses} hidden lg:table-cell`}
-            >
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
                 onClick={() => handleSort("toi")}
               >
                 TOI {getSortIcon("toi")}
@@ -232,7 +230,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
             const isEvenRow = index % 2 === 0;
             // Use Tailwind classes for background and ensure they are applied to sticky cells
             const rowBgClass = isEvenRow ? "bg-white" : "bg-gray-50";
-            const tdBaseClass = `py-4 px-5 whitespace-nowrap text-base border-b border-gray-100 ${rowBgClass}`; // Apply bg here
+            const tdBaseClass = `py-4 px-5 break-words text-base border-b border-gray-100 ${rowBgClass}`; // Apply bg here
             const tdStickyBaseClass = `sticky z-10 border-b border-gray-100`; // z-10 for body cells, below header
 
             return (
@@ -251,24 +249,6 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   className={`${tdBaseClass} ${tdStickyBaseClass} left-16`} // Sticky left, offset by w-16
                 >
                   <div className="flex items-center">
-                    <div className="flex-shrink-0 h-10 w-10 hidden sm:block">
-                      {" "}
-                      {/* Use block instead of table-cell */}
-                      {player.headshot ? (
-                        <img
-                          src={player.headshot}
-                          alt={`${player.firstName} ${player.lastName}`}
-                          className="h-10 w-10 rounded-full object-cover" // Added object-cover
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-gray-200 flex items-center justify-center">
-                          <span className="text-sm font-medium text-gray-500">
-                            {player.firstName.charAt(0)}
-                            {player.lastName.charAt(0)}
-                          </span>
-                        </div>
-                      )}
-                    </div>
                     <div className="ml-0 sm:ml-4">
                       {" "}
                       {/* Adjust margin for small screens */}
@@ -293,7 +273,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </div>
                 </td>
                 {/* --- Non-Sticky Body Cells --- */}
-                <td className={`${tdBaseClass} hidden sm:table-cell`}>
+                <td className={`${tdBaseClass} hidden md:table-cell`}>
                   {" "}
                   {/* Hide on smallest screens */}
                   <a
@@ -316,7 +296,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                     </div>
                   </a>
                 </td>
-                <td className={`${tdBaseClass} hidden sm:table-cell`}>
+                <td className={`${tdBaseClass} hidden md:table-cell`}>
                   {" "}
                   {/* Hide on smallest screens */}
                   {player.position}
@@ -349,15 +329,10 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   {/* Default to 0 if null/undefined */}
                 </td>
                 <td className={`${tdBaseClass} hidden lg:table-cell`}>
-                  {player.stats.faceoffPct != null
-                    ? (player.stats.faceoffPct * 100).toFixed(1) + "%"
-                    : "-"}
-                </td>
-                <td className={`${tdBaseClass} hidden lg:table-cell`}>
                   {formatTOI(player.stats.toi as number)}{" "}
                   {/* Cast or ensure TOI is number */}
                 </td>
-                <td className={tdBaseClass}>
+                <td className={`${tdBaseClass} whitespace-nowrap`}>
                   {player.fantasyTeam ? (
                     <Link
                       to={`/fantasy-teams/${player.fantasyTeam.teamId}`}
