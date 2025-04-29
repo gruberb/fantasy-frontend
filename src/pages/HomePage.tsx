@@ -23,11 +23,6 @@ const HomePage = () => {
 
   return (
     <div>
-      {/* Header - first row */}
-      <div className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white rounded-lg shadow-md p-6 mb-6">
-        <h1 className="text-3xl font-bold mb-2">Fantasy NHL Dashboard</h1>
-      </div>
-
       {/* Overall Rankings */}
       <div className="mb-6">
         {rankingsLoading ? (
