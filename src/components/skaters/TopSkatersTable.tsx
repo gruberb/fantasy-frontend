@@ -301,7 +301,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Assists column */}
       <th
         className="bg-sky-100 py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center"
-        style={{ width: columnWidths[6] || "4rem" }}
+        style={{ width: columnWidths[6] || "5rem" }}
       >
         <button
           className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
@@ -392,12 +392,12 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
     return (
       <div className="bg-white rounded-lg shadow-sm p-6 text-center border border-gray-100">
         <div className="animate-pulse">
-          <div className="h-6 bg-gray-200 rounded w-1/4 mb-4 mx-auto"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2.5"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2.5"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2.5"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2.5"></div>
-          <div className="h-4 bg-gray-200 rounded w-full mb-2.5"></div>
+          <div className="h-6 rounded w-1/4 mb-4 mx-auto"></div>
+          <div className="h-4 rounded w-full mb-2.5"></div>
+          <div className="h-4 rounded w-full mb-2.5"></div>
+          <div className="h-4 rounded w-full mb-2.5"></div>
+          <div className="h-4 rounded w-full mb-2.5"></div>
+          <div className="h-4 rounded w-full mb-2.5"></div>
         </div>
       </div>
     );
@@ -458,7 +458,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </td>
 
                   {/* Team column */}
-                  <td className="py-4 px-5 border-b border-gray-100">
+                  <td className="bg-white py-4 px-5 border-b border-gray-100">
                     <a
                       href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.teamAbbrev)}`}
                       target="_blank"
@@ -470,7 +470,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                           <img
                             src={player.teamLogo}
                             alt={player.teamAbbrev}
-                            className="h-6 w-6 mr-2  hidden md:table-cell"
+                            className="h-6 w-6 mr-2  hidden sm:table-cell"
                           />
                         ) : null}
                         <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
@@ -481,7 +481,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </td>
 
                   {/* Position column */}
-                  <td className="py-4 px-5 border-b border-gray-100">
+                  <td className="bg-white py-4 px-5 border-b border-gray-100">
                     {player.position}
                   </td>
 
@@ -501,7 +501,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </td>
 
                   {/* Plus/Minus column */}
-                  <td className="text-sm py-4 px-5 text-center border-b border-gray-100">
+                  <td className="bg-white text-sm py-4 px-5 text-center border-b border-gray-100">
                     {player.stats.plusMinus != null ? (
                       <span
                         className={
@@ -521,17 +521,17 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </td>
 
                   {/* PIM column */}
-                  <td className="text-sm py-4 px-5 text-center border-b border-gray-100">
+                  <td className="bg-white text-sm py-4 px-5 text-center border-b border-gray-100">
                     {player.stats.penaltyMins ?? 0}
                   </td>
 
                   {/* TOI column */}
-                  <td className="text-sm py-4 px-5 text-center border-b border-gray-100">
+                  <td className="bg-white text-sm py-4 px-5 text-center border-b border-gray-100">
                     {formatTOI(player.stats.toi as number)}
                   </td>
 
                   {/* Fantasy column */}
-                  <td className="py-4 px-5 text-center whitespace-nowrap border-b border-gray-100">
+                  <td className="bg-white py-4 px-5 text-center whitespace-nowrap border-b border-gray-100">
                     {player.fantasyTeam ? (
                       <Link
                         to={`/fantasy-teams/${player.fantasyTeam.teamId}`}
