@@ -88,31 +88,63 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
     };
   }, []);
 
-  // Sync horizontal scroll between table container and fixed header
+  // Optimized horizontal scroll synchronization with direct scrollLeft approach
   useEffect(() => {
     if (!tableContainerRef.current) return;
 
     const container = tableContainerRef.current;
+    let rafId = null;
+    let ticking = false;
+    let lastScrollLeft = -1;
 
-    // This function syncs horizontal scroll between table container and fixed header
-    const syncHorizontalScroll = () => {
-      const portalHeader = document.getElementById("fixed-header-portal");
-      if (portalHeader) {
-        portalHeader.scrollLeft = container.scrollLeft;
+    // Get and store header reference (but will look it up again during scroll)
+    let headerEl = document.getElementById("fixed-header-portal");
+
+    // Apply optimizations to header if it exists
+    if (headerEl) {
+      headerEl.style.overflowX = "auto";
+      headerEl.style.overflowY = "hidden";
+      headerEl.style.webkitOverflowScrolling = "touch";
+    }
+
+    // Optimized scroll handler with requestAnimationFrame
+    const syncScroll = () => {
+      // Re-get reference to header (it might be recreated by React)
+      headerEl = document.getElementById("fixed-header-portal");
+
+      // Only update if scroll position changed and header exists
+      if (headerEl && lastScrollLeft !== container.scrollLeft) {
+        // Use direct scrollLeft - the most reliable approach
+        headerEl.scrollLeft = container.scrollLeft;
+        lastScrollLeft = container.scrollLeft;
+      }
+
+      ticking = false;
+    };
+
+    // Throttled scroll handler
+    const handleScroll = () => {
+      if (!ticking) {
+        ticking = true;
+        rafId = requestAnimationFrame(syncScroll);
       }
     };
 
-    // Add event listener for scroll events on the container
-    container.addEventListener("scroll", syncHorizontalScroll, {
-      passive: true,
-    });
+    // Use passive event listener for better performance
+    container.addEventListener("scroll", handleScroll, { passive: true });
 
     // Initial sync
-    syncHorizontalScroll();
+    requestAnimationFrame(syncScroll);
 
-    // Clean up event listener
+    // Apply performance optimizations to container
+    if (container) {
+      container.style.webkitOverflowScrolling = "touch";
+    }
+
     return () => {
-      container.removeEventListener("scroll", syncHorizontalScroll);
+      // Clean up
+      container.removeEventListener("scroll", handleScroll);
+      if (rafId) cancelAnimationFrame(rafId);
     };
   }, []);
 
@@ -442,14 +474,14 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </td>
 
                   {/* Player column - sticky left */}
-                  <td className="bg-white py-4 px-5 text-left border-b border-gray-100 sticky left-12 z-10">
+                  <td className="text-sm bg-white py-4 px-5 text-left border-b border-gray-100 sticky left-12 z-10">
                     <div className="flex items-center">
                       <div className="ml-0">
                         <a
                           href={`https://www.nhl.com/player/${player.id}`}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-sm font-medium text-gray-900 hover:underline block"
+                          className="font-medium text-gray-900 hover:underline block"
                         >
                           {player.firstName} {player.lastName}
                         </a>
@@ -481,7 +513,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </td>
 
                   {/* Position column */}
-                  <td className="bg-white py-4 px-5 border-b border-gray-100">
+                  <td className="text-sm bg-white py-4 px-5 border-b border-gray-100">
                     {player.position}
                   </td>
 
@@ -627,7 +659,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
         }
 
         tr td {
-          border-bottom: 1px solid #e0e0e0;
+          border-bottom: 1px solid #e0e0e0 !important;
         }
       `}</style>
     </>

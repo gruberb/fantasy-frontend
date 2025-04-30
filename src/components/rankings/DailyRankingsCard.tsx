@@ -59,7 +59,7 @@ const DailyRankingsCard = ({
       </div>
 
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-100">
+        <table className="min-w-full border-spacing-0">
           <thead className="bg-gray-50">
             <tr>
               <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
