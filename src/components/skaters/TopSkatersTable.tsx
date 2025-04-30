@@ -44,7 +44,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
   useEffect(() => {
     // Check if screen is large
     const checkScreenSize = () => {
-      setIsLargeScreen(window.innerWidth >= 1024);
+      setIsLargeScreen(window.innerWidth >= 1220);
     };
 
     // Find navbar height once on mount
@@ -375,7 +375,6 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
         overflowX: "auto",
         overflowY: "hidden",
         maxWidth: "100vw",
-        transform: "translateZ(0)", // Force GPU acceleration
       }}
     >
       <table
@@ -593,7 +592,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
         }
 
         /* Make sure table container takes full width on large screens */
-        @media (min-width: 1024px) {
+        @media (min-width: 1220px) {
           .lg\\:w-full {
             width: 100% !important;
             margin-left: 0 !important;
