@@ -306,7 +306,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
 
       {/* Points column */}
       <th
-        className="bg-sky-200 py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center"
+        className="bg-sky-200/50 py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center"
         style={{ width: columnWidths[4] || "5rem" }}
       >
         <button
@@ -319,7 +319,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
 
       {/* Goals column */}
       <th
-        className="bg-sky-100 py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center"
+        className="bg-sky-100/75 py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center"
         style={{ width: columnWidths[5] || "4rem" }}
       >
         <button
@@ -332,7 +332,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
 
       {/* Assists column */}
       <th
-        className="bg-sky-100 py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center"
+        className="bg-sky-100/75 py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center"
         style={{ width: columnWidths[6] || "5rem" }}
       >
         <button
@@ -497,18 +497,9 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                       rel="noopener noreferrer"
                       className="inline-flex items-center group"
                     >
-                      <div className="flex items-center">
-                        {player.teamLogo ? (
-                          <img
-                            src={player.teamLogo}
-                            alt={player.teamAbbrev}
-                            className="h-6 w-6 mr-2  hidden sm:table-cell"
-                          />
-                        ) : null}
-                        <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                          {player.teamAbbrev}
-                        </span>
-                      </div>
+                      <span className="text-sm text-gray-900 group-hover:underline">
+                        {player.teamAbbrev}
+                      </span>
                     </a>
                   </td>
 
@@ -518,17 +509,17 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   </td>
 
                   {/* Points column */}
-                  <td className="text-sm bg-sky-200 py-4 px-5 text-center font-bold border-b border-gray-100">
+                  <td className="text-sm bg-sky-200/50 py-4 px-5 text-center font-bold border-b border-gray-100">
                     {player.stats.points ?? "-"}
                   </td>
 
                   {/* Goals column */}
-                  <td className="text-sm bg-sky-100 py-4 px-5 text-center border-b border-gray-100">
+                  <td className="text-sm bg-sky-100/75 py-4 px-5 text-center border-b border-gray-100">
                     {player.stats.goals ?? "-"}
                   </td>
 
                   {/* Assists column */}
-                  <td className="text-sm bg-sky-100 py-4 px-5 text-center border-b border-gray-100">
+                  <td className="text-sm bg-sky-100/75 py-4 px-5 text-center border-b border-gray-100">
                     {player.stats.assists ?? "-"}
                   </td>
 
@@ -656,6 +647,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
         th:nth-child(2),
         td:nth-child(2) {
           width: 7rem !important;
+          border-right: 1px solid #e0e0e0 !important;
         }
 
         tr td {
