@@ -245,7 +245,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Player column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-left sticky left-12 z-30 bg-gray-50"
-        style={{ width: "14rem" }}
+        style={{ width: "7rem" }}
       >
         <button
           className="flex items-center focus:outline-none cursor-pointer"

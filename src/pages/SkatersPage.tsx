@@ -7,7 +7,6 @@ const SkatersPage = () => {
   const {
     filteredSkaters,
     positions,
-    positionCounts,
     isLoading,
     error,
     refetch,
@@ -114,26 +113,6 @@ const SkatersPage = () => {
               </select>
             </div>
           </div>
-        </div>
-      </div>
-
-      {/* Stats overview */}
-      <div className="bg-white rounded-lg shadow-sm p-4 mb-6 border border-gray-100">
-        <div className="flex flex-wrap gap-4">
-          <div className="bg-blue-50 p-3 rounded-lg">
-            <div className="text-sm text-gray-600">Total Skaters</div>
-            <div className="text-xl font-bold">{filteredSkaters.length}</div>
-          </div>
-
-          {positionCounts.map(({ position, count }) => (
-            <div
-              key={position}
-              className="bg-gray-50 p-3 rounded-lg hidden sm:block"
-            >
-              <div className="text-sm text-gray-600">{position}</div>
-              <div className="text-xl font-bold">{count}</div>
-            </div>
-          ))}
         </div>
       </div>
 
