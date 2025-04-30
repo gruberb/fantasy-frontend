@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 import { TopSkater } from "../../types/skaters";
@@ -26,38 +26,6 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
   const [sortField, setSortField] = useState<SortField>("points");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const { isTeamInPlayoffs } = usePlayoffsData();
-  const [stickyTopOffset, setStickyTopOffset] = useState(62); // Default value
-
-  // Calculate the top offset for sticky elements
-  useEffect(() => {
-    const calculateTopOffset = () => {
-      // Try to get the main navigation height
-      const mainNav =
-        document.querySelector("nav") ||
-        document.querySelector("header") ||
-        document.querySelector(".navbar");
-
-      if (mainNav) {
-        // Get the actual height + a small buffer
-        const navHeight = mainNav.getBoundingClientRect().height + 1;
-        setStickyTopOffset(0);
-
-        // Also set as CSS variable for potential use
-        document.documentElement.style.setProperty(
-          "--header-height",
-          `${navHeight}px`,
-        );
-      }
-    };
-
-    // Calculate immediately and on resize
-    calculateTopOffset();
-    window.addEventListener("resize", calculateTopOffset);
-
-    return () => {
-      window.removeEventListener("resize", calculateTopOffset);
-    };
-  }, []);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -136,394 +104,263 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
     );
   }
 
-  // Define basic cell styles for reuse
-  const baseHeaderStyle = {
-    padding: "1rem 1.25rem",
-    whiteSpace: "nowrap" as const,
-    fontSize: "0.875rem",
-    fontWeight: 600 as const,
-    letterSpacing: "0.025em",
-    backgroundColor: "#f9fafb",
-    borderBottom: "1px solid #e5e7eb",
-  };
-
-  const stickyHeaderStyle = {
-    ...baseHeaderStyle,
-    position: "sticky" as const,
-    top: `${stickyTopOffset}px`,
-    zIndex: 20,
-  };
-
-  const stickyLeftHeaderStyle = (leftPosition: string) => ({
-    ...stickyHeaderStyle,
-    left: leftPosition,
-    zIndex: 30,
-  });
-
-  const baseCellStyle = (isEven: boolean) => ({
-    padding: "1rem 1.25rem",
-    borderBottom: "1px solid #f3f4f6",
-    backgroundColor: isEven ? "#ffffff" : "#f9fafb",
-  });
-
-  const stickyLeftCellStyle = (isEven: boolean, leftPosition: string) => ({
-    ...baseCellStyle(isEven),
-    position: "sticky" as const,
-    left: leftPosition,
-    zIndex: 10,
-  });
-
   return (
-    <>
-      {/* The key change: Add a div with position: relative that wraps the entire table */}
-      <div
-        style={{ position: "relative" }}
-        className="border border-gray-200 rounded-lg shadow-sm"
-      >
-        {/* This div needs overflow-x: auto but NOT overflow-y: auto/hidden */}
-        <div style={{ overflowX: "auto", overflowY: "visible" }}>
-          <table
-            style={{
-              width: "100%",
-              borderCollapse: "collapse",
-              minWidth: "800px",
-            }}
-          >
-            <thead>
-              <tr className="border-b border-gray-200">
-                {/* Rank column - sticky left and top */}
-                <th
-                  style={{
-                    ...stickyLeftHeaderStyle("0"),
-                    width: "3rem",
-                    textAlign: "center",
-                  }}
+    <div className="border border-gray-200 rounded-lg shadow-sm overflow-x-auto">
+      <table className="w-full border-collapse min-w-[800px]">
+        <thead>
+          <tr className="border-b border-gray-200 bg-gray-50">
+            {/* Rank column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-12 sticky left-0 z-10 bg-gray-50">
+              #
+            </th>
+
+            {/* Player column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-left w-56 sticky left-12 z-10 bg-gray-50">
+              <button
+                className="flex items-center focus:outline-none cursor-pointer"
+                onClick={() => handleSort("lastName")}
+              >
+                Player {getSortIcon("lastName")}
+              </button>
+            </th>
+
+            {/* Team column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-left w-28">
+              Team
+            </th>
+
+            {/* Position column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-left w-20">
+              Pos
+            </th>
+
+            {/* Points column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-24">
+              <button
+                className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
+                onClick={() => handleSort("points")}
+              >
+                Points {getSortIcon("points")}
+              </button>
+            </th>
+
+            {/* Goals column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-24">
+              <button
+                className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
+                onClick={() => handleSort("goals")}
+              >
+                Goals {getSortIcon("goals")}
+              </button>
+            </th>
+
+            {/* Assists column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-24">
+              <button
+                className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
+                onClick={() => handleSort("assists")}
+              >
+                Assists {getSortIcon("assists")}
+              </button>
+            </th>
+
+            {/* Plus/Minus column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-24">
+              <button
+                className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
+                onClick={() => handleSort("plusMinus")}
+              >
+                +/- {getSortIcon("plusMinus")}
+              </button>
+            </th>
+
+            {/* PIM column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-24">
+              <button
+                className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
+                onClick={() => handleSort("penaltyMins")}
+              >
+                PIM {getSortIcon("penaltyMins")}
+              </button>
+            </th>
+
+            {/* TOI column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-24">
+              <button
+                className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
+                onClick={() => handleSort("toi")}
+              >
+                TOI {getSortIcon("toi")}
+              </button>
+            </th>
+
+            {/* Fantasy column */}
+            <th className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center w-32">
+              Fantasy
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {sortedSkaters.map((player, index) => {
+            const isInPlayoffs = isTeamInPlayoffs(player.teamAbbrev);
+            const isEvenRow = index % 2 === 0;
+            const rowBgClass = isEvenRow ? "bg-white" : "bg-gray-50";
+            const cellBgColor = isEvenRow ? "#ffffff" : "#f9fafb";
+            const hoverBgColor = "#eff6ff"; // blue-50
+
+            return (
+              <tr
+                key={`${player.id}-${index}`}
+                className={`${rowBgClass} ${!isInPlayoffs ? "opacity-60" : ""} hover:bg-blue-50`}
+                onMouseEnter={(e) => {
+                  const stickyCells =
+                    e.currentTarget.querySelectorAll("td.sticky");
+                  stickyCells.forEach((cell) => {
+                    (cell as HTMLElement).style.backgroundColor = hoverBgColor;
+                  });
+                }}
+                onMouseLeave={(e) => {
+                  const stickyCells =
+                    e.currentTarget.querySelectorAll("td.sticky");
+                  stickyCells.forEach((cell) => {
+                    (cell as HTMLElement).style.backgroundColor = cellBgColor;
+                  });
+                }}
+              >
+                {/* Rank column */}
+                <td
+                  className="py-4 px-5 text-center font-medium border-b border-gray-100 sticky left-0 z-10 sticky"
+                  style={{ backgroundColor: cellBgColor }}
                 >
-                  #
-                </th>
+                  {index + 1}
+                </td>
 
-                {/* Player column - sticky left and top */}
-                <th
-                  style={{
-                    ...stickyLeftHeaderStyle("3rem"),
-                    width: "14rem",
-                    textAlign: "left",
-                  }}
+                {/* Player column */}
+                <td
+                  className="py-4 px-5 text-left border-b border-gray-100 sticky left-12 z-10 sticky"
+                  style={{ backgroundColor: cellBgColor }}
                 >
-                  <button
-                    className="flex items-center focus:outline-none cursor-pointer"
-                    onClick={() => handleSort("lastName")}
-                  >
-                    Player {getSortIcon("lastName")}
-                  </button>
-                </th>
-
-                {/* Regular header cells - only sticky top */}
-                {[
-                  {
-                    id: "team",
-                    label: "Team",
-                    width: "7rem",
-                    align: "left",
-                    sortField: null,
-                  },
-                  {
-                    id: "pos",
-                    label: "Pos",
-                    width: "5rem",
-                    align: "left",
-                    sortField: null,
-                  },
-                  {
-                    id: "points",
-                    label: "Points",
-                    width: "6rem",
-                    align: "center",
-                    sortField: "points",
-                  },
-                  {
-                    id: "goals",
-                    label: "Goals",
-                    width: "6rem",
-                    align: "center",
-                    sortField: "goals",
-                  },
-                  {
-                    id: "assists",
-                    label: "Assists",
-                    width: "6rem",
-                    align: "center",
-                    sortField: "assists",
-                  },
-                  {
-                    id: "plusMinus",
-                    label: "+/-",
-                    width: "6rem",
-                    align: "center",
-                    sortField: "plusMinus",
-                  },
-                  {
-                    id: "pim",
-                    label: "PIM",
-                    width: "6rem",
-                    align: "center",
-                    sortField: "penaltyMins",
-                  },
-                  {
-                    id: "toi",
-                    label: "TOI",
-                    width: "6rem",
-                    align: "center",
-                    sortField: "toi",
-                  },
-                  {
-                    id: "fantasy",
-                    label: "Fantasy",
-                    width: "8rem",
-                    align: "center",
-                    sortField: null,
-                  },
-                ].map((col) => (
-                  <th
-                    key={col.id}
-                    style={{
-                      ...stickyHeaderStyle,
-                      width: col.width,
-                      textAlign: col.align === "center" ? "center" : "left",
-                    }}
-                  >
-                    {col.sortField ? (
-                      <button
-                        className={`flex items-center ${col.align === "center" ? "justify-center mx-auto" : ""} focus:outline-none cursor-pointer`}
-                        onClick={() => handleSort(col.sortField as SortField)}
-                      >
-                        {col.label} {getSortIcon(col.sortField as SortField)}
-                      </button>
-                    ) : (
-                      col.label
-                    )}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {sortedSkaters.map((player, index) => {
-                const isInPlayoffs = isTeamInPlayoffs(player.teamAbbrev);
-                const isEvenRow = index % 2 === 0;
-
-                return (
-                  <tr
-                    key={`${player.id}-${index}`}
-                    className={`${!isInPlayoffs ? "opacity-60" : ""} hover:bg-blue-50`}
-                  >
-                    {/* Rank Column - Sticky Left */}
-                    <td
-                      style={{
-                        ...stickyLeftCellStyle(isEvenRow, "0"),
-                        width: "3rem",
-                        textAlign: "center",
-                        fontWeight: 500,
-                      }}
-                    >
-                      {index + 1}
-                    </td>
-
-                    {/* Player Column - Sticky Left */}
-                    <td
-                      style={{
-                        ...stickyLeftCellStyle(isEvenRow, "3rem"),
-                        width: "14rem",
-                        textAlign: "left",
-                      }}
-                    >
-                      <div className="flex items-center">
-                        <div className="ml-0">
-                          <a
-                            href={`https://www.nhl.com/player/${player.id}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="text-base font-medium text-gray-900 hover:text-[#6D4C9F] hover:underline block"
-                          >
-                            {player.firstName} {player.lastName}
-                          </a>
-                          {player.sweaterNumber && (
-                            <span className="text-sm text-gray-500 ml-1">
-                              #{player.sweaterNumber}
-                            </span>
-                          )}
-                        </div>
-                      </div>
-                    </td>
-
-                    {/* Team Cell */}
-                    <td style={{ ...baseCellStyle(isEvenRow) }}>
+                  <div className="flex items-center">
+                    <div className="ml-0">
                       <a
-                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.teamAbbrev)}`}
+                        href={`https://www.nhl.com/player/${player.id}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center group"
+                        className="text-base font-medium text-gray-900 hover:text-[#6D4C9F] hover:underline block"
                       >
-                        <div className="flex items-center">
-                          {player.teamLogo ? (
-                            <img
-                              src={player.teamLogo}
-                              alt={player.teamAbbrev}
-                              className="h-6 w-6 mr-2"
-                            />
-                          ) : null}
-                          <span className="text-base text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                            {player.teamAbbrev}
-                          </span>
-                        </div>
+                        {player.firstName} {player.lastName}
                       </a>
-                    </td>
-
-                    {/* Position Cell */}
-                    <td style={{ ...baseCellStyle(isEvenRow) }}>
-                      {player.position}
-                    </td>
-
-                    {/* Points Cell */}
-                    <td
-                      style={{
-                        ...baseCellStyle(isEvenRow),
-                        textAlign: "center",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {player.stats.points ?? "-"}
-                    </td>
-
-                    {/* Goals Cell */}
-                    <td
-                      style={{
-                        ...baseCellStyle(isEvenRow),
-                        textAlign: "center",
-                      }}
-                    >
-                      {player.stats.goals ?? "-"}
-                    </td>
-
-                    {/* Assists Cell */}
-                    <td
-                      style={{
-                        ...baseCellStyle(isEvenRow),
-                        textAlign: "center",
-                      }}
-                    >
-                      {player.stats.assists ?? "-"}
-                    </td>
-
-                    {/* +/- Cell */}
-                    <td
-                      style={{
-                        ...baseCellStyle(isEvenRow),
-                        textAlign: "center",
-                      }}
-                    >
-                      {player.stats.plusMinus != null ? (
-                        <span
-                          style={{
-                            color:
-                              player.stats.plusMinus > 0
-                                ? "#059669" // green-600
-                                : player.stats.plusMinus < 0
-                                  ? "#DC2626" // red-600
-                                  : "inherit",
-                          }}
-                        >
-                          {player.stats.plusMinus > 0 ? "+" : ""}
-                          {player.stats.plusMinus}
+                      {player.sweaterNumber && (
+                        <span className="text-sm text-gray-500 ml-1">
+                          #{player.sweaterNumber}
                         </span>
-                      ) : (
-                        "-"
                       )}
-                    </td>
+                    </div>
+                  </div>
+                </td>
 
-                    {/* PIM Cell */}
-                    <td
-                      style={{
-                        ...baseCellStyle(isEvenRow),
-                        textAlign: "center",
-                      }}
-                    >
-                      {player.stats.penaltyMins ?? 0}
-                    </td>
-
-                    {/* TOI Cell */}
-                    <td
-                      style={{
-                        ...baseCellStyle(isEvenRow),
-                        textAlign: "center",
-                      }}
-                    >
-                      {formatTOI(player.stats.toi as number)}
-                    </td>
-
-                    {/* Fantasy Cell */}
-                    <td
-                      style={{
-                        ...baseCellStyle(isEvenRow),
-                        textAlign: "center",
-                        whiteSpace: "nowrap",
-                      }}
-                    >
-                      {player.fantasyTeam ? (
-                        <Link
-                          to={`/fantasy-teams/${player.fantasyTeam.teamId}`}
-                          className="text-base text-[#6D4C9F] hover:underline"
-                        >
-                          {player.fantasyTeam.teamName}
-                        </Link>
-                      ) : (
-                        <span className="text-base text-gray-500">—</span>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-              {sortedSkaters.length === 0 && !isLoading && (
-                <tr>
-                  <td
-                    colSpan={11}
-                    className="text-center py-10 px-5 text-gray-500 bg-white"
+                {/* Team column */}
+                <td className="py-4 px-5 border-b border-gray-100">
+                  <a
+                    href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.teamAbbrev)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center group"
                   >
-                    No skaters found matching your criteria.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                    <div className="flex items-center">
+                      {player.teamLogo ? (
+                        <img
+                          src={player.teamLogo}
+                          alt={player.teamAbbrev}
+                          className="h-6 w-6 mr-2"
+                        />
+                      ) : null}
+                      <span className="text-base text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                        {player.teamAbbrev}
+                      </span>
+                    </div>
+                  </a>
+                </td>
 
-      {/* Add a CSS block to ensure sticky positioning works properly */}
-      <style jsx>{`
-        /* Critical fix for sticky headers to work at viewport level */
-        thead th {
-          position: sticky;
-          z-index: 20;
-        }
+                {/* Position column */}
+                <td className="py-4 px-5 border-b border-gray-100">
+                  {player.position}
+                </td>
 
-        /* These styles ensure proper sticky behavior */
-        tbody td.sticky-left {
-          position: sticky !important;
-          z-index: 10;
-        }
+                {/* Points column */}
+                <td className="py-4 px-5 text-center font-bold border-b border-gray-100">
+                  {player.stats.points ?? "-"}
+                </td>
 
-        /* Force proper background colors */
-        tr:hover td {
-          background-color: #eff6ff !important;
-        }
+                {/* Goals column */}
+                <td className="py-4 px-5 text-center border-b border-gray-100">
+                  {player.stats.goals ?? "-"}
+                </td>
 
-        /* For browsers that need it: ensure the sticky elements work with proper overflow */
-        @supports (-webkit-overflow-scrolling: touch) {
-          .overflow-y-visible {
-            overflow-y: visible !important;
-          }
-        }
-      `}</style>
-    </>
+                {/* Assists column */}
+                <td className="py-4 px-5 text-center border-b border-gray-100">
+                  {player.stats.assists ?? "-"}
+                </td>
+
+                {/* Plus/Minus column */}
+                <td className="py-4 px-5 text-center border-b border-gray-100">
+                  {player.stats.plusMinus != null ? (
+                    <span
+                      className={
+                        player.stats.plusMinus > 0
+                          ? "text-green-600"
+                          : player.stats.plusMinus < 0
+                            ? "text-red-600"
+                            : ""
+                      }
+                    >
+                      {player.stats.plusMinus > 0 ? "+" : ""}
+                      {player.stats.plusMinus}
+                    </span>
+                  ) : (
+                    "-"
+                  )}
+                </td>
+
+                {/* PIM column */}
+                <td className="py-4 px-5 text-center border-b border-gray-100">
+                  {player.stats.penaltyMins ?? 0}
+                </td>
+
+                {/* TOI column */}
+                <td className="py-4 px-5 text-center border-b border-gray-100">
+                  {formatTOI(player.stats.toi as number)}
+                </td>
+
+                {/* Fantasy column */}
+                <td className="py-4 px-5 text-center whitespace-nowrap border-b border-gray-100">
+                  {player.fantasyTeam ? (
+                    <Link
+                      to={`/fantasy-teams/${player.fantasyTeam.teamId}`}
+                      className="text-base text-[#6D4C9F] hover:underline"
+                    >
+                      {player.fantasyTeam.teamName}
+                    </Link>
+                  ) : (
+                    <span className="text-base text-gray-500">—</span>
+                  )}
+                </td>
+              </tr>
+            );
+          })}
+          {sortedSkaters.length === 0 && !isLoading && (
+            <tr>
+              <td
+                colSpan={11}
+                className="text-center py-10 px-5 text-gray-500 bg-white"
+              >
+                No skaters found matching your criteria.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
+    </div>
   );
 };
 
