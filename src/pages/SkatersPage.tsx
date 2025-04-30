@@ -7,6 +7,7 @@ const SkatersPage = () => {
   const {
     filteredSkaters,
     positions,
+    positionCounts,
     isLoading,
     error,
     refetch,

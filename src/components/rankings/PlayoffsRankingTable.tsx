@@ -63,7 +63,7 @@ const PlayoffRankingsTable: React.FC<PlayoffRankingsTableProps> = ({
               <tr
                 key={team.teamId}
                 className="border-b border-gray-50 transition-colors duration-150 hover:bg-[#f8f7ff] cursor-pointer"
-                onClick={() => navigate(`/teams/${team.teamId}`)}
+                onClick={() => navigate(`/fantasy-teams/${team.teamId}`)}
               >
                 <td className="py-3 px-4">
                   <div

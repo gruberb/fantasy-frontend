@@ -99,7 +99,7 @@ const DailyRankingsCard = ({
                 </td>
                 <td className="py-3 px-4 whitespace-nowrap">
                   <Link
-                    to={`/teams/${team.teamId}`}
+                    to={`/fantasy-teams/${team.teamId}`}
                     className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium flex items-center"
                   >
                     {team.teamName}

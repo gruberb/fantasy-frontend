@@ -189,7 +189,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                 )}
                 <div>
                   <Link
-                    to={`/teams/${team.teamId}`}
+                    to={`/fantasy-teams/${team.teamId}`}
                     className="font-medium hover:text-[#6D4C9F] hover:underline"
                   >
                     {team.teamName}

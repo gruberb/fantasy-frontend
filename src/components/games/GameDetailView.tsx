@@ -325,7 +325,7 @@ export default function GameDetailView({
                         <td className="py-1 px-2 text-xs">
                           {player.fantasyTeam ? (
                             <Link
-                              to={`/teams/${player.fantasyTeamId || ""}`}
+                              to={`/fantasy-teams/${player.fantasyTeamId || ""}`}
                               className="hover:text-[#6D4C9F] hover:underline"
                             >
                               {player.fantasyTeam}
@@ -402,7 +402,7 @@ export default function GameDetailView({
                       <td className="py-1 px-2 text-xs">
                         {player.fantasyTeam ? (
                           <Link
-                            to={`/teams/${player.fantasyTeamId || ""}`}
+                            to={`/fantasy-teams/${player.fantasyTeamId || ""}`}
                             className="hover:text-[#6D4C9F] hover:underline"
                           >
                             {player.fantasyTeam}

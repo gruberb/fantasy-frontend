@@ -5,7 +5,7 @@ export default function ActionButtons() {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
       <Link
-        to="/teams"
+        to="/fantasy-teams"
         className="bg-[#6D4C9F] hover:bg-[#5A3A87] text-white py-3 px-4 rounded-md shadow-sm font-medium transition-colors text-center"
       >
         View All Teams
