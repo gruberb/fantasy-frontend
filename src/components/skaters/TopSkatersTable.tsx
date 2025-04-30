@@ -4,6 +4,7 @@ import { Link } from "react-router-dom";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 import { TopSkater } from "../../types/skaters";
 import { usePlayoffsData } from "../../hooks/usePlayoffsData";
+import EmptyPlayersState from "../games/NoGamesMessage";
 
 interface TopSkatersTableProps {
   skaters: TopSkater[];
@@ -561,6 +562,26 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                   colSpan={11}
                   className="text-center py-10 px-5 text-gray-500 bg-white"
                 >
+                  <svg
+                    className="w-16 h-16 text-gray-300 mx-auto mb-4"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M9.172 16.172a4 4 0 015.656 0M12 14a2 2 0 100-4 2 2 0 000 4z"
+                    />
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={1}
+                      d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                    />
+                  </svg>
                   No skaters found matching your criteria.
                 </td>
               </tr>
