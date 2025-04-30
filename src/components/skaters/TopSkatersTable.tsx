@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 import { TopSkater } from "../../types/skaters";
@@ -17,7 +17,7 @@ type SortField =
   | "penaltyMins"
   | "faceoffPct"
   | "toi"
-  | "lastName"; // Assuming lastName sort might be based on the player name column
+  | "lastName";
 
 const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
   skaters,
@@ -26,6 +26,38 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
   const [sortField, setSortField] = useState<SortField>("points");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
   const { isTeamInPlayoffs } = usePlayoffsData();
+  const [stickyTopOffset, setStickyTopOffset] = useState(62); // Default value
+
+  // Calculate the top offset for sticky elements
+  useEffect(() => {
+    const calculateTopOffset = () => {
+      // Try to get the main navigation height
+      const mainNav =
+        document.querySelector("nav") ||
+        document.querySelector("header") ||
+        document.querySelector(".navbar");
+
+      if (mainNav) {
+        // Get the actual height + a small buffer
+        const navHeight = mainNav.getBoundingClientRect().height + 1;
+        setStickyTopOffset(0);
+
+        // Also set as CSS variable for potential use
+        document.documentElement.style.setProperty(
+          "--header-height",
+          `${navHeight}px`,
+        );
+      }
+    };
+
+    // Calculate immediately and on resize
+    calculateTopOffset();
+    window.addEventListener("resize", calculateTopOffset);
+
+    return () => {
+      window.removeEventListener("resize", calculateTopOffset);
+    };
+  }, []);
 
   const handleSort = (field: SortField) => {
     if (field === sortField) {
@@ -37,8 +69,8 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
   };
 
   const formatTOI = (seconds: number): string => {
-    if (seconds == null) return "-"; // Handle null or undefined
-    const totalSeconds = Math.round(seconds); // Ensure integer seconds
+    if (seconds == null) return "-";
+    const totalSeconds = Math.round(seconds);
     const minutes = Math.floor(totalSeconds / 60);
     const remainingSeconds = totalSeconds % 60;
     return `${minutes}:${remainingSeconds.toString().padStart(2, "0")}`;
@@ -49,33 +81,26 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
     const aValue = a.stats?.[sortField as keyof TopSkater["stats"]];
     const bValue = b.stats?.[sortField as keyof TopSkater["stats"]];
 
-    // Handle sorting by player name separately
     if (sortField === "lastName") {
-      // Combine first and last for more robust sorting if needed, or just use lastName
       comparison = `${a.lastName}, ${a.firstName}`.localeCompare(
         `${b.lastName}, ${b.firstName}`,
       );
     } else if (aValue == null && bValue == null) {
       comparison = 0;
     } else if (aValue == null) {
-      comparison = -1; // Sort nulls/undefined to the beginning or end as desired
+      comparison = -1;
     } else if (bValue == null) {
       comparison = 1;
     } else {
-      comparison = (aValue as number) - (bValue as number); // Assuming numerical comparison for stats
+      comparison = (aValue as number) - (bValue as number);
     }
-
-    // Fallback to points if primary sort fields are equal? (Optional)
-    // if (comparison === 0 && sortField !== 'points') {
-    //   comparison = (b.stats?.points ?? 0) - (a.stats?.points ?? 0); // Secondary sort by points desc
-    // }
 
     return sortDirection === "asc" ? comparison : -comparison;
   });
 
   const getSortIcon = (field: SortField) => {
     if (field !== sortField) return null;
-    const iconClass = "w-3 h-3 ml-1 inline-block"; // Ensure icon is inline
+    const iconClass = "w-3 h-3 ml-1 inline-block";
 
     return sortDirection === "asc" ? (
       <svg className={iconClass} fill="currentColor" viewBox="0 0 20 20">
@@ -111,256 +136,394 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
     );
   }
 
-  // Define shared styles for header cells for consistency
-  const thBaseClasses =
-    "py-4 px-5 whitespace-nowrap text-left text-sm font-semibold tracking-wider";
-  const thStickyTopClasses = "sticky top-[62px] z-20 bg-gray-50";
+  // Define basic cell styles for reuse
+  const baseHeaderStyle = {
+    padding: "1rem 1.25rem",
+    whiteSpace: "nowrap" as const,
+    fontSize: "0.875rem",
+    fontWeight: 600 as const,
+    letterSpacing: "0.025em",
+    backgroundColor: "#f9fafb",
+    borderBottom: "1px solid #e5e7eb",
+  };
+
+  const stickyHeaderStyle = {
+    ...baseHeaderStyle,
+    position: "sticky" as const,
+    top: `${stickyTopOffset}px`,
+    zIndex: 20,
+  };
+
+  const stickyLeftHeaderStyle = (leftPosition: string) => ({
+    ...stickyHeaderStyle,
+    left: leftPosition,
+    zIndex: 30,
+  });
+
+  const baseCellStyle = (isEven: boolean) => ({
+    padding: "1rem 1.25rem",
+    borderBottom: "1px solid #f3f4f6",
+    backgroundColor: isEven ? "#ffffff" : "#f9fafb",
+  });
+
+  const stickyLeftCellStyle = (isEven: boolean, leftPosition: string) => ({
+    ...baseCellStyle(isEven),
+    position: "sticky" as const,
+    left: leftPosition,
+    zIndex: 10,
+  });
 
   return (
-    // Added overflow-x-auto to allow horizontal scrolling of the table content
-    // You might need max-height and overflow-y-auto here if you want vertical scroll contained within this div
-    <div
-      className="
-        overflow-y-auto
-        overflow-x-hidden
-        h-max                  /* height: max-content; grows with table */
-        max-h-[calc(100vh-150px)]  /* cap at viewport-150px */
-        relative
-        border border-gray-200
-        rounded-lg
-        shadow-sm
-      "
-    >
-      <table className="w-full table-fixed border-collapse">
-        {/* Apply sticky positioning and background to the entire thead is simpler */}
-        {/* but applying to TH gives more control over individual backgrounds if needed */}
-        <thead>
-          <tr className="border-b border-gray-200">
-            {/* --- Sticky Header Column 1: Rank --- */}
-            <th
-              className={`py-4 px-4 whitespace-nowrap text-left text-sm font-semibold tracking-wider ${thStickyTopClasses} sticky left-0 z-30 w-6 bg-gray-50`} // Highest z-index for corner, fixed width
-            >
-              #
-            </th>
-            {/* --- Sticky Header Column 2: Player --- */}
-            <th
-              className={`${thBaseClasses} ${thStickyTopClasses} sticky left-16 z-30 bg-gray-50`} // left-16 = w-16 of first column
-              // No onClick needed for sorting if we use the 'lastName' sortField tied to the name itself
-            >
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("lastName")} // Allow sorting by name
-              >
-                Player {getSortIcon("lastName")}
-              </button>
-            </th>
-            {/* --- Non-Sticky Headers --- */}
-            <th
-              className={`${thBaseClasses} ${thStickyTopClasses} hidden md:table-cell`}
-            >
-              Team
-            </th>
-            <th
-              className={`${thBaseClasses} ${thStickyTopClasses} hidden md:table-cell`}
-            >
-              Pos
-            </th>
-            <th className={`${thBaseClasses} ${thStickyTopClasses}`}>
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("points")}
-              >
-                Points {getSortIcon("points")}
-              </button>
-            </th>
-            <th className={`${thBaseClasses} ${thStickyTopClasses}`}>
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("goals")}
-              >
-                Goals {getSortIcon("goals")}
-              </button>
-            </th>
-            <th className={`${thBaseClasses} ${thStickyTopClasses}`}>
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("assists")}
-              >
-                Assists {getSortIcon("assists")}
-              </button>
-            </th>
-            <th
-              className={`${thBaseClasses} ${thStickyTopClasses} hidden md:table-cell`}
-            >
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("plusMinus")}
-              >
-                +/- {getSortIcon("plusMinus")}
-              </button>
-            </th>
-            <th
-              className={`${thBaseClasses} ${thStickyTopClasses} hidden md:table-cell`}
-            >
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("penaltyMins")}
-              >
-                PIM {getSortIcon("penaltyMins")}
-              </button>
-            </th>
-            <th
-              className={`${thBaseClasses} ${thStickyTopClasses} hidden lg:table-cell`}
-            >
-              <button
-                className="flex items-center focus:outline-none cursor-pointer"
-                onClick={() => handleSort("toi")}
-              >
-                TOI {getSortIcon("toi")}
-              </button>
-            </th>
-            <th className={`${thBaseClasses} ${thStickyTopClasses}`}>
-              Fantasy
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {sortedSkaters.map((player, index) => {
-            const isInPlayoffs = isTeamInPlayoffs(player.teamAbbrev);
-            const isEvenRow = index % 2 === 0;
-            // Use Tailwind classes for background and ensure they are applied to sticky cells
-            const rowBgClass = isEvenRow ? "bg-white" : "bg-gray-50";
-            const tdBaseClass = `text-center py-4 px-5 break-words text-base border-b border-gray-100 ${rowBgClass}`; // Apply bg here
-            const tdStickyBaseClass = `sticky z-10 border-b border-gray-100`; // z-10 for body cells, below header
+    <>
+      {/* The key change: Add a div with position: relative that wraps the entire table */}
+      <div
+        style={{ position: "relative" }}
+        className="border border-gray-200 rounded-lg shadow-sm"
+      >
+        {/* This div needs overflow-x: auto but NOT overflow-y: auto/hidden */}
+        <div style={{ overflowX: "auto", overflowY: "visible" }}>
+          <table
+            style={{
+              width: "100%",
+              borderCollapse: "collapse",
+              minWidth: "800px",
+            }}
+          >
+            <thead>
+              <tr className="border-b border-gray-200">
+                {/* Rank column - sticky left and top */}
+                <th
+                  style={{
+                    ...stickyLeftHeaderStyle("0"),
+                    width: "3rem",
+                    textAlign: "center",
+                  }}
+                >
+                  #
+                </th>
 
-            return (
-              <tr
-                key={`${player.id}-${index}`} // Using index in key isn't ideal if list can change order other than sorting
-                className={`hover:bg-blue-50 ${!isInPlayoffs ? "opacity-60" : ""}`} // Use a different hover color
-              >
-                {/* --- Sticky Body Column 1: Rank --- */}
-                <td
-                  className={`py-4 px-5 break-words text-base border-b border-gray-100 ${rowBgClass} ${tdStickyBaseClass} left-0 w-6 font-medium`} // Match width, sticky left
+                {/* Player column - sticky left and top */}
+                <th
+                  style={{
+                    ...stickyLeftHeaderStyle("3rem"),
+                    width: "14rem",
+                    textAlign: "left",
+                  }}
                 >
-                  {index + 1}
-                </td>
-                {/* --- Sticky Body Column 2: Player --- */}
-                <td
-                  className={`py-2 px-2 break-words text-base border-b border-gray-100 ${rowBgClass} ${tdStickyBaseClass} left-16 text-left`} // Sticky left, offset by w-16
-                >
-                  <div className="flex items-center">
-                    <div className="ml-0 sm:ml-4">
-                      {" "}
-                      {/* Adjust margin for small screens */}
+                  <button
+                    className="flex items-center focus:outline-none cursor-pointer"
+                    onClick={() => handleSort("lastName")}
+                  >
+                    Player {getSortIcon("lastName")}
+                  </button>
+                </th>
+
+                {/* Regular header cells - only sticky top */}
+                {[
+                  {
+                    id: "team",
+                    label: "Team",
+                    width: "7rem",
+                    align: "left",
+                    sortField: null,
+                  },
+                  {
+                    id: "pos",
+                    label: "Pos",
+                    width: "5rem",
+                    align: "left",
+                    sortField: null,
+                  },
+                  {
+                    id: "points",
+                    label: "Points",
+                    width: "6rem",
+                    align: "center",
+                    sortField: "points",
+                  },
+                  {
+                    id: "goals",
+                    label: "Goals",
+                    width: "6rem",
+                    align: "center",
+                    sortField: "goals",
+                  },
+                  {
+                    id: "assists",
+                    label: "Assists",
+                    width: "6rem",
+                    align: "center",
+                    sortField: "assists",
+                  },
+                  {
+                    id: "plusMinus",
+                    label: "+/-",
+                    width: "6rem",
+                    align: "center",
+                    sortField: "plusMinus",
+                  },
+                  {
+                    id: "pim",
+                    label: "PIM",
+                    width: "6rem",
+                    align: "center",
+                    sortField: "penaltyMins",
+                  },
+                  {
+                    id: "toi",
+                    label: "TOI",
+                    width: "6rem",
+                    align: "center",
+                    sortField: "toi",
+                  },
+                  {
+                    id: "fantasy",
+                    label: "Fantasy",
+                    width: "8rem",
+                    align: "center",
+                    sortField: null,
+                  },
+                ].map((col) => (
+                  <th
+                    key={col.id}
+                    style={{
+                      ...stickyHeaderStyle,
+                      width: col.width,
+                      textAlign: col.align === "center" ? "center" : "left",
+                    }}
+                  >
+                    {col.sortField ? (
+                      <button
+                        className={`flex items-center ${col.align === "center" ? "justify-center mx-auto" : ""} focus:outline-none cursor-pointer`}
+                        onClick={() => handleSort(col.sortField as SortField)}
+                      >
+                        {col.label} {getSortIcon(col.sortField as SortField)}
+                      </button>
+                    ) : (
+                      col.label
+                    )}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {sortedSkaters.map((player, index) => {
+                const isInPlayoffs = isTeamInPlayoffs(player.teamAbbrev);
+                const isEvenRow = index % 2 === 0;
+
+                return (
+                  <tr
+                    key={`${player.id}-${index}`}
+                    className={`${!isInPlayoffs ? "opacity-60" : ""} hover:bg-blue-50`}
+                  >
+                    {/* Rank Column - Sticky Left */}
+                    <td
+                      style={{
+                        ...stickyLeftCellStyle(isEvenRow, "0"),
+                        width: "3rem",
+                        textAlign: "center",
+                        fontWeight: 500,
+                      }}
+                    >
+                      {index + 1}
+                    </td>
+
+                    {/* Player Column - Sticky Left */}
+                    <td
+                      style={{
+                        ...stickyLeftCellStyle(isEvenRow, "3rem"),
+                        width: "14rem",
+                        textAlign: "left",
+                      }}
+                    >
+                      <div className="flex items-center">
+                        <div className="ml-0">
+                          <a
+                            href={`https://www.nhl.com/player/${player.id}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-base font-medium text-gray-900 hover:text-[#6D4C9F] hover:underline block"
+                          >
+                            {player.firstName} {player.lastName}
+                          </a>
+                          {player.sweaterNumber && (
+                            <span className="text-sm text-gray-500 ml-1">
+                              #{player.sweaterNumber}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </td>
+
+                    {/* Team Cell */}
+                    <td style={{ ...baseCellStyle(isEvenRow) }}>
                       <a
-                        href={`https://www.nhl.com/player/${player.id}`}
+                        href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.teamAbbrev)}`}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="text-base font-medium text-gray-900 hover:text-[#6D4C9F] hover:underline block" // Make name block for better layout
+                        className="inline-flex items-center group"
                       >
-                        {player.firstName} {player.lastName}
+                        <div className="flex items-center">
+                          {player.teamLogo ? (
+                            <img
+                              src={player.teamLogo}
+                              alt={player.teamAbbrev}
+                              className="h-6 w-6 mr-2"
+                            />
+                          ) : null}
+                          <span className="text-base text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+                            {player.teamAbbrev}
+                          </span>
+                        </div>
                       </a>
-                      {player.sweaterNumber && (
-                        <span className="text-sm text-gray-500 ml-1">
-                          #{player.sweaterNumber}
+                    </td>
+
+                    {/* Position Cell */}
+                    <td style={{ ...baseCellStyle(isEvenRow) }}>
+                      {player.position}
+                    </td>
+
+                    {/* Points Cell */}
+                    <td
+                      style={{
+                        ...baseCellStyle(isEvenRow),
+                        textAlign: "center",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {player.stats.points ?? "-"}
+                    </td>
+
+                    {/* Goals Cell */}
+                    <td
+                      style={{
+                        ...baseCellStyle(isEvenRow),
+                        textAlign: "center",
+                      }}
+                    >
+                      {player.stats.goals ?? "-"}
+                    </td>
+
+                    {/* Assists Cell */}
+                    <td
+                      style={{
+                        ...baseCellStyle(isEvenRow),
+                        textAlign: "center",
+                      }}
+                    >
+                      {player.stats.assists ?? "-"}
+                    </td>
+
+                    {/* +/- Cell */}
+                    <td
+                      style={{
+                        ...baseCellStyle(isEvenRow),
+                        textAlign: "center",
+                      }}
+                    >
+                      {player.stats.plusMinus != null ? (
+                        <span
+                          style={{
+                            color:
+                              player.stats.plusMinus > 0
+                                ? "#059669" // green-600
+                                : player.stats.plusMinus < 0
+                                  ? "#DC2626" // red-600
+                                  : "inherit",
+                          }}
+                        >
+                          {player.stats.plusMinus > 0 ? "+" : ""}
+                          {player.stats.plusMinus}
                         </span>
+                      ) : (
+                        "-"
                       )}
-                      <span className="text-sm text-gray-500 block sm:hidden">
-                        {/* Show pos/team on small screens */}
-                        {player.position} - {player.teamAbbrev}
-                      </span>
-                    </div>
-                  </div>
-                </td>
-                {/* --- Non-Sticky Body Cells --- */}
-                <td className={`${tdBaseClass} hidden md:table-cell`}>
-                  {" "}
-                  {/* Hide on smallest screens */}
-                  <a
-                    href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.teamAbbrev)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center group"
+                    </td>
+
+                    {/* PIM Cell */}
+                    <td
+                      style={{
+                        ...baseCellStyle(isEvenRow),
+                        textAlign: "center",
+                      }}
+                    >
+                      {player.stats.penaltyMins ?? 0}
+                    </td>
+
+                    {/* TOI Cell */}
+                    <td
+                      style={{
+                        ...baseCellStyle(isEvenRow),
+                        textAlign: "center",
+                      }}
+                    >
+                      {formatTOI(player.stats.toi as number)}
+                    </td>
+
+                    {/* Fantasy Cell */}
+                    <td
+                      style={{
+                        ...baseCellStyle(isEvenRow),
+                        textAlign: "center",
+                        whiteSpace: "nowrap",
+                      }}
+                    >
+                      {player.fantasyTeam ? (
+                        <Link
+                          to={`/fantasy-teams/${player.fantasyTeam.teamId}`}
+                          className="text-base text-[#6D4C9F] hover:underline"
+                        >
+                          {player.fantasyTeam.teamName}
+                        </Link>
+                      ) : (
+                        <span className="text-base text-gray-500">—</span>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+              {sortedSkaters.length === 0 && !isLoading && (
+                <tr>
+                  <td
+                    colSpan={11}
+                    className="text-center py-10 px-5 text-gray-500 bg-white"
                   >
-                    <div className="flex items-center">
-                      {player.teamLogo ? (
-                        <img
-                          src={player.teamLogo}
-                          alt={player.teamAbbrev}
-                          className="h-6 w-6 mr-2"
-                        />
-                      ) : null}
-                      <span className="text-base text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                        {player.teamAbbrev}
-                      </span>
-                    </div>
-                  </a>
-                </td>
-                <td className={`${tdBaseClass} hidden md:table-cell`}>
-                  {" "}
-                  {/* Hide on smallest screens */}
-                  {player.position}
-                </td>
-                <td className={`${tdBaseClass} font-bold`}>
-                  {player.stats.points ?? "-"}
-                </td>
-                <td className={tdBaseClass}>{player.stats.goals ?? "-"}</td>
-                <td className={tdBaseClass}>{player.stats.assists ?? "-"}</td>
-                <td className={`${tdBaseClass} hidden md:table-cell`}>
-                  {player.stats.plusMinus != null ? ( // Check for null/undefined explicitly
-                    <span
-                      className={
-                        player.stats.plusMinus > 0
-                          ? "text-green-600"
-                          : player.stats.plusMinus < 0
-                            ? "text-red-600"
-                            : ""
-                      }
-                    >
-                      {player.stats.plusMinus > 0 ? "+" : ""}
-                      {player.stats.plusMinus}
-                    </span>
-                  ) : (
-                    "-"
-                  )}
-                </td>
-                <td className={`${tdBaseClass} hidden md:table-cell`}>
-                  {player.stats.penaltyMins ?? 0}{" "}
-                  {/* Default to 0 if null/undefined */}
-                </td>
-                <td className={`${tdBaseClass} hidden lg:table-cell`}>
-                  {formatTOI(player.stats.toi as number)}{" "}
-                  {/* Cast or ensure TOI is number */}
-                </td>
-                <td className={`${tdBaseClass} whitespace-nowrap`}>
-                  {player.fantasyTeam ? (
-                    <Link
-                      to={`/fantasy-teams/${player.fantasyTeam.teamId}`}
-                      className="text-base text-[#6D4C9F] hover:underline"
-                    >
-                      {player.fantasyTeam.teamName}
-                    </Link>
-                  ) : (
-                    <span className="text-base text-gray-500">—</span>
-                  )}
-                </td>
-              </tr>
-            );
-          })}
-          {/* Add a row for no results if needed */}
-          {sortedSkaters.length === 0 && !isLoading && (
-            <tr>
-              <td
-                colSpan={12} /* Adjust colSpan based on max visible columns */
-                className="text-center py-10 px-5 text-gray-500 bg-white"
-              >
-                No skaters found matching your criteria.
-              </td>
-            </tr>
-          )}
-        </tbody>
-      </table>
-    </div>
+                    No skaters found matching your criteria.
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Add a CSS block to ensure sticky positioning works properly */}
+      <style jsx>{`
+        /* Critical fix for sticky headers to work at viewport level */
+        thead th {
+          position: sticky;
+          z-index: 20;
+        }
+
+        /* These styles ensure proper sticky behavior */
+        tbody td.sticky-left {
+          position: sticky !important;
+          z-index: 10;
+        }
+
+        /* Force proper background colors */
+        tr:hover td {
+          background-color: #eff6ff !important;
+        }
+
+        /* For browsers that need it: ensure the sticky elements work with proper overflow */
+        @supports (-webkit-overflow-scrolling: touch) {
+          .overflow-y-visible {
+            overflow-y: visible !important;
+          }
+        }
+      `}</style>
+    </>
   );
 };
 
