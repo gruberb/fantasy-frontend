@@ -78,7 +78,7 @@ export function useTeamDetail(teamId: number) {
     return teamPoints.players.map((player) => ({
       ...player,
       nhlTeamUrlSlug: getNHLTeamUrlSlug(player.nhlTeam || ""),
-    }));
+    })).sort((a, b) => b.totalPoints - a.totalPoints);
   }, [teamPoints?.players]);
 
   // Get team bets

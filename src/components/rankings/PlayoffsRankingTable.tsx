@@ -75,18 +75,14 @@ const PlayoffRankingsTable: React.FC<PlayoffRankingsTableProps> = ({
                 <td className="py-3 px-4 font-medium">{team.teamName}</td>
                 <td className="py-3 px-4">
                   <div className="flex items-center">
-                    <span className="font-bold mr-2">{team.totalPlayers}</span>
-                    <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                      {team.playersInPlayoffs}
-                    </div>
+                    <span className="font-bold mr-2">{team.playersInPlayoffs} / {team.totalPlayers}</span>
+
+
                   </div>
                 </td>
                 <td className="py-3 px-4 hidden md:table-cell">
                   <div className="flex items-center">
-                    <span className="font-bold mr-2">{team.totalTeams}</span>
-                    <div className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                      {team.teamsInPlayoffs}
-                    </div>
+                    <span className="font-bold mr-2">{team.teamsInPlayoffs} / {team.totalTeams}</span>
                   </div>
                 </td>
               </tr>

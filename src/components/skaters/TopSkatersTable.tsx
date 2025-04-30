@@ -4,7 +4,6 @@ import { Link } from "react-router-dom";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 import { TopSkater } from "../../types/skaters";
 import { usePlayoffsData } from "../../hooks/usePlayoffsData";
-import EmptyPlayersState from "../games/NoGamesMessage";
 
 interface TopSkatersTableProps {
   skaters: TopSkater[];
@@ -438,7 +437,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
               return (
                 <tr
                   key={`${player.id}-${index}`}
-                  className={`${rowBgClass} ${!isInPlayoffs ? "opacity-60" : ""} hover:bg-blue-50`}
+                  className={`${rowBgClass} ${!isInPlayoffs ? "opacity-25" : ""} hover:bg-blue-50`}
                 >
                   {/* Rank column - sticky left */}
                   <td

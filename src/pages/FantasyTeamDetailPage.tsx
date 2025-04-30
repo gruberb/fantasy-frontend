@@ -12,6 +12,7 @@ const FantasyTeamDetailPage = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const id = parseInt(teamId || "0", 10);
 
+
   const {
     team,
     teamPoints,
@@ -47,6 +48,7 @@ const FantasyTeamDetailPage = () => {
 
         {/* Playoff Stats Section */}
         <PlayoffStatus
+          players={processedPlayers}
           teamsInPlayoffs={playoffStats.teamsInPlayoffs}
           playersInPlayoffs={playoffStats.playersInPlayoffs}
           totalTeams={currentTeamBets.length}

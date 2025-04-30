@@ -1,8 +1,10 @@
 import { NHLTeamBet } from "../../types/fantasyTeams";
 import { SkaterStats } from "../../types/skaters";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
+import { usePlayoffsData } from "../../hooks/usePlayoffsData";
 
 interface PlayoffStatusProps {
+  players: SkaterStats[];
   teamsInPlayoffs: NHLTeamBet[];
   playersInPlayoffs: SkaterStats[];
   totalTeams: number;
@@ -10,11 +12,14 @@ interface PlayoffStatusProps {
 }
 
 export default function PlayoffStatus({
+  players,
   teamsInPlayoffs,
   playersInPlayoffs,
   totalTeams,
   totalPlayers,
 }: PlayoffStatusProps) {
+  const { isTeamInPlayoffs } = usePlayoffsData();
+
   return (
     <section className="card">
       <h2 className="text-2xl font-bold mb-4">Playoff Status</h2>
@@ -75,12 +80,15 @@ export default function PlayoffStatus({
               </span>
             </div>
 
-            {playersInPlayoffs.length > 0 ? (
+            {players.length > 0 ? (
               <div className="mt-3">
                 <h4 className="text-sm font-medium mb-2">Top 5 Players</h4>
                 <div className="flex flex-col gap-2">
-                  {playersInPlayoffs.slice(0, 5).map((player) => (
-                    <div key={player.name} className="flex items-center">
+                  {players.slice(0, 5).map((player) => {
+                    const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
+
+                    return (
+                    <div key={player.name} className={`flex items-center" ${!isInPlayoffs ? "opacity-25" : ""}`}>
                       <a
                         href={`https://www.nhl.com/player/${player.nhlId}`}
                         target="_blank"
@@ -106,7 +114,8 @@ export default function PlayoffStatus({
                         {player.totalPoints} pts
                       </span>
                     </div>
-                  ))}
+                    )
+                  })}
                 </div>
               </div>
             ) : (

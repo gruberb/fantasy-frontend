@@ -1,5 +1,6 @@
 import { NHLTeamBet } from "../../types/fantasyTeams";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
+import { usePlayoffsData } from "../../hooks/usePlayoffsData";
 
 interface TeamBetsTableProps {
   teamBets: NHLTeamBet[];
@@ -13,6 +14,8 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
   const sortedTeamBets = [...teamBets].sort(
     (a, b) => b.numPlayers - a.numPlayers,
   );
+
+  const { isTeamInPlayoffs } = usePlayoffsData();
 
   return (
     <section className="card">
@@ -30,9 +33,12 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-100">
-            {sortedTeamBets.map((bet, index) => (
+            {sortedTeamBets.map((bet, index) => {
+              const isInPlayoffs = isTeamInPlayoffs(bet.nhlTeam);
+
+              return (
               <tr key={index} className="hover:bg-gray-50">
-                <td className="py-3 px-4 whitespace-nowrap text-center">
+                <td className={`py-3 px-4 whitespace-nowrap text-cente ${!isInPlayoffs ? "opacity-25" : ""}`}>
                   <a
                     href={`https://www.nhl.com/${getNHLTeamUrlSlug(bet.nhlTeam)}`}
                     target="_blank"
@@ -55,7 +61,7 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
                   {bet.numPlayers}
                 </td>
               </tr>
-            ))}
+            )})}
           </tbody>
         </table>
       </div>

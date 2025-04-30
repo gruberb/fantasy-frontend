@@ -1,4 +1,5 @@
 import { SkaterStats } from "../../types/skaters";
+import { usePlayoffsData } from "../../hooks/usePlayoffsData";
 
 interface PlayerRosterProps {
   players: SkaterStats[];
@@ -8,6 +9,8 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
   const sortedPlayers = [...players].sort(
     (a, b) => b.totalPoints - a.totalPoints,
   );
+
+  const { isTeamInPlayoffs } = usePlayoffsData();
 
   return (
     <section className="card">
@@ -35,9 +38,11 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
               </tr>
             </thead>
             <tbody className="bg-white divide-y divide-gray-100">
-              {sortedPlayers.map((player, index) => (
+              {sortedPlayers.map((player, index) => {
+                const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
+                return (
                 <tr key={index} className="hover:bg-gray-50">
-                  <td className="py-3 px-4 whitespace-nowrap">
+                  <td className={`py-3 px-4 whitespace-nowrap ${!isInPlayoffs ? "opacity-25" : ""}`}>
                     <div className="flex items-center">
                       {player.imageUrl ? (
                         <img
@@ -106,7 +111,7 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
                     </div>
                   </td>
                 </tr>
-              ))}
+              )})}
             </tbody>
           </table>
         </div>
