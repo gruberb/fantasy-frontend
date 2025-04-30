@@ -69,6 +69,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       const widths = Array.from(headerCells).map(
         (cell) => cell.getBoundingClientRect().width,
       );
+      console.log(widths);
       setColumnWidths(widths);
 
       // Calculate table width
@@ -258,7 +259,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Team column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-left bg-gray-50"
-        style={{ width: columnWidths[2] || "7rem" }}
+        style={{ width: columnWidths[2] || "5rem" }}
       >
         Team
       </th>
@@ -266,7 +267,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Position column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-left bg-gray-50"
-        style={{ width: columnWidths[3] || "5rem" }}
+        style={{ width: columnWidths[3] || "3rem" }}
       >
         Pos
       </th>
@@ -274,7 +275,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Points column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center bg-gray-50"
-        style={{ width: columnWidths[4] || "6rem" }}
+        style={{ width: columnWidths[4] || "5rem" }}
       >
         <button
           className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
@@ -287,7 +288,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Goals column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center bg-gray-50"
-        style={{ width: columnWidths[5] || "6rem" }}
+        style={{ width: columnWidths[5] || "5rem" }}
       >
         <button
           className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
@@ -300,7 +301,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Assists column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center bg-gray-50"
-        style={{ width: columnWidths[6] || "6rem" }}
+        style={{ width: columnWidths[6] || "5rem" }}
       >
         <button
           className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
@@ -313,7 +314,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Plus/Minus column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center bg-gray-50"
-        style={{ width: columnWidths[7] || "6rem" }}
+        style={{ width: columnWidths[7] || "5rem" }}
       >
         <button
           className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
@@ -326,7 +327,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* PIM column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center bg-gray-50"
-        style={{ width: columnWidths[8] || "6rem" }}
+        style={{ width: columnWidths[8] || "2rem" }}
       >
         <button
           className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
@@ -339,7 +340,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* TOI column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center bg-gray-50"
-        style={{ width: columnWidths[9] || "6rem" }}
+        style={{ width: columnWidths[9] || "5rem" }}
       >
         <button
           className="flex items-center justify-center mx-auto focus:outline-none cursor-pointer"
@@ -352,7 +353,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
       {/* Fantasy column */}
       <th
         className="py-4 px-5 whitespace-nowrap text-sm font-semibold tracking-wider text-center bg-gray-50"
-        style={{ width: columnWidths[10] || "8rem" }}
+        style={{ width: columnWidths[10] || "6rem" }}
       >
         Fantasy
       </th>
@@ -461,11 +462,6 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                         >
                           {player.firstName} {player.lastName}
                         </a>
-                        {player.sweaterNumber && (
-                          <span className="text-sm text-gray-500 ml-1">
-                            #{player.sweaterNumber}
-                          </span>
-                        )}
                       </div>
                     </div>
                   </td>
@@ -483,7 +479,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
                           <img
                             src={player.teamLogo}
                             alt={player.teamAbbrev}
-                            className="h-6 w-6 mr-2"
+                            className="h-6 w-6 mr-2  hidden md:table-cell"
                           />
                         ) : null}
                         <span className="text-base text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
@@ -616,9 +612,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
 
         th:nth-child(2),
         td:nth-child(2) {
-          width: 14rem !important;
-          min-width: 14rem !important;
-          max-width: 14rem !important;
+          width: 7rem !important;
         }
       `}</style>
     </>
