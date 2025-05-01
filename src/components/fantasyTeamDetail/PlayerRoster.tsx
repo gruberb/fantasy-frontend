@@ -41,7 +41,7 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
                 className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
                 onClick={(e) => e.stopPropagation()}
               >
-                <div className="text-sm font-medium text-gray-900">{value}</div>
+                <div className="text-sm text-gray-900">{value}</div>
               </a>
               <div className="text-xs text-gray-500">{player.position}</div>
             </div>

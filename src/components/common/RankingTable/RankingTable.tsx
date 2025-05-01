@@ -261,7 +261,7 @@ const RankingTable = ({
                     {/* Rank column (sticky) */}
                     <td
                       className="py-3 px-4 sticky left-0 z-10"
-                      style={{ width: "100px", background: "white" }}
+                      style={{ width: "50px", background: "white" }}
                     >
                       <div
                         className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${getRankColor(Number(rankValue))}`}
@@ -274,7 +274,10 @@ const RankingTable = ({
                     {hasNameColumn && (
                       <td
                         className="py-3 px-4 sticky z-10 border-l border-gray-50"
-                        style={{ left: "65px", background: "white" }}
+                        style={{
+                          left: "65px",
+                          background: "white",
+                        }}
                       >
                         {columns[nameColumnIndex].render
                           ? columns[nameColumnIndex].render(

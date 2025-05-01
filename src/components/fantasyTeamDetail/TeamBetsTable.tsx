@@ -8,14 +8,18 @@ interface TeamBetsTableProps {
 }
 
 export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
+  const { isTeamInPlayoffs } = usePlayoffsData();
+
   if (teamBets.length === 0) {
     return null;
   }
 
-  const { isTeamInPlayoffs } = usePlayoffsData();
+  const sortedTeamBets = [...teamBets].sort(
+    (a, b) => b.numPlayers - a.numPlayers,
+  );
 
   // Add a rank property to the team bets so the RankingTable can use it
-  const rankedTeamBets = [...teamBets].map((bet, index) => ({
+  const rankedTeamBets = [...sortedTeamBets].map((bet, index) => ({
     ...bet,
     rank: index + 1,
   }));
@@ -23,7 +27,7 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
   // Define columns for the RankingTable
   const columns = [
     {
-      key: "rank",
+      key: "",
       header: "",
     },
     {
@@ -32,7 +36,7 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
       render: (_value: string, bet: NHLTeamBet & { rank: number }) => {
         const isInPlayoffs = isTeamInPlayoffs(bet.nhlTeam);
         return (
-          <div className={!isInPlayoffs ? "opacity-25" : ""}>
+          <div className={`${!isInPlayoffs ? "opacity-25" : ""}`}>
             <a
               href={`https://www.nhl.com/${getNHLTeamUrlSlug(bet.nhlTeam)}`}
               target="_blank"
