@@ -219,7 +219,7 @@ h2 {
 }
 
 .ranking-table thead th {
-    @apply py-4 px-4 text-left text-sm font-semibold tracking-wider text-gray-700 border-b border-gray-200 bg-gray-50/80;
+    @apply py-4 px-4 text-left text-sm font-semibold tracking-wider text-gray-700 border-b border-gray-200 bg-gray-50;
 }
 
 .ranking-table thead th button {
