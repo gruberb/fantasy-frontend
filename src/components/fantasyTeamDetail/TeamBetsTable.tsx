@@ -1,6 +1,7 @@
 import { NHLTeamBet } from "../../types/fantasyTeams";
 import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 import { usePlayoffsData } from "../../hooks/usePlayoffsData";
+import RankingTable from "../common/RankingTable";
 
 interface TeamBetsTableProps {
   teamBets: NHLTeamBet[];
@@ -11,63 +12,80 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
     return null;
   }
 
-  const sortedTeamBets = [...teamBets].sort(
-    (a, b) => b.numPlayers - a.numPlayers,
-  );
-
   const { isTeamInPlayoffs } = usePlayoffsData();
+
+  // Add a rank property to the team bets so the RankingTable can use it
+  const rankedTeamBets = [...teamBets].map((bet, index) => ({
+    ...bet,
+    rank: index + 1,
+  }));
+
+  // Define columns for the RankingTable
+  const columns = [
+    {
+      key: "rank",
+      header: "",
+    },
+    {
+      key: "nhlTeamName",
+      header: "NHL Team",
+      render: (_value: string, bet: NHLTeamBet & { rank: number }) => {
+        const isInPlayoffs = isTeamInPlayoffs(bet.nhlTeam);
+        return (
+          <div className={!isInPlayoffs ? "opacity-25" : ""}>
+            <a
+              href={`https://www.nhl.com/${getNHLTeamUrlSlug(bet.nhlTeam)}`}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-center">
+                {bet.teamLogo ? (
+                  <img
+                    src={bet.teamLogo}
+                    alt={`${bet.nhlTeam} logo`}
+                    className="h-6 w-6 mr-2"
+                  />
+                ) : null}
+                <span>{bet.nhlTeamName}</span>
+              </div>
+            </a>
+          </div>
+        );
+      },
+    },
+    {
+      key: "numPlayers",
+      header: "Number of Players",
+      className: "text-center",
+      sortable: true,
+      render: (value: number, bet: NHLTeamBet) => {
+        const isInPlayoffs = isTeamInPlayoffs(bet.nhlTeam);
+        return (
+          <div className={`text-center ${!isInPlayoffs ? "opacity-25" : ""}`}>
+            {value}
+          </div>
+        );
+      },
+    },
+  ];
 
   return (
     <section className="card">
       <h2 className="text-2xl font-bold mb-4">NHL Team Bets</h2>
       <div className="overflow-x-auto">
-        <table className="min-w-full divide-y divide-gray-100">
-          <thead className="bg-gray-50">
-            <tr>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                NHL Team
-              </th>
-              <th className="py-3 px-4 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Number of Players
-              </th>
-            </tr>
-          </thead>
-          <tbody className="bg-white divide-y divide-gray-100">
-            {sortedTeamBets.map((bet, index) => {
-              const isInPlayoffs = isTeamInPlayoffs(bet.nhlTeam);
-
-              return (
-                <tr
-                  key={index}
-                  className={`hover:bg-gray-50 ${!isInPlayoffs ? "opacity-25" : ""}`}
-                >
-                  <td className={`py-3 px-4 whitespace-nowrap text-cente `}>
-                    <a
-                      href={`https://www.nhl.com/${getNHLTeamUrlSlug(bet.nhlTeam)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
-                    >
-                      <div className="flex items-center">
-                        {bet.teamLogo ? (
-                          <img
-                            src={bet.teamLogo}
-                            alt={`${bet.nhlTeam} logo`}
-                            className="h-6 w-6 mr-2"
-                          />
-                        ) : null}
-                        <span>{bet.nhlTeamName}</span>
-                      </div>
-                    </a>
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap text-center">
-                    {bet.numPlayers}
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <RankingTable
+          data={rankedTeamBets}
+          columns={columns}
+          keyField="nhlTeam"
+          rankField="rank"
+          initialSortKey="numPlayers"
+          initialSortDirection="desc"
+          onRowClick={null} // Disable row click navigation
+          showRankColors={false} // Don't show rank colors
+          className="bg-transparent shadow-none border-0"
+        />
       </div>
     </section>
   );
