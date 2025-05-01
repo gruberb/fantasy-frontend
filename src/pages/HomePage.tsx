@@ -3,6 +3,7 @@ import ActionButtons from "../components/home/ActionButtons";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import RankingTable from "../components/common/RankingTable";
 import { useHomePageData } from "../hooks/useHomePageData";
+import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
 
 const HomePage = () => {
   const {
@@ -31,17 +32,19 @@ const HomePage = () => {
     {
       key: "goals",
       header: "Goals",
+      className: "whitespace-nowrap text-center",
       sortable: true,
     },
     {
       key: "assists",
       header: "Assists",
+      className: "whitespace-nowrap text-center",
       sortable: true,
     },
     {
       key: "totalPoints",
       header: "Points",
-      className: "font-bold",
+      className: "font-bold text-center",
       sortable: true,
     },
   ];
@@ -62,19 +65,19 @@ const HomePage = () => {
     {
       key: "dailyGoals",
       header: "Goals",
-      className: "whitespace-nowrap",
+      className: "whitespace-nowrap text-center",
       sortable: true,
     },
     {
       key: "dailyAssists",
       header: "Assists",
-      className: "whitespace-nowrap",
+      className: "whitespace-nowrap text-center",
       sortable: true,
     },
     {
       key: "dailyPoints",
       header: "Points",
-      className: "font-bold whitespace-nowrap",
+      className: "font-bold whitespace-nowrap text-center",
       sortable: true,
     },
     {
@@ -88,7 +91,7 @@ const HomePage = () => {
         const player = playerHighlights[0];
 
         return (
-          <div className="flex">
+          <div className="flex w-[10rem]">
             {player.imageUrl ? (
               <img
                 src={player.imageUrl}
@@ -118,7 +121,23 @@ const HomePage = () => {
                   <span>{player.playerName}</span>
                 </div>
               )}
-              <div className="text-xs text-gray-500">{player.points} pts</div>
+              <div className="text-xs text-gray-500">
+                <span>
+                  {player.nhlTeam ? (
+                    <a
+                      href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.nhlTeam)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[#6D4C9F] hover:underline"
+                    >
+                      {player.nhlTeam}
+                    </a>
+                  ) : (
+                    player.nhlTeam
+                  )}{" "}
+                </span>
+                • {player.points} pts
+              </div>
             </div>
           </div>
         );
