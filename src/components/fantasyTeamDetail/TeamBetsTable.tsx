@@ -27,10 +27,6 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
   // Define columns for the RankingTable
   const columns = [
     {
-      key: "",
-      header: "",
-    },
-    {
       key: "nhlTeamName",
       header: "NHL Team",
       render: (_value: string, bet: NHLTeamBet & { rank: number }) => {

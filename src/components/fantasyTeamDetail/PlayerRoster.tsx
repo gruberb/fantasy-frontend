@@ -1,6 +1,7 @@
 import { SkaterStats } from "../../types/skaters";
 import { usePlayoffsData } from "../../hooks/usePlayoffsData";
 import RankingTable from "../common/RankingTable";
+import { getNHLTeamUrlSlug } from "../../utils/nhlTeams";
 
 interface PlayerRosterProps {
   players: SkaterStats[];
@@ -18,7 +19,7 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
         const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
         return (
           <div
-            className={`flex items-center ${!isInPlayoffs ? "opacity-25" : ""}`}
+            className={`flex items-center ${!isInPlayoffs ? "opacity-25" : ""} w-[10rem]`}
           >
             {player.imageUrl ? (
               <img
@@ -33,39 +34,44 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
                 </span>
               </div>
             )}
-            <div className="ml-4">
-              <a
-                href={`https://www.nhl.com/player/${player.nhlId}`}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <div className="text-sm text-gray-900">{value}</div>
-              </a>
-              <div className="text-xs text-gray-500">{player.position}</div>
+            <div>
+              <div className="ml-4">
+                <a
+                  href={`https://www.nhl.com/player/${player.nhlId}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <div className="text-sm text-gray-900">{value}</div>
+                </a>
+              </div>
+              <div className="ml-4 flex items-center text-xs text-gray-500">
+                {player.teamLogo && (
+                  <img
+                    src={player.teamLogo}
+                    alt={player.nhlTeam || ""}
+                    className="w-3 h-3 mr-1"
+                  />
+                )}
+                <span>
+                  {player.nhlTeam ? (
+                    <a
+                      href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.nhlTeam)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[#6D4C9F] hover:underline"
+                    >
+                      {player.nhlTeam}
+                    </a>
+                  ) : (
+                    player.nhlTeam
+                  )}{" "}
+                  {player.position ? `• ${player.position}` : ""}
+                </span>
+              </div>
             </div>
           </div>
-        );
-      },
-    },
-    {
-      key: "nhlTeam",
-      header: "NHL Team",
-      render: (value: string, player: SkaterStats) => {
-        const isInPlayoffs = isTeamInPlayoffs(value);
-        return (
-          <a
-            href={`https://www.nhl.com/${player.nhlTeamUrlSlug}`}
-            target="_blank"
-            rel="noopener noreferrer"
-            className={`inline-flex items-center group ${!isInPlayoffs ? "opacity-25" : ""}`}
-            onClick={(e) => e.stopPropagation()}
-          >
-            <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-              {value}
-            </span>
-          </a>
         );
       },
     },
