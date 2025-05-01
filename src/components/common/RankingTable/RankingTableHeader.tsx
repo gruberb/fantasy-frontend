@@ -36,17 +36,23 @@ const RankingTableHeader: React.FC<RankingTableHeaderProps> = ({
   }
 
   return (
-    <div className="flex justify-between items-center p-4 border-b border-gray-100">
+    <div className="flex justify-between items-center">
       <div>
         {title && <h2 className="text-xl font-bold">{title}</h2>}
-        {subtitle && <p className="text-sm text-gray-500">{subtitle}</p>}
-        {dateBadge && <p className="text-sm text-gray-500">{formattedDate}</p>}
+        {subtitle && <p className="text-sm opacity-90">{subtitle}</p>}
+        {dateBadge && (
+          <div className="inline-flex items-center mt-1">
+            <span className="bg-yellow-300/20 text-yellow-300 text-xs px-3 py-1 rounded-full font-medium">
+              {formattedDate}
+            </span>
+          </div>
+        )}
       </div>
 
       {showViewAll && viewAllLink && (
         <Link
           to={viewAllLink}
-          className="text-[#6D4C9F] hover:text-[#5A3A87] flex items-center font-medium transition-colors"
+          className="text-yellow-300 hover:text-yellow-200 flex items-center font-medium transition-colors"
         >
           {viewAllText} <span className="ml-1">→</span>
         </Link>

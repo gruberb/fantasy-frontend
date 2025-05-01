@@ -82,14 +82,12 @@ const RankingTable = ({
 
   // Helper to get rank color
   const getRankColor = (rank: number): string => {
-    if (!showRankColors) return "bg-white border border-gray-200";
+    if (!showRankColors) return "rank-indicator rank-indicator-default";
 
-    if (rank === 1)
-      return "bg-yellow-100 text-yellow-800 border border-yellow-200";
-    if (rank === 2) return "bg-gray-100 text-gray-800 border border-gray-200";
-    if (rank === 3)
-      return "bg-orange-100 text-orange-800 border border-orange-200";
-    return "bg-white border border-gray-200";
+    if (rank === 1) return "rank-indicator rank-indicator-1";
+    if (rank === 2) return "rank-indicator rank-indicator-2";
+    if (rank === 3) return "rank-indicator rank-indicator-3";
+    return "rank-indicator rank-indicator-default";
   };
 
   // Safely ensure data is an array
@@ -147,9 +145,11 @@ const RankingTable = ({
   // Loading state
   if (isLoading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-        {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
-        <LoadingSpinner message="Loading data..." />
+      <div className="ranking-table-container">
+        <div className="ranking-table-header">{title && <h2>{title}</h2>}</div>
+        <div className="p-6">
+          <LoadingSpinner message="Loading data..." />
+        </div>
       </div>
     );
   }
@@ -157,9 +157,11 @@ const RankingTable = ({
   // Empty state
   if (!safeData || safeData.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-sm p-6 border border-gray-100">
-        {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
-        <RankingTableEmpty message={emptyMessage} />
+      <div className="ranking-table-container">
+        <div className="ranking-table-header">{title && <h2>{title}</h2>}</div>
+        <div className="p-6">
+          <RankingTableEmpty message={emptyMessage} />
+        </div>
       </div>
     );
   }
@@ -169,30 +171,31 @@ const RankingTable = ({
   const hasNameColumn = nameColumnIndex !== -1;
 
   return (
-    <div
-      className={`bg-white rounded-lg shadow-sm border border-gray-100 ${className}`}
-    >
+    <div className={`ranking-table-container ${className}`}>
       {/* Header section */}
-      <RankingTableHeader
-        title={title}
-        subtitle={subtitle}
-        viewAllLink={viewAllLink}
-        viewAllText={viewAllText}
-        showViewAll={!!limit && safeData.length > limit}
-        dateBadge={dateBadge}
-      />
+      <div className="ranking-table-header">
+        <RankingTableHeader
+          title={title}
+          subtitle={subtitle}
+          viewAllLink={viewAllLink}
+          viewAllText={viewAllText}
+          showViewAll={!!limit && safeData.length > limit}
+          dateBadge={dateBadge}
+        />
+      </div>
+
       {/* Table */}
-      <div className="overflow-hidden">
+      <div className="ranking-table-body">
         <div
           ref={tableContainerRef}
           className="overflow-x-auto scrollbar-hide"
           style={{ position: "relative" }}
         >
-          <table ref={tableRef} className="min-w-full">
+          <table ref={tableRef} className="ranking-table">
             <thead>
-              <tr className="border-b border-gray-100">
+              <tr>
                 {/* Rank column (sticky) */}
-                <th className="bg-white py-3 px-4 text-left text-sm font-semibold text-gray-700 sticky left-0 z-20">
+                <th className="sticky left-0 z-20 bg-gray-50 text-center">
                   {columns.find((col) => col.key === rankField)?.header ||
                     "Rank"}
                 </th>
@@ -200,7 +203,7 @@ const RankingTable = ({
                 {/* Name column (sticky if found) */}
                 {hasNameColumn && (
                   <th
-                    className="bg-white py-3 px-4 text-left text-sm font-semibold text-gray-700 sticky z-20 border-l border-gray-50 sticky-shadow"
+                    className="sticky z-20 border-l border-gray-50 sticky-shadow bg-gray-50"
                     style={{ left: "65px" }}
                   >
                     {columns[nameColumnIndex].header}
@@ -225,11 +228,11 @@ const RankingTable = ({
                     return (
                       <th
                         key={column.key}
-                        className={`py-3 px-4 text-left text-sm font-semibold text-gray-700 ${responsiveClass} ${column.className || ""}`}
+                        className={`${responsiveClass} ${column.className || ""}`}
                       >
                         {column.sortable ? (
                           <button
-                            className="flex items-center focus:outline-none cursor-pointer"
+                            className="focus:outline-none cursor-pointer"
                             onClick={() => handleSort(column.key)}
                           >
                             {column.header}
@@ -255,17 +258,15 @@ const RankingTable = ({
                 return (
                   <tr
                     key={key}
-                    className="border-b border-gray-50 hover:bg-[#f8f7ff] cursor-pointer"
+                    className="hover:bg-[#f8f7ff] cursor-pointer"
                     onClick={() => handleRowClick(item)}
                   >
                     {/* Rank column (sticky) */}
                     <td
-                      className="py-3 px-4 sticky left-0 z-10"
-                      style={{ width: "50px", background: "white" }}
+                      className="sticky left-0 z-10 text-center bg-white"
+                      style={{ width: "50px" }}
                     >
-                      <div
-                        className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${getRankColor(Number(rankValue))}`}
-                      >
+                      <div className={getRankColor(Number(rankValue))}>
                         {rankValue}
                       </div>
                     </td>
@@ -273,11 +274,8 @@ const RankingTable = ({
                     {/* Name column (sticky if found) */}
                     {hasNameColumn && (
                       <td
-                        className="py-3 px-4 sticky z-10 border-l border-gray-50"
-                        style={{
-                          left: "65px",
-                          background: "white",
-                        }}
+                        className="sticky z-10 border-l border-gray-50 bg-white"
+                        style={{ left: "65px" }}
                       >
                         {columns[nameColumnIndex].render
                           ? columns[nameColumnIndex].render(
@@ -311,7 +309,7 @@ const RankingTable = ({
                         return (
                           <td
                             key={column.key}
-                            className={`py-3 px-4 ${responsiveClass} ${column.className || ""}`}
+                            className={`${responsiveClass} ${column.className || ""}`}
                           >
                             {column.render
                               ? column.render(value, item, index)
@@ -340,7 +338,7 @@ const RankingTable = ({
 
       {/* Scroll indicator - only show when scrollable */}
       {isScrollable && (
-        <div className="p-1 text-xs text-center text-gray-400 border-t border-gray-100">
+        <div className="table-scroll-indicator">
           <span className="hidden sm:inline">⟷ Scroll for more</span>
           <span className="sm:hidden">⟷ Swipe for more</span>
         </div>

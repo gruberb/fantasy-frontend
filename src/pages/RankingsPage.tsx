@@ -223,11 +223,7 @@ const RankingsPage = () => {
         rankField="rank"
         title="Daily Fantasy Scores"
         isLoading={dailyRankingsLoading}
-        emptyMessage={
-          dailyRankingsError
-            ? "Failed to load daily rankings"
-            : "No daily rankings available for this date"
-        }
+        emptyMessage={"No daily rankings available for this date"}
         dateBadge={displayDate}
         initialSortKey="dailyPoints"
         initialSortDirection="desc"
@@ -261,7 +257,7 @@ const RankingsPage = () => {
           keyField="teamId"
           rankField="rank"
           dateBadge="2024/2025 Playoffs"
-          title="Playoff Stats"
+          title="Players and Teams still active"
           isLoading={playoffRankingsLoading}
           emptyMessage="No playoff rankings data available"
           initialSortKey="rank"

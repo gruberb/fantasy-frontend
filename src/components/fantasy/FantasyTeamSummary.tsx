@@ -84,80 +84,140 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
   });
 
   if (isLoading) {
-    return <LoadingSpinner message="Processing fantasy team data…" />;
+    return (
+      <div className="bg-white rounded-xl shadow-lg p-8 mb-6 border border-gray-100 animate-pulse">
+        <div className="flex justify-between items-center mb-6">
+          <div className="h-8 bg-gray-200 rounded w-40"></div>
+          <div className="h-8 bg-gray-200 rounded w-32"></div>
+        </div>
+        <div className="space-y-4">
+          <div className="h-32 bg-gray-100 rounded-lg"></div>
+          <div className="h-32 bg-gray-100 rounded-lg"></div>
+          <div className="h-32 bg-gray-100 rounded-lg"></div>
+        </div>
+      </div>
+    );
   }
 
   if (fantasyTeamCounts.length === 0) {
     return (
-      <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-        <h2 className="text-xl font-bold mb-4">Fantasy Teams</h2>
-        <div className="text-center py-4 text-gray-500">
-          No fantasy teams have players in today's games.
-        </div>
-        <div className="mt-4 text-sm text-gray-500">
-          <p>Games loaded: {gamesData?.games?.length || 0}</p>
-          {gamesData?.games && gamesData.games.length > 0 && (
-            <>
-              <p>
-                Total players found:{" "}
-                {gamesData.games.reduce(
-                  (total, game) =>
-                    total +
-                    (game.homeTeamPlayers?.length || 0) +
-                    (game.awayTeamPlayers?.length || 0),
-                  0,
-                )}
-              </p>
-              <p>
-                First game has {gamesData.games[0].homeTeamPlayers?.length || 0}{" "}
-                home players and{" "}
-                {gamesData.games[0].awayTeamPlayers?.length || 0} away players
-              </p>
-            </>
-          )}
+      <div className="bg-white rounded-xl shadow-lg p-8 mb-6 border border-gray-100">
+        <div className="text-center py-10">
+          <div className="bg-[#6D4C9F]/5 w-20 h-20 mx-auto rounded-full flex items-center justify-center mb-4">
+            <svg
+              className="w-10 h-10 text-[#6D4C9F]/40"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={1.5}
+                d="M12 6v6m0 0v6m0-6h6m-6 0H6"
+              />
+            </svg>
+          </div>
+          <h3 className="text-xl font-bold text-gray-700 mb-2">
+            No Fantasy Teams
+          </h3>
+          <p className="text-gray-500 mb-4">
+            No fantasy teams have players in today's games.
+          </p>
+
+          <div className="p-4 bg-gray-50 rounded-lg text-left text-sm text-gray-500 max-w-md mx-auto">
+            <p className="flex justify-between mb-1">
+              <span>Games loaded:</span>
+              <span className="font-medium">
+                {gamesData?.games?.length || 0}
+              </span>
+            </p>
+            {gamesData?.games && gamesData.games.length > 0 && (
+              <>
+                <p className="flex justify-between mb-1">
+                  <span>Total players found:</span>
+                  <span className="font-medium">
+                    {gamesData.games.reduce(
+                      (total, game) =>
+                        total +
+                        (game.homeTeamPlayers?.length || 0) +
+                        (game.awayTeamPlayers?.length || 0),
+                      0,
+                    )}
+                  </span>
+                </p>
+                <p className="flex justify-between">
+                  <span>First game players:</span>
+                  <span className="font-medium">
+                    {gamesData.games[0].homeTeamPlayers?.length || 0} home,{" "}
+                    {gamesData.games[0].awayTeamPlayers?.length || 0} away
+                  </span>
+                </p>
+              </>
+            )}
+          </div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 mb-6">
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-4">
-        <h2 className="text-xl font-bold">Fantasy Teams</h2>
+    <div className="bg-white rounded-xl shadow-lg p-6 lg:p-8 mb-6 border border-gray-100">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-6">
+        <div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-1">
+            Fantasy Teams
+          </h2>
+          <p className="text-sm text-gray-500">
+            {fantasyTeamCounts.length} teams with players{" "}
+            {hasLiveGames ? "in action" : "for this date"}
+          </p>
+        </div>
 
-        <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-4 mt-2 md:mt-0">
-          <div className="flex items-center space-x-2">
-            <label htmlFor="sort-select" className="text-sm text-gray-600">
-              Sort by:
-            </label>
-            <div className="relative">
-              <select
-                id="sort-select"
-                value={sortBy}
-                onChange={(e) =>
-                  setSortBy(e.target.value as "playerCount" | "totalPoints")
-                }
-                className="appearance-none bg-white border border-gray-300 rounded-md pl-3 pr-8 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-[#6D4C9F]/20 focus:border-[#6D4C9F] hover:border-[#6D4C9F]/50 transition-colors cursor-pointer"
-              >
-                <option value="playerCount">Player Count</option>
-                <option value="totalPoints">Total Points</option>
-              </select>
-              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
-                <svg
-                  className="h-4 w-4 fill-current"
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                >
-                  <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
-                </svg>
-              </div>
-            </div>
+        <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-4 mt-4 md:mt-0">
+          <div className="flex items-center space-x-2 bg-white rounded-lg border border-gray-200 shadow-sm p-1">
+            <button
+              onClick={() => setSortBy("playerCount")}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                sortBy === "playerCount"
+                  ? "bg-[#6D4C9F] text-white"
+                  : "hover:bg-gray-100 text-gray-600"
+              }`}
+            >
+              Players
+            </button>
+            <button
+              onClick={() => setSortBy("totalPoints")}
+              className={`px-3 py-1.5 rounded-md text-sm font-medium transition-colors ${
+                sortBy === "totalPoints"
+                  ? "bg-[#6D4C9F] text-white"
+                  : "hover:bg-gray-100 text-gray-600"
+              }`}
+            >
+              Points
+            </button>
           </div>
 
           <button
             onClick={toggleExpandAll}
-            className="text-sm px-3 py-1.5 bg-[#6D4C9F]/10 text-[#6D4C9F] rounded-md hover:bg-[#6D4C9F]/20 transition-colors focus:outline-none focus:ring-2 focus:ring-[#6D4C9F]/30"
+            className="px-3 py-1.5 bg-[#041E42]/10 text-[#041E42] rounded-md hover:bg-[#041E42]/20 transition-colors text-sm font-medium shadow-sm border border-[#041E42]/10 flex items-center"
           >
+            <svg
+              className={`w-4 h-4 mr-1.5 transition-transform ${
+                expandAll ? "rotate-180" : ""
+              }`}
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M19 9l-7 7-7-7"
+              />
+            </svg>
             {expandAll ? "Collapse All" : "Expand All"}
           </button>
         </div>
@@ -167,10 +227,11 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
         {sortedTeams.map((team) => (
           <div
             key={team.teamId}
-            className="border border-gray-200 rounded-lg hover:shadow-md transition-all duration-200 overflow-hidden"
+            className="rounded-xl overflow-hidden transition-all duration-200 hover:shadow-md"
+            style={{ boxShadow: "0 4px 12px -2px rgba(109, 76, 159, 0.08)" }}
           >
             <div
-              className="p-4 flex items-center justify-between cursor-pointer"
+              className="p-4 flex items-center justify-between cursor-pointer bg-gradient-to-r from-[#F9F8FF] to-white border border-gray-200"
               onClick={() => toggleTeamExpansion(team.teamId)}
             >
               <div className="flex items-center">
@@ -178,10 +239,10 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                   <img
                     src={team.teamLogo}
                     alt={team.teamName}
-                    className="w-10 h-10 rounded-full mr-3"
+                    className="w-10 h-10 rounded-full mr-3 bg-white p-1 shadow-sm"
                   />
                 ) : (
-                  <div className="w-10 h-10 bg-[#6D4C9F]/10 rounded-full flex items-center justify-center mr-3">
+                  <div className="w-10 h-10 bg-[#6D4C9F]/10 rounded-full flex items-center justify-center mr-3 shadow-sm">
                     <span className="text-sm font-medium text-[#6D4C9F]">
                       {team.teamName.substring(0, 2).toUpperCase()}
                     </span>
@@ -190,54 +251,70 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                 <div>
                   <Link
                     to={`/fantasy-teams/${team.teamId}`}
-                    className="font-medium hover:text-[#6D4C9F] hover:underline"
+                    className="font-medium text-gray-800 hover:text-[#6D4C9F] hover:underline"
+                    onClick={(e) => e.stopPropagation()}
                   >
                     {team.teamName}
                   </Link>
-                  <div className="text-sm text-gray-500">
-                    {team.playerCount} player
-                    {team.playerCount !== 1 ? "s" : ""} • {team.totalPoints} pts
+                  <div className="text-sm text-gray-500 flex items-center">
+                    <span
+                      className={`font-medium ${sortBy === "playerCount" ? "text-[#041E42]" : ""}`}
+                    >
+                      {team.playerCount} player
+                      {team.playerCount !== 1 ? "s" : ""}
+                    </span>
+                    <span className="mx-1">•</span>
+                    <span
+                      className={`font-medium ${sortBy === "totalPoints" ? "text-[#041E42]" : ""}`}
+                    >
+                      {team.totalPoints} pts
+                    </span>
                   </div>
                 </div>
               </div>
-              <svg
-                className={`w-5 h-5 text-gray-400 transform transition-transform ${
-                  expandedTeams.has(team.teamId) || expandAll
-                    ? "rotate-180"
-                    : ""
-                }`}
-                fill="none"
-                viewBox="0 0 24 24"
-                stroke="currentColor"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M19 9l-7 7-7-7"
-                />
-              </svg>
+
+              {/* Animated expand/collapse icon */}
+              <div className="bg-white rounded-full w-6 h-6 flex items-center justify-center shadow-sm border border-gray-100">
+                <svg
+                  className={`w-4 h-4 text-gray-500 transform transition-transform ${
+                    expandedTeams.has(team.teamId) || expandAll
+                      ? "rotate-180"
+                      : ""
+                  }`}
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </div>
             </div>
 
             {(expandedTeams.has(team.teamId) || expandAll) && (
-              <div className="border-t border-gray-100 bg-gray-50">
-                <div className="px-4 py-2 text-xs font-medium text-gray-500 uppercase tracking-wider bg-gray-100">
-                  Players
+              <div className="border-x border-b border-gray-200 bg-white rounded-b-xl overflow-hidden">
+                <div className="px-3 py-2 text-xs font-medium text-gray-600 uppercase tracking-wider bg-gray-50 border-y border-gray-100">
+                  Players ({team.players.length})
                 </div>
+
                 {team.players.length > 0 ? (
                   <div className="divide-y divide-gray-100">
                     {team.players.map(
                       (player: SkaterWithPoints, idx: number) => (
                         <div
                           key={idx}
-                          className="px-4 py-2 flex items-center justify-between hover:bg-gray-100"
+                          className="px-4 py-2.5 flex items-center justify-between hover:bg-gray-50 transition-colors"
                         >
-                          <div className="flex items-center">
+                          <div className="flex items-center pr-2">
                             {player.imageUrl ? (
                               <img
                                 src={player.imageUrl}
                                 alt={player.playerName || ""}
-                                className="w-8 h-8 rounded-full mr-2"
+                                className="w-8 h-8 rounded-full mr-2 border border-gray-100"
                               />
                             ) : (
                               <div className="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center mr-2">
@@ -249,7 +326,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                               </div>
                             )}
                             <div>
-                              <div className="text-sm font-medium">
+                              <div className="text-sm font-medium text-gray-800">
                                 {player.nhlId ? (
                                   <a
                                     href={`https://www.nhl.com/player/${player.nhlId}`}
@@ -268,7 +345,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                                   <img
                                     src={player.teamLogo}
                                     alt={player.nhlTeam || ""}
-                                    className="w-4 h-4 mr-1"
+                                    className="w-3 h-3 mr-1"
                                   />
                                 )}
                                 <span>
@@ -291,7 +368,15 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                               </div>
                             </div>
                           </div>
-                          <div className="text-sm font-bold">
+
+                          {/* Points indicator */}
+                          <div
+                            className={`text-sm font-bold px-2 py-1 rounded-md ${
+                              (player.points || 0) > 0
+                                ? "bg-green-100 text-green-800"
+                                : "bg-gray-100 text-gray-700"
+                            }`}
+                          >
                             {player.points || 0} pts
                           </div>
                         </div>

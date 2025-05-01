@@ -129,7 +129,6 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
 
   return (
     <section className="card">
-      <h2 className="text-2xl font-bold mb-4">Player Roster</h2>
       <div className="overflow-x-auto">
         <RankingTable
           data={players}
@@ -140,6 +139,8 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
           onRowClick={null} // Disable row click navigation
           showRankColors={false} // Don't show rank colors
           className="bg-transparent shadow-none border-0"
+          title="Fantasy Team Roster"
+          dateBadge="2024/2025 Playoffs"
         />
       </div>
     </section>
