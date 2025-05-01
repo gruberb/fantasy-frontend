@@ -27,6 +27,7 @@ export interface PlayoffFantasyTeamRanking {
   totalTeams: number;
   playersInPlayoffs: number;
   totalPlayers: number;
+  topTenPlayersCount: number;
   playoffScore: number;
   rank?: number;
   goals?: number;

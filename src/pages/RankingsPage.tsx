@@ -1,6 +1,7 @@
 import DatePickerHeader from "../components/common/DatePickerHeader";
 import RankingTable from "../components/common/RankingTable";
 import { useRankingsData } from "../hooks/useRankingsData";
+import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
 
 const RankingsPage = () => {
   const {
@@ -12,7 +13,6 @@ const RankingsPage = () => {
     rankingsError,
     dailyRankings,
     dailyRankingsLoading,
-    dailyRankingsError,
     playoffRankings,
     playoffRankingsLoading,
   } = useRankingsData();
@@ -33,19 +33,19 @@ const RankingsPage = () => {
     {
       key: "dailyGoals",
       header: "Goals",
-      className: "font-semibold whitespace-nowrap",
+      className: "whitespace-nowrap text-center",
       sortable: true,
     },
     {
       key: "dailyAssists",
       header: "Assists",
-      className: "font-semibold whitespace-nowrap",
+      className: "whitespace-nowrap text-center",
       sortable: true,
     },
     {
       key: "dailyPoints",
       header: "Points",
-      className: "font-semibold whitespace-nowrap",
+      className: "font-bold whitespace-nowrap text-center",
       sortable: true,
     },
     {
@@ -59,7 +59,7 @@ const RankingsPage = () => {
         const player = playerHighlights[0];
 
         return (
-          <div className="flex items-center">
+          <div className="flex w-[10rem]">
             {player.imageUrl ? (
               <img
                 src={player.imageUrl}
@@ -67,8 +67,8 @@ const RankingsPage = () => {
                 className="w-8 h-8 rounded-full mr-2"
               />
             ) : (
-              <div className="w-8 h-8 bg-[#6D4C9F]/10 rounded-full flex items-center justify-center mr-2">
-                <span className="text-xs font-medium text-[#6D4C9F]">
+              <div className="w-8 h-8 bg-[#6D4C9F]/10">
+                <span className="text-xs font-medium text-[#6D4C9F] whitespace-nowrap">
                   {player.playerName.substring(0, 2).toUpperCase()}
                 </span>
               </div>
@@ -79,33 +79,33 @@ const RankingsPage = () => {
                   href={`https://www.nhl.com/player/${player.nhlId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
+                  className="text-gray-900 hover:text-[#6D4C9F] hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
-                  <span className="hidden md:inline">{player.playerName}</span>
-                  <span className="md:hidden">
-                    {(() => {
-                      const nameParts = player.playerName.split(" ");
-                      return nameParts.length >= 2
-                        ? `${nameParts[1]} ${nameParts[0].charAt(0)}.`
-                        : player.playerName;
-                    })()}
-                  </span>
+                  <span>{player.playerName}</span>
                 </a>
               ) : (
-                <div className="font-medium text-gray-900">
-                  <span className="hidden md:inline">{player.playerName}</span>
-                  <span className="md:hidden">
-                    {(() => {
-                      const nameParts = player.playerName.split(" ");
-                      return nameParts.length >= 2
-                        ? `${nameParts[1]} ${nameParts[0].charAt(0)}.`
-                        : player.playerName;
-                    })()}
-                  </span>
+                <div className="text-gray-900">
+                  <span>{player.playerName}</span>
                 </div>
               )}
-              <div className="text-xs text-gray-500">{player.points} pts</div>
+              <div className="text-xs text-gray-500">
+                <span>
+                  {player.nhlTeam ? (
+                    <a
+                      href={`https://www.nhl.com/${getNHLTeamUrlSlug(player.nhlTeam)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="hover:text-[#6D4C9F] hover:underline"
+                    >
+                      {player.nhlTeam}
+                    </a>
+                  ) : (
+                    player.nhlTeam
+                  )}{" "}
+                </span>
+                • {player.points} pts
+              </div>
             </div>
           </div>
         );
@@ -144,7 +144,6 @@ const RankingsPage = () => {
     },
   ];
 
-  // Define columns for playoff rankings
   const playoffColumns = [
     {
       key: "rank",
@@ -160,7 +159,7 @@ const RankingsPage = () => {
     },
     {
       key: "playersInPlayoffs",
-      header: "Players in Playoffs",
+      header: "Players active",
       render: (_value: any, row: any) => (
         <div className="flex items-center">
           <span className="mr-2">
@@ -168,11 +167,10 @@ const RankingsPage = () => {
           </span>
         </div>
       ),
-      sortable: true,
     },
     {
       key: "teamsInPlayoffs",
-      header: "Teams in Playoffs",
+      header: "Teams active",
       render: (_value: any, row: any) => (
         <div className="flex items-center">
           <span className="mr-2">
@@ -180,7 +178,16 @@ const RankingsPage = () => {
           </span>
         </div>
       ),
-      sortable: true,
+    },
+    {
+      key: "topTenPlayersCount",
+      header: "Top 10 Skaters",
+      render: (value: number) => (
+        <div className="flex">
+          <span className="font-medium">{value}</span>
+        </div>
+      ),
+      className: "text-center",
     },
   ];
 
@@ -257,7 +264,7 @@ const RankingsPage = () => {
           keyField="teamId"
           rankField="rank"
           dateBadge="2024/2025 Playoffs"
-          title="Players and Teams still active"
+          title="Playoff Stats"
           isLoading={playoffRankingsLoading}
           emptyMessage="No playoff rankings data available"
           initialSortKey="rank"

@@ -1,6 +1,7 @@
 import { useState, useMemo } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
+import { APP_CONFIG } from "../config";
 import { usePlayoffsData } from "./usePlayoffsData";
 import { toLocalDateString, dateStringToLocalDate } from "../utils/timezone";
 import { PlayoffFantasyTeamRanking } from "../types/rankings";
@@ -71,10 +72,37 @@ export function useRankingsData() {
     retry: 1,
   });
 
+  // Fetch top skaters data
+  const { data: topTenSkaters, isLoading: topSkatersLoading } = useQuery({
+    queryKey: ["topSkaters", 10], // Include the limit in the key
+    queryFn: () =>
+      api.getTopSkaters(
+        10,
+        parseInt(APP_CONFIG.DEFAULT_SEASON),
+        APP_CONFIG.DEFAULT_GAME_TYPE,
+        5, // form games
+      ),
+  });
+
   // Calculate playoff rankings
   const playoffRankings = useMemo<PlayoffFantasyTeamRanking[]>(() => {
     if (!rankings || !teamBets || !allTeamPoints || !isTeamInPlayoffs)
       return [];
+
+    // Count top players per team ID
+    const topPlayersByTeam = new Map<number, number>();
+
+    if (topTenSkaters && Array.isArray(topTenSkaters)) {
+      topTenSkaters.forEach((skater) => {
+        if (
+          skater.fantasyTeam &&
+          typeof skater.fantasyTeam.teamId === "number"
+        ) {
+          const teamId = skater.fantasyTeam.teamId;
+          topPlayersByTeam.set(teamId, (topPlayersByTeam.get(teamId) || 0) + 1);
+        }
+      });
+    }
 
     return rankings
       .map((team) => {
@@ -94,25 +122,34 @@ export function useRankingsData() {
         ).length;
         const totalPlayers = players.length;
 
+        // Get top players count for this team
+        const topTenPlayersCount = topPlayersByTeam.get(team.teamId) || 0;
+
         return {
           ...team,
           teamsInPlayoffs,
           totalTeams,
           playersInPlayoffs,
           totalPlayers,
+          topTenPlayersCount,
           // Weight players higher than teams since they're harder to get right
-          playoffScore: teamsInPlayoffs * 10 + playersInPlayoffs * 5,
+          playoffScore:
+            teamsInPlayoffs * 10 +
+            playersInPlayoffs * 5 +
+            topTenPlayersCount * 20,
         };
       })
       .sort((a, b) => b.playoffScore - a.playoffScore);
-  }, [rankings, teamBets, allTeamPoints, isTeamInPlayoffs]);
-
-  // Convert the selected date to a Date object
-  const displayDate = dateStringToLocalDate(selectedDate);
+  }, [rankings, teamBets, allTeamPoints, isTeamInPlayoffs, topTenSkaters]);
 
   // Loading state for the playoff rankings
   const playoffRankingsLoading =
-    rankingsLoading || teamBetsLoading || teamPointsLoading;
+    rankingsLoading ||
+    teamBetsLoading ||
+    teamPointsLoading ||
+    topSkatersLoading;
+
+  const displayDate = dateStringToLocalDate(selectedDate);
 
   return {
     selectedDate,
