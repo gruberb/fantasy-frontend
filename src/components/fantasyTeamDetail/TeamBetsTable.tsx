@@ -57,7 +57,7 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
     },
     {
       key: "numPlayers",
-      header: "Number of Players",
+      header: "Number of Skaters",
       className: "text-center",
       sortable: true,
       render: (value: number, bet: NHLTeamBet) => {
@@ -84,7 +84,7 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
           onRowClick={null} // Disable row click navigation
           showRankColors={false} // Don't show rank colors
           className="bg-transparent shadow-none border-0"
-          title="Players from NHL Teams"
+          title="Skaters from NHL Teams"
           dateBadge="2024/2025 Playoffs"
         />
       </div>

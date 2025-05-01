@@ -50,7 +50,7 @@ const RankingsPage = () => {
     },
     {
       key: "playerHighlights",
-      header: "Top Player",
+      header: "Top Skater",
       render: (playerHighlights: any[]) => {
         if (!playerHighlights || playerHighlights.length === 0) {
           return <span className="text-gray-400">None</span>;
@@ -159,7 +159,7 @@ const RankingsPage = () => {
     },
     {
       key: "playersInPlayoffs",
-      header: "Players active",
+      header: "Skaters active",
       render: (_value: any, row: any) => (
         <div className="flex items-center">
           <span className="mr-2">

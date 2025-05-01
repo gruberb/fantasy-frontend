@@ -247,7 +247,7 @@ export default function GameDetailView({
           className="w-full py-2 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center"
           onClick={() => toggleGameExpansion(game.id)}
         >
-          <span>{isExpanded ? "Hide" : "Show"} Player Details</span>
+          <span>{isExpanded ? "Hide" : "Show"} Skater Details</span>
           <svg
             className={`ml-2 h-5 w-5 transform ${isExpanded ? "rotate-180" : ""} transition-transform duration-200`}
             fill="none"
@@ -273,7 +273,7 @@ export default function GameDetailView({
                   className="w-3 h-3 mr-2"
                   style={{ backgroundColor: awayTeamColor }}
                 ></div>
-                {game.awayTeam} Players
+                {game.awayTeam} Skaters
               </h3>
               <div className="overflow-x-auto">
                 <table className="min-w-full">

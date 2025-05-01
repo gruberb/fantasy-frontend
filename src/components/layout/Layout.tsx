@@ -48,7 +48,7 @@ const Layout = ({ children }: LayoutProps) => {
                     to="/skaters"
                     className="text-gray-300 hover:text-white transition-colors"
                   >
-                    Players
+                    Skaters
                   </Link>
                 </li>
                 <li>

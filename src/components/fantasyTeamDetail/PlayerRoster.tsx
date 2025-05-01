@@ -14,7 +14,7 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
   const columns = [
     {
       key: "name",
-      header: "Player",
+      header: "Skater",
       render: (value: string, player: SkaterStats) => {
         const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
         return (
