@@ -1,123 +1,147 @@
 import { SkaterStats } from "../../types/skaters";
 import { usePlayoffsData } from "../../hooks/usePlayoffsData";
+import RankingTable from "../common/RankingTable";
 
 interface PlayerRosterProps {
   players: SkaterStats[];
 }
 
 export default function PlayerRoster({ players }: PlayerRosterProps) {
-  const sortedPlayers = [...players].sort(
-    (a, b) => b.totalPoints - a.totalPoints,
-  );
-
   const { isTeamInPlayoffs } = usePlayoffsData();
+
+  // Define columns for the RankingTable
+  const columns = [
+    {
+      key: "name",
+      header: "Player",
+      render: (value: string, player: SkaterStats) => {
+        const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
+        return (
+          <div
+            className={`flex items-center ${!isInPlayoffs ? "opacity-25" : ""}`}
+          >
+            {player.imageUrl ? (
+              <img
+                src={player.imageUrl}
+                alt={value}
+                className="h-10 w-10 rounded-full"
+              />
+            ) : (
+              <div className="h-10 w-10 rounded-full bg-[#6D4C9F]/10 flex items-center justify-center">
+                <span className="text-xs font-medium text-[#6D4C9F]">
+                  {value.substring(0, 2).toUpperCase()}
+                </span>
+              </div>
+            )}
+            <div className="ml-4">
+              <a
+                href={`https://www.nhl.com/player/${player.nhlId}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className="text-sm font-medium text-gray-900">{value}</div>
+              </a>
+              <div className="text-xs text-gray-500">{player.position}</div>
+            </div>
+          </div>
+        );
+      },
+    },
+    {
+      key: "nhlTeam",
+      header: "NHL Team",
+      render: (value: string, player: SkaterStats) => {
+        const isInPlayoffs = isTeamInPlayoffs(value);
+        return (
+          <a
+            href={`https://www.nhl.com/${player.nhlTeamUrlSlug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className={`inline-flex items-center group ${!isInPlayoffs ? "opacity-25" : ""}`}
+            onClick={(e) => e.stopPropagation()}
+          >
+            <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
+              {value}
+            </span>
+          </a>
+        );
+      },
+    },
+    {
+      key: "totalPoints",
+      header: "Points",
+      sortable: true,
+      className: "font-semibold",
+      render: (value: number, player: SkaterStats) => {
+        const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
+        return (
+          <div
+            className={`text-sm h-7 font-semibold text-gray-900 ${!isInPlayoffs ? "opacity-25" : ""}`}
+          >
+            {value}
+          </div>
+        );
+      },
+    },
+    {
+      key: "goals",
+      header: "Goals",
+      sortable: true,
+      render: (value: number, player: SkaterStats) => {
+        const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
+        return (
+          <div
+            className={`text-sm h-7 text-gray-900 ${!isInPlayoffs ? "opacity-25" : ""}`}
+          >
+            {value}
+          </div>
+        );
+      },
+    },
+    {
+      key: "assists",
+      header: "Assists",
+      sortable: true,
+      render: (value: number, player: SkaterStats) => {
+        const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
+        return (
+          <div
+            className={`text-sm h-7 text-gray-900 ${!isInPlayoffs ? "opacity-25" : ""}`}
+          >
+            {value}
+          </div>
+        );
+      },
+    },
+  ];
+
+  // Check if we have players
+  if (players.length === 0) {
+    return (
+      <section className="card">
+        <h2 className="text-2xl font-bold mb-4">Player Roster</h2>
+        <p className="text-gray-500">No players available for this team.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="card">
       <h2 className="text-2xl font-bold mb-4">Player Roster</h2>
-      {sortedPlayers.length > 0 ? (
-        <div className="overflow-x-auto">
-          <table className="min-w-full divide-y divide-gray-100">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Player
-                </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  NHL Team
-                </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Points
-                </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Goals
-                </th>
-                <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Assists
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
-              {sortedPlayers.map((player, index) => {
-                const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
-                return (
-                <tr key={index} className="hover:bg-gray-50">
-                  <td className={`py-3 px-4 whitespace-nowrap ${!isInPlayoffs ? "opacity-25" : ""}`}>
-                    <div className="flex items-center">
-                      {player.imageUrl ? (
-                        <img
-                          src={player.imageUrl}
-                          alt={player.name}
-                          className="h-10 w-10 rounded-full"
-                        />
-                      ) : (
-                        <div className="h-10 w-10 rounded-full bg-[#6D4C9F]/10 flex items-center justify-center">
-                          <span className="text-xs font-medium text-[#6D4C9F]">
-                            {player.name.substring(0, 2).toUpperCase()}
-                          </span>
-                        </div>
-                      )}
-                      <div className="ml-4">
-                        <a
-                          href={`https://www.nhl.com/player/${player.nhlId}`}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
-                        >
-                          <div className="text-sm font-medium text-gray-900">
-                            {player.name}
-                          </div>
-                        </a>
-                        <div className="text-xs text-gray-500">
-                          {player.position}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    <a
-                      href={`https://www.nhl.com/${player.nhlTeamUrlSlug}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center group"
-                    >
-                      <div className="flex items-center">
-                        {player.teamLogo ? (
-                          <img
-                            src={player.teamLogo}
-                            alt={`${player.nhlTeam} logo`}
-                            className="h-6 w-6 mr-2"
-                          />
-                        ) : null}
-                        <span className="text-sm text-gray-900 group-hover:text-[#6D4C9F] group-hover:underline">
-                          {player.nhlTeam}
-                        </span>
-                      </div>
-                    </a>
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    <div className="text-sm h-7 font-semibold text-gray-900">
-                      {player.totalPoints}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    <div className="text-sm h-7 text-gray-900">
-                      {player.goals}
-                    </div>
-                  </td>
-                  <td className="py-3 px-4 whitespace-nowrap">
-                    <div className="text-sm h-7 text-gray-900">
-                      {player.assists}
-                    </div>
-                  </td>
-                </tr>
-              )})}
-            </tbody>
-          </table>
-        </div>
-      ) : (
-        <p className="text-gray-500">No players available for this team.</p>
-      )}
+      <div className="overflow-x-auto">
+        <RankingTable
+          data={players}
+          columns={columns}
+          keyField="nhlId"
+          initialSortKey="totalPoints"
+          initialSortDirection="desc"
+          onRowClick={null} // Disable row click navigation
+          showRankColors={false} // Don't show rank colors
+          className="bg-transparent shadow-none border-0"
+        />
+      </div>
     </section>
   );
 }

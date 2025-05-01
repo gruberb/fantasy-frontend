@@ -37,31 +37,35 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
               const isInPlayoffs = isTeamInPlayoffs(bet.nhlTeam);
 
               return (
-              <tr key={index} className="hover:bg-gray-50">
-                <td className={`py-3 px-4 whitespace-nowrap text-cente ${!isInPlayoffs ? "opacity-25" : ""}`}>
-                  <a
-                    href={`https://www.nhl.com/${getNHLTeamUrlSlug(bet.nhlTeam)}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
-                  >
-                    <div className="flex items-center">
-                      {bet.teamLogo ? (
-                        <img
-                          src={bet.teamLogo}
-                          alt={`${bet.nhlTeam} logo`}
-                          className="h-6 w-6 mr-2"
-                        />
-                      ) : null}
-                      <span>{bet.nhlTeamName}</span>
-                    </div>
-                  </a>
-                </td>
-                <td className="py-3 px-4 whitespace-nowrap text-center">
-                  {bet.numPlayers}
-                </td>
-              </tr>
-            )})}
+                <tr
+                  key={index}
+                  className={`hover:bg-gray-50 ${!isInPlayoffs ? "opacity-25" : ""}`}
+                >
+                  <td className={`py-3 px-4 whitespace-nowrap text-cente `}>
+                    <a
+                      href={`https://www.nhl.com/${getNHLTeamUrlSlug(bet.nhlTeam)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
+                    >
+                      <div className="flex items-center">
+                        {bet.teamLogo ? (
+                          <img
+                            src={bet.teamLogo}
+                            alt={`${bet.nhlTeam} logo`}
+                            className="h-6 w-6 mr-2"
+                          />
+                        ) : null}
+                        <span>{bet.nhlTeamName}</span>
+                      </div>
+                    </a>
+                  </td>
+                  <td className="py-3 px-4 whitespace-nowrap text-center">
+                    {bet.numPlayers}
+                  </td>
+                </tr>
+              );
+            })}
           </tbody>
         </table>
       </div>
