@@ -8,7 +8,6 @@ export function useHomePageData() {
   const yesterdayDate = dateStringToLocalDate(yesterdayString);
 
   // Rankings query
-  // Fetch data for the dashboard
   const {
     data: rankings,
     isLoading: rankingsLoading,

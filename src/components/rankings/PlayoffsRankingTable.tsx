@@ -1,96 +1,70 @@
-import { useNavigate } from "react-router-dom";
-import React from "react";
 import { PlayoffFantasyTeamRanking } from "../../types/rankings";
+import RankingTable from "../common/RankingTable";
 
 interface PlayoffRankingsTableProps {
   playoffRankings: PlayoffFantasyTeamRanking[];
   title?: string;
+  limit?: number;
 }
 
 const PlayoffRankingsTable: React.FC<PlayoffRankingsTableProps> = ({
   playoffRankings = [],
   title = "Playoff Stats",
+  limit,
 }) => {
-  const navigate = useNavigate();
-
-  // Check if we have data
-  if (!playoffRankings || playoffRankings.length === 0) {
-    return (
-      <div>
-        {title && <h2 className="text-xl font-bold mb-4">{title}</h2>}
-        <div className="bg-white rounded-lg shadow-sm p-6 text-center border border-gray-100">
-          <p className="text-gray-500">No playoff rankings data available.</p>
+  // Define columns for the playoff rankings
+  const columns = [
+    {
+      key: "rank",
+      header: "Rank",
+      // Use index as rank
+      render: (_value: any, _row: any, index: number) => index + 1,
+    },
+    {
+      key: "teamName",
+      header: "Team",
+      className: "font-medium",
+      sortable: true,
+    },
+    {
+      key: "playersInPlayoffs",
+      header: "Players in Playoffs",
+      render: (_value: any, row: PlayoffFantasyTeamRanking) => (
+        <div className="flex items-center">
+          <span className="font-bold mr-2">
+            {row.playersInPlayoffs} / {row.totalPlayers}
+          </span>
         </div>
-      </div>
-    );
-  }
-
-  // Helper to get rank color
-  const getRankColor = (rank: number): string => {
-    if (rank === 1) return "bg-yellow-100 text-yellow-800 border-yellow-200";
-    if (rank === 2) return "bg-gray-100 text-gray-800 border-gray-200";
-    if (rank === 3) return "bg-orange-100 text-orange-800 border-orange-200";
-    return "bg-white";
-  };
+      ),
+      sortable: true,
+    },
+    {
+      key: "teamsInPlayoffs",
+      header: "Teams in Playoffs",
+      render: (_value: any, row: PlayoffFantasyTeamRanking) => (
+        <div className="flex items-center">
+          <span className="font-bold mr-2">
+            {row.teamsInPlayoffs} / {row.totalTeams}
+          </span>
+        </div>
+      ),
+      responsive: "md" as const,
+      sortable: true,
+    },
+  ];
 
   return (
-    <div>
-      {title && (
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-xl font-bold">{title}</h2>
-        </div>
-      )}
-      <div className="bg-white rounded-lg shadow-sm overflow-x-auto border border-gray-100">
-        <table className="min-w-full">
-          <thead>
-            <tr className="border-b border-gray-100">
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">
-                Rank
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">
-                Team
-              </th>
-              <th className="py-3 px-4 text-left text-sm font-semibold text-gray-700">
-                Players in Playoffs
-              </th>
-              <th className="py-3 px-4 text-left hidden md:table-cell text-sm font-semibold text-gray-700">
-                Teams in Playoffs
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            {playoffRankings.map((team, index) => (
-              <tr
-                key={team.teamId}
-                className="border-b border-gray-50 transition-colors duration-150 hover:bg-[#f8f7ff] cursor-pointer"
-                onClick={() => navigate(`/fantasy-teams/${team.teamId}`)}
-              >
-                <td className="py-3 px-4">
-                  <div
-                    className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold ${getRankColor(index + 1)}`}
-                  >
-                    {index + 1}
-                  </div>
-                </td>
-                <td className="py-3 px-4 font-medium">{team.teamName}</td>
-                <td className="py-3 px-4">
-                  <div className="flex items-center">
-                    <span className="font-bold mr-2">{team.playersInPlayoffs} / {team.totalPlayers}</span>
-
-
-                  </div>
-                </td>
-                <td className="py-3 px-4 hidden md:table-cell">
-                  <div className="flex items-center">
-                    <span className="font-bold mr-2">{team.teamsInPlayoffs} / {team.totalTeams}</span>
-                  </div>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </div>
+    <RankingTable
+      columns={columns}
+      data={playoffRankings}
+      keyField="teamId"
+      rankField="rank"
+      title={title}
+      limit={limit}
+      emptyMessage="No playoff rankings data available."
+      initialSortKey="playersInPlayoffs"
+      initialSortDirection="desc"
+    />
   );
 };
 

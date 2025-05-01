@@ -39,5 +39,7 @@ export interface RankingItem {
   teamId: number;
   teamName: string;
   dailyPoints: number;
+  dailyGoals: number;
+  dailyAssists: number;
   playerHighlights: SkaterHighlight[];
 }
