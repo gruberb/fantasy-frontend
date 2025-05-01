@@ -1,17 +1,16 @@
 import { useParams } from "react-router-dom";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
-import TeamHeader from "../components/teamDetail/TeamHeader";
-import TeamStats from "../components/teamDetail/TeamStats";
-import PlayoffStatus from "../components/teamDetail/PlayoffStatus";
-import PlayerRoster from "../components/teamDetail/PlayerRoster";
-import TeamBetsTable from "../components/teamDetail/TeamBetsTable";
+import TeamHeader from "../components/fantasyTeamDetail/TeamHeader";
+import TeamStats from "../components/fantasyTeamDetail/TeamStats";
+import PlayoffStatus from "../components/fantasyTeamDetail/PlayoffStatus";
+import PlayerRoster from "../components/fantasyTeamDetail/PlayerRoster";
+import TeamBetsTable from "../components/fantasyTeamDetail/TeamBetsTable";
 import { useTeamDetail } from "../hooks/useTeamDetail";
 
 const FantasyTeamDetailPage = () => {
   const { teamId } = useParams<{ teamId: string }>();
   const id = parseInt(teamId || "0", 10);
-
 
   const {
     team,

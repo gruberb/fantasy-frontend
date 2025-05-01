@@ -1,6 +1,5 @@
 import DatePickerHeader from "../components/common/DatePickerHeader";
 import RankingTable from "../components/common/RankingTable";
-import LoadingSpinner from "../components/common/LoadingSpinner";
 import { useRankingsData } from "../hooks/useRankingsData";
 
 const RankingsPage = () => {
@@ -164,7 +163,7 @@ const RankingsPage = () => {
       header: "Players in Playoffs",
       render: (_value: any, row: any) => (
         <div className="flex items-center">
-          <span className="font-bold mr-2">
+          <span className="mr-2">
             {row.playersInPlayoffs} / {row.totalPlayers}
           </span>
         </div>
@@ -176,7 +175,7 @@ const RankingsPage = () => {
       header: "Teams in Playoffs",
       render: (_value: any, row: any) => (
         <div className="flex items-center">
-          <span className="font-bold mr-2">
+          <span className="mr-2">
             {row.teamsInPlayoffs} / {row.totalTeams}
           </span>
         </div>
@@ -242,6 +241,7 @@ const RankingsPage = () => {
           keyField="teamId"
           rankField="rank"
           title="Overall Rankings"
+          dateBadge="2024/2025 Playoffs"
           isLoading={rankingsLoading}
           emptyMessage={
             rankingsError
@@ -260,11 +260,12 @@ const RankingsPage = () => {
           data={playoffRankings}
           keyField="teamId"
           rankField="rank"
+          dateBadge="2024/2025 Playoffs"
           title="Playoff Stats"
           isLoading={playoffRankingsLoading}
           emptyMessage="No playoff rankings data available"
-          initialSortKey="playersInPlayoffs"
-          initialSortDirection="desc"
+          initialSortKey="rank"
+          initialSortDirection="asc"
         />
       </div>
     </div>

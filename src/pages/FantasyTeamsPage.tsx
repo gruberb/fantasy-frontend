@@ -1,7 +1,7 @@
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
-import TeamsHeader from "../components/famtasyTeams/FantasyTeamsHeader";
-import TeamsGrid from "../components/famtasyTeams/FantasyTeamsGrid";
+import TeamsHeader from "../components/fantasyTeams/FantasyTeamsHeader";
+import TeamsGrid from "../components/fantasyTeams/FantasyTeamsGrid";
 import { useTeams } from "../hooks/useTeams";
 
 const FantasyTeamsPage = () => {
