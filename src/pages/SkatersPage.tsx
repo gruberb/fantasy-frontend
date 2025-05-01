@@ -70,7 +70,7 @@ const SkatersPage = () => {
                 </div>
                 <input
                   type="text"
-                  placeholder="Search players or teams..."
+                  placeholder="Search skaters or teams..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                   className="w-full pl-10 pr-4 py-2 bg-white/10 border border-white/20 rounded-md text-white placeholder-gray-300 focus:outline-none focus:ring-2 focus:ring-white/50"
@@ -107,7 +107,7 @@ const SkatersPage = () => {
                 onChange={(e) => setInPlayoffsFilter(e.target.value)}
                 className="w-full p-2 bg-white/10 border border-white/20 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-white/50"
               >
-                <option value="all">All Players</option>
+                <option value="all">All Skaters</option>
                 <option value="in">In Playoffs</option>
                 <option value="out">Eliminated</option>
               </select>

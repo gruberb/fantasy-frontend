@@ -147,7 +147,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                   </span>
                 </p>
                 <p className="flex justify-between">
-                  <span>First game players:</span>
+                  <span>First game skaters:</span>
                   <span className="font-medium">
                     {gamesData.games[0].homeTeamPlayers?.length || 0} home,{" "}
                     {gamesData.games[0].awayTeamPlayers?.length || 0} away
@@ -259,7 +259,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                     <span
                       className={`font-medium ${sortBy === "playerCount" ? "text-[#041E42]" : ""}`}
                     >
-                      {team.playerCount} player
+                      {team.playerCount} skater
                       {team.playerCount !== 1 ? "s" : ""}
                     </span>
                     <span className="mx-1">•</span>
@@ -297,7 +297,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
             {(expandedTeams.has(team.teamId) || expandAll) && (
               <div className="border-x border-b border-gray-200 bg-white rounded-b-xl overflow-hidden">
                 <div className="px-3 py-2 text-xs font-medium text-gray-600 uppercase tracking-wider bg-gray-50 border-y border-gray-100">
-                  Players ({team.players.length})
+                  Skaters ({team.players.length})
                 </div>
 
                 {team.players.length > 0 ? (

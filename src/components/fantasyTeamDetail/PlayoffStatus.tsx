@@ -82,7 +82,7 @@ export default function PlayoffStatus({
 
             {players.length > 0 ? (
               <div className="mt-3">
-                <h4 className="text-sm font-medium mb-2">Top 5 Players</h4>
+                <h4 className="text-sm font-medium mb-2">Top 5 Skater</h4>
                 <div className="flex flex-col gap-2">
                   {players.slice(0, 5).map((player) => {
                     const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);

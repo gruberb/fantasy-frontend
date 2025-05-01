@@ -128,7 +128,7 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
     return (
       <section className="card">
         <h2 className="text-2xl font-bold mb-4">Player Roster</h2>
-        <p className="text-gray-500">No players available for this team.</p>
+        <p className="text-gray-500">No skaters available for this team.</p>
       </section>
     );
   }
