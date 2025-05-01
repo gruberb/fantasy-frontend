@@ -62,19 +62,19 @@ const HomePage = () => {
     {
       key: "dailyGoals",
       header: "Goals",
-      className: "font-semibold whitespace-nowrap",
+      className: "whitespace-nowrap",
       sortable: true,
     },
     {
       key: "dailyAssists",
       header: "Assists",
-      className: "font-semibold whitespace-nowrap",
+      className: "whitespace-nowrap",
       sortable: true,
     },
     {
       key: "dailyPoints",
       header: "Points",
-      className: "font-semibold whitespace-nowrap",
+      className: "font-bold whitespace-nowrap",
       sortable: true,
     },
     {
@@ -97,7 +97,7 @@ const HomePage = () => {
               />
             ) : (
               <div className="w-8 h-8 bg-[#6D4C9F]/10">
-                <span className="text-xs font-medium text-[#6D4C9F]">
+                <span className="text-xs font-medium text-[#6D4C9F] whitespace-nowrap">
                   {player.playerName.substring(0, 2).toUpperCase()}
                 </span>
               </div>
@@ -108,13 +108,13 @@ const HomePage = () => {
                   href={`https://www.nhl.com/player/${player.nhlId}`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-900 hover:text-[#6D4C9F] hover:underline font-medium"
+                  className="text-gray-900 hover:text-[#6D4C9F] hover:underline"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <span>{player.playerName}</span>
                 </a>
               ) : (
-                <div className="font-medium text-gray-900">
+                <div className="text-gray-900">
                   <span>{player.playerName}</span>
                 </div>
               )}
