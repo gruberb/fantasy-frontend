@@ -32,19 +32,19 @@ const HomePage = () => {
     {
       key: "goals",
       header: "Goals",
-      className: "whitespace-nowrap text-center",
+      className: "whitespace-nowrap",
       sortable: true,
     },
     {
       key: "assists",
       header: "Assists",
-      className: "whitespace-nowrap text-center",
+      className: "whitespace-nowrap",
       sortable: true,
     },
     {
       key: "totalPoints",
       header: "Points",
-      className: "font-bold text-center",
+      className: "font-bold",
       sortable: true,
     },
   ];
@@ -65,19 +65,19 @@ const HomePage = () => {
     {
       key: "dailyGoals",
       header: "Goals",
-      className: "whitespace-nowrap text-center",
+      className: "whitespace-nowrap",
       sortable: true,
     },
     {
       key: "dailyAssists",
       header: "Assists",
-      className: "whitespace-nowrap text-center",
+      className: "whitespace-nowrap",
       sortable: true,
     },
     {
       key: "dailyPoints",
       header: "Points",
-      className: "font-bold whitespace-nowrap text-center",
+      className: "font-bold whitespace-nowrap",
       sortable: true,
     },
     {
