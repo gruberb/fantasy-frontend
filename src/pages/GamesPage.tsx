@@ -33,7 +33,7 @@ const GamesPage = () => {
       {/* Page header */}
       <DatePickerHeader
         title="Game Center"
-        subtitle="Follow up on all match days, scores and the top players of the day."
+        subtitle="Follow up on all match days, scores and the top skaters of the day."
         selectedDate={selectedDate}
         onDateChange={updateSelectedDate}
       />

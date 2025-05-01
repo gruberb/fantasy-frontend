@@ -88,39 +88,42 @@ export default function PlayoffStatus({
                     const isInPlayoffs = isTeamInPlayoffs(player.nhlTeam);
 
                     return (
-                    <div key={player.name} className={`flex items-center" ${!isInPlayoffs ? "opacity-25" : ""}`}>
-                      <a
-                        href={`https://www.nhl.com/player/${player.nhlId}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
+                      <div
+                        key={player.name}
+                        className={`flex items-center" ${!isInPlayoffs ? "opacity-25" : ""}`}
                       >
-                        {player.imageUrl ? (
-                          <img
-                            src={player.imageUrl}
-                            alt={player.name}
-                            className="w-6 h-6 rounded-full mr-2"
-                          />
-                        ) : (
-                          <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
-                            <span className="text-xs font-medium">
-                              {player.name.substring(0, 2).toUpperCase()}
-                            </span>
-                          </div>
-                        )}
-                        <span className="text-sm pr-1">{player.name} </span>
-                      </a>
-                      <span className="ml-auto text-sm font-bold">
-                        {player.totalPoints} pts
-                      </span>
-                    </div>
-                    )
+                        <a
+                          href={`https://www.nhl.com/player/${player.nhlId}`}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-gray-900 hover:text-[#6D4C9F] hover:underline flex items-center font-medium"
+                        >
+                          {player.imageUrl ? (
+                            <img
+                              src={player.imageUrl}
+                              alt={player.name}
+                              className="w-6 h-6 rounded-full mr-2"
+                            />
+                          ) : (
+                            <div className="w-6 h-6 bg-gray-200 rounded-full flex items-center justify-center mr-2">
+                              <span className="text-xs font-medium">
+                                {player.name.substring(0, 2).toUpperCase()}
+                              </span>
+                            </div>
+                          )}
+                          <span className="text-sm pr-1">{player.name} </span>
+                        </a>
+                        <span className="ml-auto text-sm font-bold">
+                          {player.totalPoints} pts
+                        </span>
+                      </div>
+                    );
                   })}
                 </div>
               </div>
             ) : (
               <p className="text-gray-500 text-sm mt-2">
-                No players in playoffs
+                No skaters in playoffs
               </p>
             )}
           </div>

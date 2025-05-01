@@ -284,7 +284,7 @@ const TopSkatersTable: React.FC<TopSkatersTableProps> = ({
           className="flex items-center focus:outline-none cursor-pointer"
           onClick={() => handleSort("lastName")}
         >
-          Player {getSortIcon("lastName")}
+          Skater {getSortIcon("lastName")}
         </button>
       </th>
 

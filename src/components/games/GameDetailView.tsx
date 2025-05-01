@@ -279,7 +279,7 @@ export default function GameDetailView({
                 <table className="min-w-full">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="py-1 px-2 text-left text-xs">Player</th>
+                      <th className="py-1 px-2 text-left text-xs">Skater</th>
                       <th className="py-1 px-2 text-left text-xs">
                         Fantasy Team
                       </th>
@@ -351,12 +351,12 @@ export default function GameDetailView({
                   className="w-3 h-3 mr-2"
                   style={{ backgroundColor: homeTeamColor }}
                 ></div>
-                {game.homeTeam} Players
+                {game.homeTeam} Skaters
               </h3>
               <table className="min-w-full">
                 <thead className="bg-gray-50">
                   <tr>
-                    <th className="py-1 px-2 text-left text-xs">Player</th>
+                    <th className="py-1 px-2 text-left text-xs">Skater</th>
                     <th className="py-1 px-2 text-left text-xs">
                       Fantasy Team
                     </th>

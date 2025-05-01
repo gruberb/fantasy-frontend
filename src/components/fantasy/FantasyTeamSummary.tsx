@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from "react";
-import LoadingSpinner from "../common/LoadingSpinner";
 import { Link } from "react-router-dom";
 import { useFantasyTeams } from "../../hooks/useFantasyTeams";
 import { dateStringToLocalDate, isSameLocalDay } from "../../utils/timezone";
@@ -123,7 +122,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
             No Fantasy Teams
           </h3>
           <p className="text-gray-500 mb-4">
-            No fantasy teams have players in today's games.
+            No fantasy teams have skaters in today's games.
           </p>
 
           <div className="p-4 bg-gray-50 rounded-lg text-left text-sm text-gray-500 max-w-md mx-auto">
@@ -136,7 +135,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
             {gamesData?.games && gamesData.games.length > 0 && (
               <>
                 <p className="flex justify-between mb-1">
-                  <span>Total players found:</span>
+                  <span>Total skaters found:</span>
                   <span className="font-medium">
                     {gamesData.games.reduce(
                       (total, game) =>
@@ -170,7 +169,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
             Fantasy Teams
           </h2>
           <p className="text-sm text-gray-500">
-            {fantasyTeamCounts.length} teams with players{" "}
+            {fantasyTeamCounts.length} teams with skaters{" "}
             {hasLiveGames ? "in action" : "for this date"}
           </p>
         </div>
@@ -185,7 +184,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                   : "hover:bg-gray-100 text-gray-600"
               }`}
             >
-              Players
+              Skaters
             </button>
             <button
               onClick={() => setSortBy("totalPoints")}
@@ -385,7 +384,7 @@ const FantasyTeamSummary: React.FC<FantasyTeamSummaryProps> = ({
                   </div>
                 ) : (
                   <div className="px-4 py-3 text-sm text-gray-500">
-                    No player details available
+                    No skater details available
                   </div>
                 )}
               </div>
