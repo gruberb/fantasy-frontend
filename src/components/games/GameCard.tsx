@@ -1,21 +1,46 @@
-import { useNavigate } from "react-router-dom";
-import React from "react";
 import { Game } from "../../types/games";
-import { toLocalDateString } from "../../utils/timezone";
+import PlayerCard from "../common/PlayerCard";
 
-interface GameCardProps {
+interface StandardGameCardProps {
   game: Game;
-  timeString: string;
-  gameStatus: string;
+  isExpanded: boolean;
+  onToggleExpand: () => void;
+  getTeamPrimaryColor: (teamName: string) => string;
 }
 
-const GameCard: React.FC<GameCardProps> = ({
+const GameCard = ({
   game,
-  timeString,
-  gameStatus,
-}) => {
-  const navigate = useNavigate();
-  // Function to get status class
+  isExpanded,
+  onToggleExpand,
+  getTeamPrimaryColor,
+}: StandardGameCardProps) => {
+  // Format time string
+  let timeString;
+  try {
+    const gameDate = new Date(game.startTime);
+    timeString = gameDate.toLocaleTimeString([], {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  } catch {
+    timeString = "Time TBD";
+  }
+
+  // Game status
+  const gameStatus = game.gameState || "SCHEDULED";
+
+  // Check if game is live
+  const isLive = gameStatus.toUpperCase() === "LIVE";
+
+  // Check if game is complete
+  const isGameComplete = gameStatus === "FINAL" || gameStatus === "OFF";
+
+  // Get team colors
+  const awayTeamColor = getTeamPrimaryColor(game.awayTeam);
+  const homeTeamColor = getTeamPrimaryColor(game.homeTeam);
+
+  // Helper function to determine status display
   const getStatusClass = (status: string): string => {
     switch (status.toUpperCase()) {
       case "LIVE":
@@ -32,97 +57,6 @@ const GameCard: React.FC<GameCardProps> = ({
         return "bg-blue-100 text-blue-800 border border-blue-200";
     }
   };
-
-  // Function to get team primary color
-  const getTeamPrimaryColor = (teamName: string): string => {
-    // This is a simplified mapping - you can expand as needed
-    const teamColors: Record<string, string> = {
-      "Anaheim Ducks": "#F47A38",
-      "Arizona Coyotes": "#8C2633",
-      "Boston Bruins": "#FFB81C",
-      "Buffalo Sabres": "#002654",
-      "Calgary Flames": "#C8102E",
-      "Carolina Hurricanes": "#CC0000",
-      "Chicago Blackhawks": "#CF0A2C",
-      "Colorado Avalanche": "#6F263D",
-      "Columbus Blue Jackets": "#002654",
-      "Dallas Stars": "#006847",
-      "Detroit Red Wings": "#CE1126",
-      "Edmonton Oilers": "#FF4C00",
-      "Florida Panthers": "#C8102E",
-      "Los Angeles Kings": "#111111",
-      "Minnesota Wild": "#154734",
-      "Montreal Canadiens": "#AF1E2D",
-      "Nashville Predators": "#FFB81C",
-      "New Jersey Devils": "#CE1126",
-      "New York Islanders": "#00539B",
-      "New York Rangers": "#0038A8",
-      "Ottawa Senators": "#C52032",
-      "Philadelphia Flyers": "#F74902",
-      "Pittsburgh Penguins": "#FFB81C",
-      "San Jose Sharks": "#006D75",
-      "Seattle Kraken": "#99D9D9",
-      "St. Louis Blues": "#002F87",
-      "Tampa Bay Lightning": "#002868",
-      "Toronto Maple Leafs": "#00205B",
-      "Vancouver Canucks": "#00205B",
-      "Vegas Golden Knights": "#B4975A",
-      "Washington Capitals": "#C8102E",
-      "Winnipeg Jets": "#041E42",
-      // Add abbreviated versions
-      ANA: "#F47A38",
-      ARI: "#8C2633",
-      BOS: "#FFB81C",
-      BUF: "#002654",
-      CGY: "#C8102E",
-      CAR: "#CC0000",
-      CHI: "#CF0A2C",
-      COL: "#6F263D",
-      CBJ: "#002654",
-      DAL: "#006847",
-      DET: "#CE1126",
-      EDM: "#FF4C00",
-      FLA: "#C8102E",
-      LAK: "#111111",
-      MIN: "#154734",
-      MTL: "#AF1E2D",
-      NSH: "#FFB81C",
-      NJD: "#CE1126",
-      NYI: "#00539B",
-      NYR: "#0038A8",
-      OTT: "#C52032",
-      PHI: "#F74902",
-      PIT: "#FFB81C",
-      SJS: "#006D75",
-      SEA: "#99D9D9",
-      STL: "#002F87",
-      TBL: "#002868",
-      TOR: "#00205B",
-      VAN: "#00205B",
-      VGK: "#B4975A",
-      WSH: "#C8102E",
-      WPG: "#041E42",
-    };
-
-    // Try to find team by exact match or by including the name
-    if (teamColors[teamName]) {
-      return teamColors[teamName];
-    }
-
-    // Try partial matches for longer team names
-    for (const [key, color] of Object.entries(teamColors)) {
-      if (teamName.includes(key) || key.includes(teamName)) {
-        return color;
-      }
-    }
-
-    // Default NHL blue
-    return "#041E42";
-  };
-
-  // Get team colors
-  const awayTeamColor = getTeamPrimaryColor(game.awayTeam);
-  const homeTeamColor = getTeamPrimaryColor(game.homeTeam);
 
   // Helper function to determine series display
   const getSeriesDisplay = (isAwayTeam: boolean): string | null => {
@@ -149,23 +83,8 @@ const GameCard: React.FC<GameCardProps> = ({
     }
   };
 
-  // Check if game is a playoff game
-  const isPlayoffGame = game.seriesStatus && game.seriesStatus.round > 0;
-
-  // Add pulse animation for LIVE games
-  const animationClass =
-    gameStatus.toUpperCase() === "LIVE" ? "animate-pulse" : "";
-
   return (
-    <div
-      className="bg-white rounded-lg shadow-sm overflow-hidden border border-gray-100 transition-all duration-200 hover:shadow-md hover:translate-y-px cursor-pointer"
-      onClick={() => {
-        // Extract date from game.startTime for navigation
-        const gameDate = new Date(game.startTime);
-        const dateString = toLocalDateString(gameDate);
-        navigate(`/games/${dateString}`);
-      }}
-    >
+    <div className="bg-white rounded-lg shadow-md overflow-hidden border border-gray-200 transition-all duration-200 hover:shadow-lg">
       <div className="flex">
         {/* Left team color bar */}
         <div
@@ -176,11 +95,13 @@ const GameCard: React.FC<GameCardProps> = ({
         {/* Main content */}
         <div className="flex-grow">
           {/* Game header */}
-          <div className="bg-gray-50 p-3 flex items-center justify-between border-b border-gray-100">
-            <div className="text-sm font-bold text-gray-700">{timeString}</div>
-            <div>
+          <div className="bg-gray-50 p-1 py-2 flex items-center justify-between">
+            <div className="text-sm font-bold text-gray-700 pl-5">
+              {timeString}
+            </div>
+            <div className="pr-2 py-2">
               <span
-                className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusClass(gameStatus)} ${animationClass}`}
+                className={`px-2 py-1 rounded-full text-xs font-bold ${getStatusClass(gameStatus)} ${isLive ? "animate-pulse" : ""}`}
               >
                 {gameStatus === "PRE" ? "SCHEDULED" : gameStatus}
                 {game.period && ` • ${game.period}`}
@@ -189,7 +110,12 @@ const GameCard: React.FC<GameCardProps> = ({
           </div>
 
           {/* Team matchup */}
-          <div className="p-4">
+          <div
+            className="p-4 cursor-pointer"
+            onClick={() =>
+              window.open(`https://www.nhl.com/gamecenter/${game.id}`, "_blank")
+            }
+          >
             <div className="flex items-center">
               {/* Away team */}
               <div className="flex-1">
@@ -198,11 +124,11 @@ const GameCard: React.FC<GameCardProps> = ({
                     <img
                       src={game.awayTeamLogo}
                       alt={`${game.awayTeam} logo`}
-                      className="w-12 h-12 mr-3"
+                      className="w-10 h-10 mr-3"
                     />
                   ) : (
                     <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center mr-3"
+                      className="w-10 h-10 rounded-full flex items-center justify-center mr-3"
                       style={{ backgroundColor: `${awayTeamColor}20` }}
                     >
                       <span
@@ -214,8 +140,8 @@ const GameCard: React.FC<GameCardProps> = ({
                     </div>
                   )}
                   <div>
-                    <div className="text-lg font-bold">{game.awayTeam}</div>
-                    {isPlayoffGame && (
+                    <div className="text-base font-bold">{game.awayTeam}</div>
+                    {game.seriesStatus && game.seriesStatus.round > 0 && (
                       <div className="text-xs text-gray-500">
                         {getSeriesDisplay(true)}
                       </div>
@@ -231,14 +157,14 @@ const GameCard: React.FC<GameCardProps> = ({
                 game.homeScore !== undefined &&
                 game.homeScore !== null ? (
                   <div className="flex items-center">
-                    <div className="text-3xl font-bold">{game.awayScore}</div>
+                    <div className="text-2xl font-bold">{game.awayScore}</div>
                     <div className="mx-2 text-gray-300">-</div>
-                    <div className="text-3xl font-bold">{game.homeScore}</div>
+                    <div className="text-2xl font-bold">{game.homeScore}</div>
                   </div>
                 ) : (
-                  <div className="text-lg font-bold text-gray-400">VS</div>
+                  <div className="text-base font-bold text-gray-400">VS</div>
                 )}
-                {gameStatus === "LIVE" && game.period && (
+                {isLive && game.period && (
                   <div className="text-xs text-red-600 font-bold mt-1 animate-pulse">
                     {game.period}
                   </div>
@@ -249,8 +175,8 @@ const GameCard: React.FC<GameCardProps> = ({
               <div className="flex-1 text-right">
                 <div className="flex items-center justify-end">
                   <div className="text-right">
-                    <div className="text-lg font-bold">{game.homeTeam}</div>
-                    {isPlayoffGame && (
+                    <div className="text-base font-bold">{game.homeTeam}</div>
+                    {game.seriesStatus && game.seriesStatus.round > 0 && (
                       <div className="text-xs text-gray-500">
                         {getSeriesDisplay(false)}
                       </div>
@@ -260,11 +186,11 @@ const GameCard: React.FC<GameCardProps> = ({
                     <img
                       src={game.homeTeamLogo}
                       alt={`${game.homeTeam} logo`}
-                      className="w-12 h-12 ml-3"
+                      className="w-10 h-10 ml-3"
                     />
                   ) : (
                     <div
-                      className="w-12 h-12 rounded-full flex items-center justify-center ml-3"
+                      className="w-10 h-10 rounded-full flex items-center justify-center ml-3"
                       style={{ backgroundColor: `${homeTeamColor}20` }}
                     >
                       <span
@@ -279,14 +205,14 @@ const GameCard: React.FC<GameCardProps> = ({
               </div>
             </div>
 
-            {/* Bottom links for completed games */}
-            {(gameStatus === "FINAL" || gameStatus === "OFF") && (
+            {/* Game links (for completed games) */}
+            {isGameComplete && (
               <div className="mt-3 pt-2 border-t border-gray-100 text-xs flex justify-center space-x-4">
                 <a
                   href={`https://www.nhl.com/gamecenter/${game.id}/recap`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-blue-600 hover:underline flex items-center"
+                  className="text-gray-500 hover:text-[#6D4C9F] hover:underline flex items-center"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <svg
@@ -302,7 +228,7 @@ const GameCard: React.FC<GameCardProps> = ({
                   href={`https://www.nhl.com/gamecenter/${game.id}/boxscore`}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-gray-500 hover:text-blue-600 hover:underline flex items-center"
+                  className="text-gray-500 hover:text-[#6D4C9F] hover:underline flex items-center"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <svg
@@ -325,6 +251,109 @@ const GameCard: React.FC<GameCardProps> = ({
           className="w-2 flex-shrink-0"
           style={{ backgroundColor: homeTeamColor }}
         ></div>
+      </div>
+
+      {/* Expand/Collapse toggle - Now with shadow and border */}
+      <button
+        className="w-full py-2.5 px-4 text-sm font-medium text-gray-700 hover:bg-gray-50 flex items-center justify-center border-t border-gray-200 shadow-sm transition-all"
+        onClick={onToggleExpand}
+      >
+        {isExpanded ? "Hide" : "Show"} Skater Details
+        <svg
+          className={`ml-2 h-4 w-4 transform ${isExpanded ? "rotate-180" : ""} transition-transform duration-200`}
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            strokeWidth={2}
+            d="M19 9l-7 7-7-7"
+          />
+        </svg>
+      </button>
+
+      {/* Player details (collapsible) - Using our standardized card layout with shadow */}
+      {isExpanded && (
+        <PlayerDetails
+          game={game}
+          awayTeamColor={awayTeamColor}
+          homeTeamColor={homeTeamColor}
+        />
+      )}
+    </div>
+  );
+};
+
+// Separate component for player details using PlayerCard
+const PlayerDetails = ({
+  game,
+  awayTeamColor,
+  homeTeamColor,
+}: {
+  game: Game;
+  awayTeamColor: string;
+  homeTeamColor: string;
+}) => {
+  return (
+    <div className="border-t border-gray-200 shadow-inner">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4 p-5 bg-gray-50">
+        {/* Away team players */}
+        <div className="bg-white rounded-lg p-1">
+          <div className="flex items-center mb-3">
+            <div
+              className="w-3 h-3 rounded-full mr-2"
+              style={{ backgroundColor: awayTeamColor }}
+            ></div>
+            <h3 className="font-bold text-sm">{game.awayTeam} Skaters</h3>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2">
+            {game.awayTeamPlayers.map((player, idx) => {
+              player.nhlTeam = game.awayTeam;
+
+              return (
+                <PlayerCard
+                  key={idx}
+                  player={player}
+                  compact={true}
+                  showFantasyTeam={true}
+                  showPoints={true}
+                  valueLabel="pts"
+                />
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Home team players */}
+        <div className="bg-white rounded-lg p-1">
+          <div className="flex items-center mb-3">
+            <div
+              className="w-3 h-3 rounded-full mr-2"
+              style={{ backgroundColor: homeTeamColor }}
+            ></div>
+            <h3 className="font-bold text-sm">{game.homeTeam} Skaters</h3>
+          </div>
+
+          <div className="grid grid-cols-1 gap-2">
+            {game.homeTeamPlayers.map((player, idx) => {
+              player.nhlTeam = game.homeTeam;
+
+              return (
+                <PlayerCard
+                  key={idx}
+                  player={player}
+                  compact={true}
+                  showFantasyTeam={true}
+                  showPoints={true}
+                  valueLabel="pts"
+                />
+              );
+            })}
+          </div>
+        </div>
       </div>
     </div>
   );

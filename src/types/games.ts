@@ -11,6 +11,7 @@ export interface GamePlayer {
   playerName: string;
   position: string;
   nhlId: number;
+  nhlTeam?: string;
   imageUrl: string;
   goals: number;
   assists: number;
