@@ -44,7 +44,7 @@ const DatesPopover = ({
             {dates.map((date) => (
               <Link
                 key={date}
-                to={`/games/${date}`}
+                to={`/games/${date}?tab=fantasy`}
                 className="px-2 py-1 text-xs rounded hover:bg-gray-100 border border-gray-200 flex items-center"
               >
                 {new Date(date).toLocaleDateString("en-US", {
