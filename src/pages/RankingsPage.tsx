@@ -44,23 +44,6 @@ const RankingsPage = () => {
   return (
     <div>
       <div className="mt-8">
-        <RankingTable
-          columns={dailyRankingsColumns}
-          data={processedDailyRankings}
-          keyField="teamId"
-          rankField="rank"
-          title="Daily Fantasy Scores"
-          isLoading={dailyRankingsLoading}
-          emptyMessage={"No daily rankings available for this date"}
-          showDatePicker={true} // Enable date picker
-          selectedDate={selectedDate}
-          onDateChange={setSelectedDate}
-          initialSortKey="dailyPoints"
-          initialSortDirection="desc"
-        />
-      </div>
-
-      <div className="mt-8">
         {/* Team Stats Table */}
         <RankingTable
           columns={teamStatsColumns}
@@ -94,6 +77,23 @@ const RankingsPage = () => {
           emptyMessage="No playoff rankings data available"
           initialSortKey="rank"
           initialSortDirection="asc"
+        />
+      </div>
+
+      <div className="mt-8">
+        <RankingTable
+          columns={dailyRankingsColumns}
+          data={processedDailyRankings}
+          keyField="teamId"
+          rankField="rank"
+          title="Daily Fantasy Scores"
+          isLoading={dailyRankingsLoading}
+          emptyMessage={"No daily rankings available for this date"}
+          showDatePicker={true} // Enable date picker
+          selectedDate={selectedDate}
+          onDateChange={setSelectedDate}
+          initialSortKey="dailyPoints"
+          initialSortDirection="desc"
         />
       </div>
     </div>

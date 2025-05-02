@@ -109,13 +109,11 @@ export const TeamStatsColumns = () => {
       key: "totalPoints",
       header: "Total Points",
       className: "font-bold text-center",
-      sortable: true,
     },
     {
       key: "dailyWins",
       header: "Daily Wins",
       className: "text-center",
-      sortable: true,
       render: (value: number, team: TeamStats) => (
         <div className="relative inline-flex">
           <div className="px-3 py-1 rounded-full bg-green-100 text-green-800 font-medium flex items-center">
@@ -154,7 +152,6 @@ export const TeamStatsColumns = () => {
       key: "dailyTopThree",
       header: "Daily Top 3",
       className: "text-center",
-      sortable: true,
       render: (value: number, team: TeamStats) => (
         <div className="relative inline-flex">
           <div className="px-3 py-1 rounded-full bg-blue-100 text-blue-800 font-medium flex items-center">

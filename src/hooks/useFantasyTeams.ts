@@ -16,7 +16,6 @@ export function useFantasyTeams(selectedDate: string) {
 
     // Create a map to track fantasy teams
     const map = new Map<string, FantasyTeamCount>();
-    let idCounter = 1;
 
     // Helper to process one player list
     const processPlayers = (
@@ -31,7 +30,7 @@ export function useFantasyTeams(selectedDate: string) {
 
         if (!map.has(key)) {
           map.set(key, {
-            teamId: idCounter++, // Simple ID generation for React array
+            teamId: p.fantasyTeamId,
             teamName: key,
             playerCount: 0,
             players: [],

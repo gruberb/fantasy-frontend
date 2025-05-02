@@ -1,18 +1,15 @@
 import { FantasyTeam } from "./fantasyTeams";
 
 export interface SkaterWithPoints {
-  name?: string;
+  fantasyTeam: string;
+  fantasyTeamId: number;
   playerName?: string;
   position: string;
-  fantasyTeam?: string;
-  points?: number;
+  nhlId?: number;
+  imageUrl?: string;
   goals?: number;
   assists?: number;
-  gameId?: number;
-  nhlTeam?: string;
-  teamLogo?: string;
-  imageUrl?: string;
-  nhlId?: number;
+  points?: number;
 }
 
 export interface Skater {

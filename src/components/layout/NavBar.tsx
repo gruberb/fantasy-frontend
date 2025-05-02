@@ -68,22 +68,6 @@ const NavBar = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/fantasy-teams"
-              className={({ isActive }) =>
-                isActive ? activeLinkClass : inactiveLinkClass
-              }
-            >
-              Fantasy Teams
-            </NavLink>
-            <NavLink
-              to="/skaters"
-              className={({ isActive }) =>
-                isActive ? activeLinkClass : inactiveLinkClass
-              }
-            >
-              Skaters
-            </NavLink>
-            <NavLink
               to={`/games/${toLocalDateString(new Date())}`}
               className={({ isActive }) =>
                 isActive || isGamesRouteActive()
@@ -100,6 +84,22 @@ const NavBar = () => {
               }
             >
               Stats
+            </NavLink>
+            <NavLink
+              to="/skaters"
+              className={({ isActive }) =>
+                isActive ? activeLinkClass : inactiveLinkClass
+              }
+            >
+              Skaters
+            </NavLink>
+            <NavLink
+              to="/fantasy-teams"
+              className={({ isActive }) =>
+                isActive ? activeLinkClass : inactiveLinkClass
+              }
+            >
+              Fantasy Teams
             </NavLink>
           </div>
 
@@ -154,13 +154,25 @@ const NavBar = () => {
               Dashboard
             </NavLink>
             <NavLink
-              to="/fantasy-teams"
+              to={`/games/${toLocalDateString(new Date())}`}
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                isActive || isGamesRouteActive()
+                  ? activeLinkClass
+                  : inactiveLinkClass
+              }
+            >
+              Game Center
+            </NavLink>
+
+            <NavLink
+              to="/rankings"
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Fantasy Teams
+              Stats
             </NavLink>
             <NavLink
               to="/skaters"
@@ -172,24 +184,13 @@ const NavBar = () => {
               Skaters
             </NavLink>
             <NavLink
-              to={`/games/${toLocalDateString(new Date())}`}
-              onClick={() => setMobileOpen(false)}
-              className={({ isActive }) =>
-                isActive || isGamesRouteActive()
-                  ? activeLinkClass
-                  : inactiveLinkClass
-              }
-            >
-              Game Center
-            </NavLink>
-            <NavLink
-              to="/rankings"
+              to="/fantasy-teams"
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Stats
+              Fantasy Teams
             </NavLink>
           </div>
         </div>
