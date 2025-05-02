@@ -1,4 +1,5 @@
-import React from "react";
+// components/common/RankingTable/RankingTableHeader.tsx
+import React, { useState, useRef } from "react";
 import { Link } from "react-router-dom";
 import DatePicker from "react-datepicker";
 import "react-datepicker/dist/react-datepicker.css";
@@ -35,6 +36,9 @@ const RankingTableHeader: React.FC<RankingTableHeaderProps> = ({
   selectedDate,
   onDateChange,
 }) => {
+  const [isCalendarOpen, setIsCalendarOpen] = useState(false);
+  const datePickerRef = useRef<HTMLDivElement>(null);
+
   if (!title && !dateBadge && !viewAllLink && !showDatePicker) return null;
 
   // Format date badge
@@ -59,6 +63,7 @@ const RankingTableHeader: React.FC<RankingTableHeaderProps> = ({
   const handleDateChange = (newDate: Date | null) => {
     if (newDate && onDateChange) {
       onDateChange(toLocalDateString(newDate));
+      setIsCalendarOpen(false);
     }
   };
 
@@ -88,6 +93,30 @@ const RankingTableHeader: React.FC<RankingTableHeaderProps> = ({
     }
   };
 
+  // Custom datepicker portal to avoid z-index issues
+  const CustomDatePickerContainer = ({
+    children,
+  }: {
+    children: React.ReactNode;
+  }) => {
+    return (
+      <div
+        style={{
+          position: "absolute",
+          zIndex: 9999,
+          top: 20,
+          right: -235,
+          marginTop: "8px",
+          boxShadow: "0 2px 10px rgba(0, 0, 0, 0.1)",
+          borderRadius: "8px",
+          overflow: "hidden",
+        }}
+      >
+        {children}
+      </div>
+    );
+  };
+
   return (
     <div className="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0">
       {/* Left side - Title and badge */}
@@ -107,11 +136,15 @@ const RankingTableHeader: React.FC<RankingTableHeaderProps> = ({
         )}
       </div>
 
+      {/* Right side with controls */}
       <div className="flex flex-wrap items-center gap-2">
-        {/* Date picker controls - always visible when showDatePicker is true */}
+        {/* Date picker controls */}
         {showDatePicker && (
-          <div className="flex flex-wrap items-center gap-2 bg-white/10 rounded-lg p-2">
-            {/* Mobile-friendly controls */}
+          <div
+            ref={datePickerRef}
+            className="relative flex flex-wrap items-center gap-2 bg-white/10 rounded-lg p-2"
+          >
+            {/* Date navigation */}
             <div className="flex items-center">
               <button
                 onClick={handlePrevDay}
@@ -134,34 +167,55 @@ const RankingTableHeader: React.FC<RankingTableHeaderProps> = ({
                 </svg>
               </button>
 
-              <DatePicker
-                selected={
-                  selectedDate ? dateStringToLocalDate(selectedDate) : null
-                }
-                onChange={handleDateChange}
-                customInput={
-                  <button className="mx-2 bg-white/10 px-3 py-1 rounded-md text-white focus:outline-none">
-                    {selectedDate
-                      ? dateStringToLocalDate(selectedDate).toLocaleDateString(
-                          "en-US",
-                          {
-                            month: "short",
-                            day: "numeric",
-                          },
-                        )
-                      : "Select date"}
-                  </button>
-                }
-                popperPlacement="bottom-end"
-                popperModifiers={[
-                  {
-                    name: "preventOverflow",
-                    options: {
-                      boundary: document.body,
-                    },
-                  },
-                ]}
-              />
+              {/* Date display button */}
+              <button
+                className="mx-2 bg-white/10 px-3 py-1 rounded-md text-white focus:outline-none flex items-center"
+                onClick={() => setIsCalendarOpen(!isCalendarOpen)}
+              >
+                <span className="mr-1">
+                  {selectedDate
+                    ? dateStringToLocalDate(selectedDate).toLocaleDateString(
+                        "en-US",
+                        {
+                          month: "short",
+                          day: "numeric",
+                          year: "numeric",
+                        },
+                      )
+                    : "Select date"}
+                </span>
+                <svg
+                  className="w-4 h-4"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M19 9l-7 7-7-7"
+                  />
+                </svg>
+              </button>
+
+              {/* Custom date picker that renders in a portal */}
+              {isCalendarOpen && (
+                <div className="absolute w-0 h-0">
+                  <CustomDatePickerContainer>
+                    <DatePicker
+                      selected={
+                        selectedDate
+                          ? dateStringToLocalDate(selectedDate)
+                          : null
+                      }
+                      onChange={handleDateChange}
+                      inline
+                      onClickOutside={() => setIsCalendarOpen(false)}
+                    />
+                  </CustomDatePickerContainer>
+                </div>
+              )}
 
               <button
                 onClick={handleNextDay}

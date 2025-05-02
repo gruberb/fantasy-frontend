@@ -621,3 +621,12 @@ h2 {
         /* Dark mode styles can be added here if needed */
     }
 }
+
+.react-datepicker {
+    font-family: inherit;
+    z-index: 9999 !important;
+}
+
+.react-datepicker__triangle {
+    display: none !important;
+}
