@@ -310,9 +310,6 @@ const TeamRow = ({ team, index, isCollapsed, onToggle }: TeamRowProps) => {
         <div className="flex items-center space-x-8">
           {/* Points badge */}
           <div className="flex items-center">
-            <span className="text-sm text-gray-500 mr-2 hidden sm:inline">
-              Points:
-            </span>
             <span
               className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold ${
                 team.totalPoints > 0
@@ -320,17 +317,14 @@ const TeamRow = ({ team, index, isCollapsed, onToggle }: TeamRowProps) => {
                   : "bg-gray-100 text-gray-800"
               }`}
             >
-              {team.totalPoints}
+              {team.totalPoints} pts
             </span>
           </div>
 
           {/* Players count badge */}
           <div className="flex items-center">
-            <span className="text-sm text-gray-500 mr-2 hidden sm:inline">
-              Players:
-            </span>
-            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-              {team.playerCount}
+            <span className="inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              {team.playerCount} ⛸️
             </span>
           </div>
 
