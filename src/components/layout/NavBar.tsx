@@ -99,7 +99,7 @@ const NavBar = () => {
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Rankings
+              Stats
             </NavLink>
           </div>
 
@@ -189,7 +189,7 @@ const NavBar = () => {
                 isActive ? activeLinkClass : inactiveLinkClass
               }
             >
-              Rankings
+              Stats
             </NavLink>
           </div>
         </div>

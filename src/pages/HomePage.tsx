@@ -4,6 +4,8 @@ import LoadingSpinner from "../components/common/LoadingSpinner";
 import RankingTable from "../components/common/RankingTable";
 import { useHomePageData } from "../hooks/useHomePageData";
 import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
+import { sleepersRankingsColumns } from "../components/rankingsPageTableColumns/sleepersColumns";
+import { useRankingsData } from "../hooks/useRankingsData";
 
 const HomePage = () => {
   const {
@@ -15,6 +17,8 @@ const HomePage = () => {
     yesterdayRankingsLoading,
     yesterdayRankingsError,
   } = useHomePageData();
+
+  const { sleepersData, sleepersLoading, sleepersError } = useRankingsData();
 
   // Define columns for season rankings
   const seasonColumns = [
@@ -212,8 +216,30 @@ const HomePage = () => {
         )}
       </div>
 
+      <div className="mt-8">
+        <RankingTable
+          columns={sleepersRankingsColumns}
+          data={sleepersData}
+          keyField="id"
+          rankField="rank"
+          title="Sleepers"
+          dateBadge="2024/2025 Playoffs"
+          isLoading={sleepersLoading}
+          emptyMessage={
+            sleepersError
+              ? "Failed to load sleeper players"
+              : "No sleeper players available"
+          }
+          initialSortKey="totalPoints"
+          initialSortDirection="desc"
+          showRankColors={false}
+        />
+      </div>
+
       {/* Action buttons */}
-      <ActionButtons />
+      <div className="mt-8">
+        <ActionButtons />
+      </div>
     </div>
   );
 };

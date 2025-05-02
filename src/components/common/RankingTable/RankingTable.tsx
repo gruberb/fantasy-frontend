@@ -1,6 +1,5 @@
-import React, { useState, useMemo, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { RankingTableProps, RankingData } from "./types";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { RankingTableProps } from "./types";
 import RankingTableHeader from "./RankingTableHeader";
 import RankingTableEmpty from "./RankingTableEmpty";
 import LoadingSpinner from "../LoadingSpinner";
@@ -31,9 +30,12 @@ const RankingTable = ({
   // Behavior
   initialSortKey,
   initialSortDirection = "desc",
-  onRowClick,
+
+  // Date picker props with defaults
+  showDatePicker = false,
+  selectedDate,
+  onDateChange,
 }: RankingTableProps) => {
-  const navigate = useNavigate();
   const tableContainerRef = useRef<HTMLDivElement>(null);
   const tableRef = useRef<HTMLTableElement>(null);
   const [isScrollable, setIsScrollable] = useState(false);
@@ -132,40 +134,6 @@ const RankingTable = ({
     return result;
   }, [safeData, sortKey, sortDirection, limit]);
 
-  // Default row click handler
-  const handleRowClick = (item: RankingData) => {
-    if (onRowClick) {
-      onRowClick(item);
-    } else if (item.teamId) {
-      // Default navigation to fantasy team detail if teamId exists
-      navigate(`/fantasy-teams/${item.teamId}`);
-    }
-  };
-
-  // Loading state
-  if (isLoading) {
-    return (
-      <div className="ranking-table-container">
-        <div className="ranking-table-header">{title && <h2>{title}</h2>}</div>
-        <div className="p-6">
-          <LoadingSpinner message="Loading data..." />
-        </div>
-      </div>
-    );
-  }
-
-  // Empty state
-  if (!safeData || safeData.length === 0) {
-    return (
-      <div className="ranking-table-container">
-        <div className="ranking-table-header">{title && <h2>{title}</h2>}</div>
-        <div className="p-6">
-          <RankingTableEmpty message={emptyMessage} />
-        </div>
-      </div>
-    );
-  }
-
   // Find name column (usually the second column after rank)
   const nameColumnIndex = columns.findIndex((col) => col.key !== rankField);
   const hasNameColumn = nameColumnIndex !== -1;
@@ -180,111 +148,49 @@ const RankingTable = ({
           viewAllLink={viewAllLink}
           viewAllText={viewAllText}
           showViewAll={!!limit && safeData.length > limit}
-          dateBadge={dateBadge}
+          dateBadge={showDatePicker ? undefined : dateBadge}
+          showDatePicker={showDatePicker}
+          selectedDate={selectedDate}
+          onDateChange={onDateChange}
         />
       </div>
+      {isLoading && (
+        <div className="p-6">
+          <LoadingSpinner message="Loading data..." />
+        </div>
+      )}
+      {(!safeData || safeData.length === 0) && !isLoading && (
+        <div className="p-6">
+          <RankingTableEmpty message={emptyMessage} />
+        </div>
+      )}
 
       {/* Table */}
-      <div className="ranking-table-body">
-        <div
-          ref={tableContainerRef}
-          className="overflow-x-auto scrollbar-hide"
-          style={{ position: "relative" }}
-        >
-          <table ref={tableRef} className="ranking-table">
-            <thead>
-              <tr>
-                {/* Rank column (sticky) */}
-                <th className="sticky left-0 z-20 bg-gray-50 text-center">
-                  {columns.find((col) => col.key === rankField)?.header ||
-                    "Rank"}
-                </th>
-
-                {/* Name column (sticky if found) */}
-                {hasNameColumn && (
-                  <th
-                    className="sticky z-20 border-l border-gray-50 sticky-shadow bg-gray-50"
-                    style={{ left: "65px" }}
-                  >
-                    {columns[nameColumnIndex].header}
-                  </th>
-                )}
-
-                {/* Other columns (scrollable) */}
-                {columns
-                  .filter(
-                    (col, idx) =>
-                      col.key !== rankField && idx !== nameColumnIndex,
-                  )
-                  .map((column) => {
-                    // Determine responsive class
-                    let responsiveClass = "";
-                    if (column.responsive === "md") {
-                      responsiveClass = "hidden md:table-cell";
-                    } else if (column.responsive === "lg") {
-                      responsiveClass = "hidden lg:table-cell";
-                    }
-
-                    return (
-                      <th
-                        key={column.key}
-                        className={`${responsiveClass} ${column.className || ""}`}
-                      >
-                        {column.sortable ? (
-                          <button
-                            className="focus:outline-none cursor-pointer"
-                            onClick={() => handleSort(column.key)}
-                          >
-                            {column.header}
-                            {sortKey === column.key && (
-                              <span className="ml-1">
-                                {sortDirection === "asc" ? "↑" : "↓"}
-                              </span>
-                            )}
-                          </button>
-                        ) : (
-                          column.header
-                        )}
-                      </th>
-                    );
-                  })}
-              </tr>
-            </thead>
-            <tbody>
-              {displayItems.map((item, index) => {
-                const key = item[keyField] || index;
-                const rankValue = item[rankField] || index + 1;
-
-                return (
-                  <tr
-                    key={key}
-                    className="hover:bg-[#f8f7ff] cursor-pointer"
-                    onClick={() => handleRowClick(item)}
-                  >
+      {!isLoading && safeData && safeData.length > 0 && (
+        <div>
+          <div className="ranking-table-body">
+            <div
+              ref={tableContainerRef}
+              className="overflow-x-auto scrollbar-hide"
+              style={{ position: "relative" }}
+            >
+              <table ref={tableRef} className="ranking-table">
+                <thead>
+                  <tr>
                     {/* Rank column (sticky) */}
-                    <td
-                      className="sticky left-0 z-10 text-center bg-white"
-                      style={{ width: "50px" }}
-                    >
-                      <div className={getRankColor(Number(rankValue))}>
-                        {rankValue}
-                      </div>
-                    </td>
+                    <th className="sticky left-0 z-20 bg-gray-50 text-center">
+                      {columns.find((col) => col.key === rankField)?.header ||
+                        "Rank"}
+                    </th>
 
                     {/* Name column (sticky if found) */}
                     {hasNameColumn && (
-                      <td
-                        className="sticky z-10 border-l border-gray-50 bg-white"
+                      <th
+                        className="sticky z-20 border-l border-gray-50 sticky-shadow bg-gray-50"
                         style={{ left: "65px" }}
                       >
-                        {columns[nameColumnIndex].render
-                          ? columns[nameColumnIndex].render(
-                              item[columns[nameColumnIndex].key],
-                              item,
-                              index,
-                            )
-                          : item[columns[nameColumnIndex].key]}
-                      </td>
+                        {columns[nameColumnIndex].header}
+                      </th>
                     )}
 
                     {/* Other columns (scrollable) */}
@@ -294,9 +200,6 @@ const RankingTable = ({
                           col.key !== rankField && idx !== nameColumnIndex,
                       )
                       .map((column) => {
-                        // Get cell value
-                        const value = item[column.key];
-
                         // Determine responsive class
                         let responsiveClass = "";
                         if (column.responsive === "md") {
@@ -305,42 +208,119 @@ const RankingTable = ({
                           responsiveClass = "hidden lg:table-cell";
                         }
 
-                        // Use custom renderer if provided
                         return (
-                          <td
+                          <th
                             key={column.key}
                             className={`${responsiveClass} ${column.className || ""}`}
                           >
-                            {column.render
-                              ? column.render(value, item, index)
-                              : value}
-                          </td>
+                            {column.sortable ? (
+                              <button
+                                className="focus:outline-none cursor-pointer"
+                                onClick={() => handleSort(column.key)}
+                              >
+                                {column.header}
+                                {sortKey === column.key && (
+                                  <span className="ml-1">
+                                    {sortDirection === "asc" ? "↑" : "↓"}
+                                  </span>
+                                )}
+                              </button>
+                            ) : (
+                              column.header
+                            )}
+                          </th>
                         );
                       })}
                   </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
-      </div>
+                </thead>
+                <tbody>
+                  {displayItems.map((item, index) => {
+                    const key = item[keyField] || index;
+                    const rankValue = item[rankField] || index + 1;
 
-      {/* Add scrollbar hiding and shadow styles */}
-      <style jsx global>{`
-        .scrollbar-hide {
-          -ms-overflow-style: none; /* IE and Edge */
-          scrollbar-width: none; /* Firefox */
-        }
-        .scrollbar-hide::-webkit-scrollbar {
-          display: none; /* Chrome, Safari and Opera */
-        }
-      `}</style>
+                    return (
+                      <tr key={key} className="hover:bg-[#f8f7ff]">
+                        {/* Rank column (sticky) */}
+                        <td
+                          className="sticky left-0 z-10 text-center bg-white"
+                          style={{ width: "50px" }}
+                        >
+                          <div className={getRankColor(Number(rankValue))}>
+                            {rankValue}
+                          </div>
+                        </td>
 
-      {/* Scroll indicator - only show when scrollable */}
-      {isScrollable && (
-        <div className="table-scroll-indicator">
-          <span className="hidden sm:inline">⟷ Scroll for more</span>
-          <span className="sm:hidden">⟷ Swipe for more</span>
+                        {/* Name column (sticky if found) */}
+                        {hasNameColumn && (
+                          <td
+                            className="sticky z-10 border-l border-gray-50 bg-white"
+                            style={{ left: "65px" }}
+                          >
+                            {columns[nameColumnIndex].render
+                              ? columns[nameColumnIndex].render(
+                                  item[columns[nameColumnIndex].key],
+                                  item,
+                                  index,
+                                )
+                              : item[columns[nameColumnIndex].key]}
+                          </td>
+                        )}
+
+                        {/* Other columns (scrollable) */}
+                        {columns
+                          .filter(
+                            (col, idx) =>
+                              col.key !== rankField && idx !== nameColumnIndex,
+                          )
+                          .map((column) => {
+                            // Get cell value
+                            const value = item[column.key];
+
+                            // Determine responsive class
+                            let responsiveClass = "";
+                            if (column.responsive === "md") {
+                              responsiveClass = "hidden md:table-cell";
+                            } else if (column.responsive === "lg") {
+                              responsiveClass = "hidden lg:table-cell";
+                            }
+
+                            // Use custom renderer if provided
+                            return (
+                              <td
+                                key={column.key}
+                                className={`${responsiveClass} ${column.className || ""}`}
+                              >
+                                {column.render
+                                  ? column.render(value, item, index)
+                                  : value}
+                              </td>
+                            );
+                          })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+          <>
+            <style jsx global>{`
+              .scrollbar-hide {
+                -ms-overflow-style: none; /* IE and Edge */
+                scrollbar-width: none; /* Firefox */
+              }
+              .scrollbar-hide::-webkit-scrollbar {
+                display: none; /* Chrome, Safari and Opera */
+              }
+            `}</style>
+          </>
+          {/* Scroll indicator - only show when scrollable */}
+          {isScrollable && (
+            <div className="table-scroll-indicator">
+              <span className="hidden sm:inline">⟷ Scroll for more</span>
+              <span className="sm:hidden">⟷ Swipe for more</span>
+            </div>
+          )}
         </div>
       )}
     </div>

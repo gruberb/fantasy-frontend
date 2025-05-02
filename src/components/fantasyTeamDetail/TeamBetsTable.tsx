@@ -81,7 +81,6 @@ export default function TeamBetsTable({ teamBets }: TeamBetsTableProps) {
           rankField="rank"
           initialSortKey="numPlayers"
           initialSortDirection="desc"
-          onRowClick={null} // Disable row click navigation
           showRankColors={false} // Don't show rank colors
           className="bg-transparent shadow-none border-0"
           title="Skaters from NHL Teams"

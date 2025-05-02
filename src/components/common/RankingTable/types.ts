@@ -37,5 +37,8 @@ export interface RankingTableProps {
   // Behavior
   initialSortKey?: string;
   initialSortDirection?: "asc" | "desc";
-  onRowClick?: (item: RankingData) => void;
+
+  showDatePicker?: boolean;
+  selectedDate?: string;
+  onDateChange?: (date: string) => void;
 }

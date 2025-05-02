@@ -142,7 +142,6 @@ export default function PlayerRoster({ players }: PlayerRosterProps) {
           keyField="nhlId"
           initialSortKey="totalPoints"
           initialSortDirection="desc"
-          onRowClick={null} // Disable row click navigation
           showRankColors={false} // Don't show rank colors
           className="bg-transparent shadow-none border-0"
           title="Fantasy Team Roster"

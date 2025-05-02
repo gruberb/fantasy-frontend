@@ -1,7 +1,11 @@
 // src/api/client.ts - Updated for new API endpoints
 import { getTodayString, getYesterdayString } from "../utils/timezone";
 import { API_URL } from "../config";
-import { NHLTeam, FantasyTeamPoints, NHLTeamBetsResponse } from "../types/fantasyTeams";
+import {
+  NHLTeam,
+  FantasyTeamPoints,
+  NHLTeamBetsResponse,
+} from "../types/fantasyTeams";
 import { GamesResponse } from "../types/games";
 import { Ranking, RankingItem } from "../types/rankings";
 import { TopSkatersResponse, Skater } from "../types/skaters";
@@ -97,5 +101,14 @@ export const api = {
 
   async getPlayoffs(season: string = "20242025"): Promise<PlayoffsResponse> {
     return fetchApi<PlayoffsResponse>(`nhl/playoffs?season=${season}`);
+  },
+
+  async getSleepers() {
+    return fetchApi<Skater[]>("fantasy/sleepers");
+  },
+
+  // Get team stats
+  async getTeamStats() {
+    return fetchApi<TeamStats[]>("fantasy/team-stats");
   },
 };

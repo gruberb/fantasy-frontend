@@ -6,6 +6,7 @@ import { usePlayoffsData } from "./usePlayoffsData";
 import { toLocalDateString, dateStringToLocalDate } from "../utils/timezone";
 import { PlayoffFantasyTeamRanking } from "../types/rankings";
 import { FantasyTeamPoints } from "../types/fantasyTeams";
+import { TeamStats } from "../types/teamStats";
 
 export function useRankingsData() {
   // Default to yesterday's date
@@ -32,6 +33,26 @@ export function useRankingsData() {
   const { data: teamBets, isLoading: teamBetsLoading } = useQuery({
     queryKey: ["teamBets"],
     queryFn: api.getTeamBets,
+  });
+
+  // Fetch sleepers data
+  const {
+    data: sleepersData,
+    isLoading: sleepersLoading,
+    error: sleepersError,
+  } = useQuery({
+    queryKey: ["sleepers"],
+    queryFn: () => api.getSleepers(),
+  });
+
+  // Fetch team stats
+  const {
+    data: teamStats,
+    isLoading: teamStatsLoading,
+    error: teamStatsError,
+  } = useQuery<TeamStats[]>({
+    queryKey: ["teamStats"],
+    queryFn: () => api.getTeamStats(),
   });
 
   // Create a list of team IDs from rankings
@@ -163,5 +184,11 @@ export function useRankingsData() {
     dailyRankingsError,
     playoffRankings,
     playoffRankingsLoading,
+    sleepersData,
+    sleepersLoading,
+    sleepersError,
+    teamStats,
+    teamStatsLoading,
+    teamStatsError,
   };
 }
