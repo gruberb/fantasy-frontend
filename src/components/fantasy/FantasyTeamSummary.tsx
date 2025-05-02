@@ -1,5 +1,4 @@
-// components/fantasy/FantasyTeamSummary.tsx
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link } from "react-router-dom";
 import { useFantasyTeams } from "../../hooks/useFantasyTeams";
 import { dateStringToLocalDate, formatDisplayDate } from "../../utils/timezone";
@@ -24,6 +23,7 @@ const FantasyTeamSummary = ({
     month: "short",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 
   // State for sorting and collapsed teams
@@ -31,6 +31,15 @@ const FantasyTeamSummary = ({
     "totalPoints",
   );
   const [collapsedTeams, setCollapsedTeams] = useState<Set<number>>(new Set());
+  const hasInitialized = useRef(false);
+
+  // run *only once* when fantasyTeamCounts goes from [] → [ … ]
+  useEffect(() => {
+    if (!hasInitialized.current && fantasyTeamCounts.length > 0) {
+      setCollapsedTeams(new Set(fantasyTeamCounts.map((t) => t.teamId)));
+      hasInitialized.current = true;
+    }
+  }, [fantasyTeamCounts]);
 
   // Toggle team collapse state
   const toggleTeamCollapse = (teamId: number) => {
@@ -311,7 +320,7 @@ const TeamRow = ({ team, index, isCollapsed, onToggle }: TeamRowProps) => {
           {/* Points badge */}
           <div className="flex items-center">
             <span
-              className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-sm font-bold ${
+              className={`inline-flex items-center justify-center px-3 py-1 rounded-full text-xs font-bold ${
                 team.totalPoints > 0
                   ? "bg-green-100 text-green-800"
                   : "bg-gray-100 text-gray-800"
@@ -333,7 +342,7 @@ const TeamRow = ({ team, index, isCollapsed, onToggle }: TeamRowProps) => {
             onClick={onToggle}
             className="flex items-center px-3 py-1.5 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md text-sm font-medium transition-colors shadow-sm border border-gray-200"
           >
-            <span className="mr-1">{isCollapsed ? "Show" : "Hide"}</span>
+            {/* <span className="mr-1">{isCollapsed ? "Show" : "Hide"}</span> */}
             <svg
               className={`w-4 h-4 transform transition-transform ${
                 isCollapsed ? "" : "rotate-180"
