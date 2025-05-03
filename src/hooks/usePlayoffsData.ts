@@ -12,59 +12,99 @@ export function usePlayoffsData() {
     queryFn: () => api.getPlayoffs(),
   });
 
-  // Get teams still in playoffs (includes teams that have advanced to later rounds)
-  const teamsInPlayoffs = useMemo(() => {
+  // Track teams that have been eliminated
+  const eliminatedTeams = useMemo(() => {
     if (!playoffsData || !playoffsData.rounds) return new Set<string>();
-    
+
     const teamSet = new Set<string>();
-    const currentRoundNum = playoffsData.currentRound;
-    
-    // Include all teams from current round
-    const currentRound = playoffsData.rounds.find(
-      (r) => r.roundNumber === currentRoundNum
-    );
-    
-    if (currentRound) {
-      currentRound.series.forEach((series) => {
-        // Only add teams that haven't been eliminated
-        // In a best-of-7 series, a team needs 4 wins to advance
-        if (series.topSeed.wins < 4 && series.bottomSeed.wins < 4) {
-          teamSet.add(series.topSeed.abbrev);
+
+    // A team is eliminated if they lost a series (opponent has 4 wins)
+    playoffsData.rounds.forEach((round) => {
+      round.series.forEach((series) => {
+        if (series.topSeed.wins === 4) {
           teamSet.add(series.bottomSeed.abbrev);
-        } else {
-          // Add only the winner
-          const winner = series.topSeed.wins === 4 
-            ? series.topSeed.abbrev 
-            : series.bottomSeed.abbrev;
-          teamSet.add(winner);
+        } else if (series.bottomSeed.wins === 4) {
+          teamSet.add(series.topSeed.abbrev);
         }
       });
-    }
-    
-    // Also include teams from future rounds
+    });
+
+    return teamSet;
+  }, [playoffsData]);
+
+  // Get teams still in playoffs (not eliminated)
+  const teamsInPlayoffs = useMemo(() => {
+    if (!playoffsData || !playoffsData.rounds) return new Set<string>();
+
+    const teamSet = new Set<string>();
+
+    // Add all teams from all rounds
+    playoffsData.rounds.forEach((round) => {
+      round.series.forEach((series) => {
+        teamSet.add(series.topSeed.abbrev);
+        teamSet.add(series.bottomSeed.abbrev);
+      });
+    });
+
+    // Remove eliminated teams
+    eliminatedTeams.forEach((team) => {
+      teamSet.delete(team);
+    });
+
+    return teamSet;
+  }, [playoffsData, eliminatedTeams]);
+
+  // Get teams that have advanced to the next round
+  const advancedTeams = useMemo(() => {
+    if (!playoffsData || !playoffsData.rounds) return new Set<string>();
+
+    const teamSet = new Set<string>();
+    const currentRoundNum = playoffsData.currentRound;
+
+    // Process completed series in current and previous rounds
     playoffsData.rounds
-      .filter((round) => round.roundNumber > currentRoundNum)
+      .filter((round) => round.roundNumber <= currentRoundNum)
       .forEach((round) => {
         round.series.forEach((series) => {
-          // Add teams that are already known (not TBD)
-          if (series.topSeed.abbrev !== "TBD") {
+          // If top seed won
+          if (series.topSeed.wins === 4) {
             teamSet.add(series.topSeed.abbrev);
           }
-          if (series.bottomSeed.abbrev !== "TBD") {
+          // If bottom seed won
+          else if (series.bottomSeed.wins === 4) {
             teamSet.add(series.bottomSeed.abbrev);
           }
         });
       });
 
+    // Also add any teams that appear in future rounds
+    playoffsData.rounds
+      .filter((round) => round.roundNumber > currentRoundNum)
+      .forEach((round) => {
+        round.series.forEach((series) => {
+          if (series.topSeed.abbrev && series.topSeed.abbrev !== "TBD") {
+            teamSet.add(series.topSeed.abbrev);
+          }
+          if (series.bottomSeed.abbrev && series.bottomSeed.abbrev !== "TBD") {
+            teamSet.add(series.bottomSeed.abbrev);
+          }
+        });
+      });
+
+    // Remove any teams that have been eliminated
+    eliminatedTeams.forEach((team) => {
+      teamSet.delete(team);
+    });
+
     return teamSet;
-  }, [playoffsData]);
+  }, [playoffsData, eliminatedTeams]);
 
   // Check if a team is in playoffs
   const isTeamInPlayoffs = useCallback(
     (teamAbbrev: string) => {
       return teamsInPlayoffs.has(teamAbbrev);
     },
-    [teamsInPlayoffs]
+    [teamsInPlayoffs],
   );
 
   // Get all playoff teams as an array
@@ -72,45 +112,39 @@ export function usePlayoffsData() {
     return Array.from(teamsInPlayoffs);
   }, [teamsInPlayoffs]);
 
-  // Get teams that have advanced to the next round
-  const advancedTeams = useMemo(() => {
+  // Get all teams in the current round
+  const teamsInCurrentRound = useMemo(() => {
     if (!playoffsData || !playoffsData.rounds) return new Set<string>();
-    
+
     const teamSet = new Set<string>();
     const currentRoundNum = playoffsData.currentRound;
-    
-    // Get teams from future rounds
-    playoffsData.rounds
-      .filter((round) => round.roundNumber > currentRoundNum)
-      .forEach((round) => {
-        round.series.forEach((series) => {
-          if (series.topSeed.abbrev !== "TBD") {
-            teamSet.add(series.topSeed.abbrev);
-          }
-          if (series.bottomSeed.abbrev !== "TBD") {
-            teamSet.add(series.bottomSeed.abbrev);
-          }
-        });
-      });
-    
-    // Also check current round for series that are complete
+
     const currentRound = playoffsData.rounds.find(
-      (r) => r.roundNumber === currentRoundNum
+      (r) => r.roundNumber === currentRoundNum,
     );
-    
+
     if (currentRound) {
       currentRound.series.forEach((series) => {
-        if (series.topSeed.wins === 4) {
+        // Only add valid teams that haven't been eliminated
+        if (
+          series.topSeed.abbrev &&
+          series.topSeed.abbrev !== "TBD" &&
+          !eliminatedTeams.has(series.topSeed.abbrev)
+        ) {
           teamSet.add(series.topSeed.abbrev);
         }
-        if (series.bottomSeed.wins === 4) {
+        if (
+          series.bottomSeed.abbrev &&
+          series.bottomSeed.abbrev !== "TBD" &&
+          !eliminatedTeams.has(series.bottomSeed.abbrev)
+        ) {
           teamSet.add(series.bottomSeed.abbrev);
         }
       });
     }
-    
+
     return teamSet;
-  }, [playoffsData]);
+  }, [playoffsData, eliminatedTeams]);
 
   return {
     playoffsData,
@@ -120,12 +154,28 @@ export function usePlayoffsData() {
     isTeamInPlayoffs,
     playoffTeamsArray,
     advancedTeams,
+    teamsInCurrentRound,
+    eliminatedTeams,
     // Additional helper to check if a team has advanced
     hasTeamAdvanced: useCallback(
       (teamAbbrev: string) => {
         return advancedTeams.has(teamAbbrev);
       },
-      [advancedTeams]
+      [advancedTeams],
+    ),
+    // Helper to check if a team has been eliminated
+    isTeamEliminated: useCallback(
+      (teamAbbrev: string) => {
+        return eliminatedTeams.has(teamAbbrev);
+      },
+      [eliminatedTeams],
+    ),
+    // Helper to check if a team is specifically in the current round
+    isTeamInCurrentRound: useCallback(
+      (teamAbbrev: string) => {
+        return teamsInCurrentRound.has(teamAbbrev);
+      },
+      [teamsInCurrentRound],
     ),
   };
 }
