@@ -2,7 +2,6 @@ import { Game } from "../../types/games";
 import LoadingSpinner from "../common/LoadingSpinner";
 import ErrorMessage from "../common/ErrorMessage";
 import GameOptions from "./GameOptions";
-import GameStatusIndicators from "./GameStatusIndicators";
 import GameDetailView from "./GameDetailView";
 import NoGamesMessage from "./NoGamesMessage";
 
@@ -76,7 +75,6 @@ export default function GamesTabContent({
       <div className="mb-6">
         <div className="flex justify-between items-center mb-4">
           <h2 className="text-xl font-bold">Game Schedule</h2>
-          <GameStatusIndicators />
         </div>
 
         <div className="space-y-6">

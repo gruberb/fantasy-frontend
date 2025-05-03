@@ -4,9 +4,7 @@ import { useEffect } from "react";
 import DateHeader from "../components/common/DateHeader";
 import GameTabs from "../components/games/GameTabs";
 import GameCard from "../components/games/GameCard";
-import FantasyTeamSummary from "../components/fantasy/FantasyTeamSummary";
-import AutoRefreshIndicator from "../components/games/AutoRefreshIndicator";
-import GameStatusIndicators from "../components/games/GameStatusIndicators";
+import FantasyTeamSummary from "../components/games/FantasyTeamSummary";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
 import { useGamesData } from "../hooks/useGamesData";
@@ -83,9 +81,6 @@ const GamesPage = () => {
           onRefresh={refetchGames}
         />
       )}
-
-      {/* Auto-refresh status indicator */}
-      <AutoRefreshIndicator autoRefresh={autoRefresh} />
     </div>
   );
 };
@@ -120,7 +115,7 @@ const GamesContent = ({
 }: GamesContentProps) => {
   // Format date for display
   const formattedDate = new Date(selectedDate).toLocaleDateString("en-US", {
-    weekday: "short",
+    weekday: "long",
     month: "short",
     day: "numeric",
     year: "numeric",
@@ -193,8 +188,6 @@ const GamesContent = ({
             </div>
 
             <div className="flex items-center gap-2">
-              <GameStatusIndicators />
-
               {hasLiveGames && (
                 <div className="flex items-center bg-white/10 px-3 py-1.5 rounded-md text-sm border border-white/20">
                   <input

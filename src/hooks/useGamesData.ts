@@ -93,6 +93,7 @@ export function useGamesData(dateParam?: string) {
     if (autoRefresh && hasLiveGames) {
       intervalId = setInterval(() => {
         // Always refetch if there are live games, regardless of selected date
+        console.log("Refresh games");
         refetchGames();
       }, 30000); // Refresh every 30 seconds
     }
