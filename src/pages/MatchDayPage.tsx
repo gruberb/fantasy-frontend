@@ -114,6 +114,7 @@ const MatchDayPage = () => {
     month: "long",
     day: "numeric",
     year: "numeric",
+    timeZone: "UTC",
   });
 
   return (
