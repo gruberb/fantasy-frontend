@@ -1060,7 +1060,7 @@ const PlayerComparison = ({ game, fantasyTeams }) => {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-2 mt-3">
                   <div className="text-center bg-gray-50 p-2 rounded">
-                    <div className="text-xs text-gray-500">Playoff Pts</div>
+                    <div className="text-xs text-gray-500">Pts</div>
                     <div className="font-bold text-lg">
                       {pair.awayPlayer.playoffPoints}
                     </div>
