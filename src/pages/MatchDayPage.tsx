@@ -294,7 +294,6 @@ const GameCard = ({ game, getTeamPrimaryColor }) => {
                     <div className="text-base font-bold">{game.awayTeam}</div>
                     {game.seriesStatus && game.seriesStatus.round > 0 && (
                       <div className="text-xs text-gray-500">
-                        Series:{" "}
                         {game.seriesStatus.topSeedTeamAbbrev === game.awayTeam
                           ? `${game.seriesStatus.topSeedWins}-${game.seriesStatus.bottomSeedWins}`
                           : `${game.seriesStatus.bottomSeedWins}-${game.seriesStatus.topSeedWins}`}
@@ -327,7 +326,6 @@ const GameCard = ({ game, getTeamPrimaryColor }) => {
                     <div className="text-base font-bold">{game.homeTeam}</div>
                     {game.seriesStatus && game.seriesStatus.round > 0 && (
                       <div className="text-xs text-gray-500">
-                        Series:{" "}
                         {game.seriesStatus.topSeedTeamAbbrev === game.homeTeam
                           ? `${game.seriesStatus.topSeedWins}-${game.seriesStatus.bottomSeedWins}`
                           : `${game.seriesStatus.bottomSeedWins}-${game.seriesStatus.topSeedWins}`}
@@ -874,18 +872,16 @@ const FantasySummary = ({ fantasyTeams }) => {
         <table className="min-w-full bg-white">
           <thead className="bg-gray-50">
             <tr>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase w-0.5">
                 Rank
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase w-1">
                 Team
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Players Today
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase w-2">
+                Players
               </th>
-              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Player Distribution
-              </th>
+              <th className="py-3 px-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"></th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-200">
@@ -916,7 +912,7 @@ const FantasySummary = ({ fantasyTeams }) => {
                   </td>
                   <td className="py-3 px-4 text-sm whitespace-nowrap">
                     <div className="bg-[#6D4C9F]/10 text-[#6D4C9F] text-sm font-medium px-2 py-1 rounded-full inline-flex items-center">
-                      {team.totalPlayersToday} Players
+                      {team.totalPlayersToday}
                     </div>
                   </td>
                   <td className="py-3 px-4 text-sm">
@@ -1148,7 +1144,7 @@ const PlayerComparison = ({ game, fantasyTeams }) => {
                 {/* Stats */}
                 <div className="grid grid-cols-3 gap-2 mt-3">
                   <div className="text-center bg-gray-50 p-2 rounded">
-                    <div className="text-xs text-gray-500">Playoff Pts</div>
+                    <div className="text-xs text-gray-500">Pts</div>
                     <div className="font-bold text-lg">
                       {pair.homePlayer.playoffPoints}
                     </div>
