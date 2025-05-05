@@ -1045,11 +1045,9 @@ const PlayerComparison = ({ game, fantasyTeams }) => {
                         />
                       )}
                       <span>
-                        {pair.awayPlayer.position} • {pair.awayPlayer.nhlTeam}
+                        {pair.awayPlayer.position} • {pair.awayPlayer.nhlTeam} •{" "}
+                        {pair.awayPlayer.fantasyTeam}
                       </span>
-                    </div>
-                    <div className="text-xs text-[#6D4C9F]">
-                      {pair.awayPlayer.fantasyTeam}
                     </div>
                   </div>
                 </div>
@@ -1133,11 +1131,9 @@ const PlayerComparison = ({ game, fantasyTeams }) => {
                         />
                       )}
                       <span>
-                        {pair.homePlayer.position} • {pair.homePlayer.nhlTeam}
+                        {pair.homePlayer.position} • {pair.homePlayer.nhlTeam} •{" "}
+                        {pair.homePlayer.fantasyTeam}
                       </span>
-                    </div>
-                    <div className="text-xs text-[#6D4C9F]">
-                      {pair.homePlayer.fantasyTeam}
                     </div>
                   </div>
                 </div>
