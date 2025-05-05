@@ -31,8 +31,8 @@ const MatchDayPage = () => {
     error,
     refetch,
   } = useQuery<MatchDayResponse>({
-    queryKey: ["matchDay", selectedDate],
-    queryFn: () => api.getMatchDay(selectedDate),
+    queryKey: ["matchDay"],
+    queryFn: () => api.getMatchDay(),
   });
 
   // Handler for date change
@@ -70,11 +70,6 @@ const MatchDayPage = () => {
   if (isLoading) {
     return (
       <div className="px-4 py-6">
-        <DateHeader
-          selectedDate={selectedDate}
-          onDateChange={handleDateChange}
-          isFloating={true}
-        />
         <div className="mt-8">
           <LoadingSpinner size="large" message="Loading match day data..." />
         </div>
@@ -85,11 +80,6 @@ const MatchDayPage = () => {
   if (error) {
     return (
       <div className="px-4 py-6">
-        <DateHeader
-          selectedDate={selectedDate}
-          onDateChange={handleDateChange}
-          isFloating={true}
-        />
         <div className="mt-8">
           <ErrorMessage
             message="Failed to load match day data. Please try again."
@@ -118,40 +108,31 @@ const MatchDayPage = () => {
   });
 
   return (
-    <div className="px-4 py-6">
-      {/* Date selector */}
-      <DateHeader
-        selectedDate={selectedDate}
-        onDateChange={handleDateChange}
-        isFloating={true}
-      />
-
+    <div className="px-4">
       {/* Header Summary */}
-      <div className="mt-6 mb-6">
-        <div className="ranking-table-container">
-          <div className="ranking-table-header p-5 border-b border-gray-100 bg-gradient-to-r from-[#041E42]/95 to-[#6D4C9F]/95 text-white">
-            <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
-              <div>
-                <h1 className="text-2xl font-bold mb-1">Match Day Overview</h1>
-                <span className="bg-yellow-300/20 text-yellow-300 text-xs px-3 py-1 rounded-full font-medium">
-                  {formattedDate}
-                </span>
+      <div className="ranking-table-container">
+        <div className="ranking-table-header p-5 border-b border-gray-100 bg-gradient-to-r from-[#041E42]/95 to-[#6D4C9F]/95 text-white">
+          <div className="flex flex-col sm:flex-row justify-between sm:items-center gap-3">
+            <div>
+              <h1 className="text-2xl font-bold mb-1">Match Day Overview</h1>
+              <span className="bg-yellow-300/20 text-yellow-300 text-xs px-3 py-1 rounded-full font-medium">
+                {formattedDate}
+              </span>
+            </div>
+            <div className="flex flex-col sm:items-end">
+              <div className="text-lg font-semibold">
+                {summary.totalGames} Games • {summary.totalTeamsPlaying} Teams
+                Playing
               </div>
-              <div className="flex flex-col sm:items-end">
-                <div className="text-lg font-semibold">
-                  {summary.totalGames} Games • {summary.totalTeamsPlaying} Teams
-                  Playing
-                </div>
-                <div className="flex flex-wrap gap-2 mt-1">
-                  {summary.teamPlayersCount.map((team) => (
-                    <span
-                      key={team.nhlTeam}
-                      className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-white/10"
-                    >
-                      {team.nhlTeam}: {team.playerCount} players
-                    </span>
-                  ))}
-                </div>
+              <div className="flex flex-wrap gap-2 mt-1">
+                {summary.teamPlayersCount.map((team) => (
+                  <span
+                    key={team.nhlTeam}
+                    className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-white/10"
+                  >
+                    {team.nhlTeam}: {team.playerCount} players
+                  </span>
+                ))}
               </div>
             </div>
           </div>

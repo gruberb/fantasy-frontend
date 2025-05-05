@@ -112,9 +112,7 @@ export const api = {
     return fetchApi<TeamStats[]>("fantasy/team-stats");
   },
 
-  async getMatchDay(date: string): Promise<any> {
-    return fetchApi<any>(
-      `nhl/match-day?date=${date}&season=20242025&game_type=3&form_games=5`,
-    );
+  async getMatchDay(): Promise<any> {
+    return fetchApi<any>(`nhl/match-day`);
   },
 };
