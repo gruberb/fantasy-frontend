@@ -68,6 +68,14 @@ const NavBar = () => {
               Dashboard
             </NavLink>
             <NavLink
+              to="/match-day"
+              className={({ isActive }) =>
+                isActive ? activeLinkClass : inactiveLinkClass
+              }
+            >
+              Match Day
+            </NavLink>
+            <NavLink
               to={`/games/${toLocalDateString(new Date())}`}
               className={({ isActive }) =>
                 isActive || isGamesRouteActive()
@@ -153,6 +161,16 @@ const NavBar = () => {
             >
               Dashboard
             </NavLink>
+            <NavLink
+              to="/match-day"
+              onClick={() => setMobileOpen(false)}
+              className={({ isActive }) =>
+                isActive ? activeLinkClass : inactiveLinkClass
+              }
+            >
+              Match Day
+            </NavLink>
+
             <NavLink
               to={`/games/${toLocalDateString(new Date())}`}
               onClick={() => setMobileOpen(false)}

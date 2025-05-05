@@ -6,6 +6,7 @@ import FantasyTeamDetailPage from "./pages/FantasyTeamDetailPage";
 import SkatersPage from "./pages/SkatersPage";
 import GamesPage from "./pages/GamesPage";
 import RankingsPage from "./pages/RankingsPage";
+import MatchDayPage from "./pages/MatchDayPage";
 
 function App() {
   return (
@@ -20,6 +21,10 @@ function App() {
         <Route path="/skaters" element={<SkatersPage />} />
         <Route path="/games/:date" element={<GamesPage />} />
         <Route path="/rankings" element={<RankingsPage />} />
+        <Route path="/match-day" element={<MatchDayPage />} />{" "}
+        {/* Add this route */}
+        <Route path="/match-day/:date" element={<MatchDayPage />} />{" "}
+        {/* Add this route with date parameter */}
       </Routes>
     </Layout>
   );
