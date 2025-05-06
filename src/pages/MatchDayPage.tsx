@@ -1149,13 +1149,13 @@ const PlayerComparison = ({ game, fantasyTeams }) => {
                     </div>
                     <div className="flex space-x-2">
                       <span className="px-2 py-1 bg-green-100 text-green-800 rounded text-xs font-medium">
-                        {pair.homePlayer.form.goals} G
+                        {pair.homePlayer.form.points} PTS
                       </span>
                       <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-medium">
-                        {pair.homePlayer.form.assists} A
+                        {pair.homePlayer.form.goals} G
                       </span>
                       <span className="px-2 py-1 bg-purple-100 text-purple-800 rounded text-xs font-medium">
-                        {pair.homePlayer.form.points} PTS
+                        {pair.homePlayer.form.assists} A
                       </span>
                     </div>
                   </div>
