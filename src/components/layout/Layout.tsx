@@ -18,58 +18,24 @@ const Layout = ({ children }: LayoutProps) => {
         <div className="animate-fadeIn">{children}</div>
       </main>
       <footer className="bg-gradient-to-r from-[#041E42] to-[#6D4C9F] text-white p-6 text-center">
-        <div className="container mx-auto">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <div>
-              <p className="font-medium">
-                Fantasy NHL Dashboard © {currentYear}
-              </p>
-            </div>
-            <div className="mt-4 md:mt-0">
-              <ul className="flex space-x-4">
-                <li>
-                  <Link
-                    to="/"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Dashboard
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/fantasy-teams"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Teams
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/skaters"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Skaters
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/games"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Games
-                  </Link>
-                </li>
-                <li>
-                  <Link
-                    to="/rankings"
-                    className="text-gray-300 hover:text-white transition-colors"
-                  >
-                    Rankings
-                  </Link>
-                </li>
-              </ul>
-            </div>
-          </div>
+        <div className="items-center">
+          <p className="text-game-light/60 text-sm">
+            Made with{' '}
+            <span className="text-red-400 animate-pulse inline-block hover:scale-110 transition-transform duration-200">
+              ❤️
+            </span>{' '}
+            by{' '}
+            <a
+              href="https://bastiangruber.ca"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-game-accent hover:text-game-accent-dark transition-colors duration-200
+                             font-medium underline decoration-game-accent/30 hover:decoration-game-accent-dark
+                             hover:drop-shadow-[0_0_8px_rgba(251,191,36,0.3)]"
+            >
+              Bastian
+            </a>
+          </p>
         </div>
       </footer>
 

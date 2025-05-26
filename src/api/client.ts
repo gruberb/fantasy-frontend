@@ -1,4 +1,3 @@
-// src/api/client.ts - Updated for new API endpoints
 import { getTodayString, getYesterdayString } from "../utils/timezone";
 import { API_URL } from "../config";
 import {
