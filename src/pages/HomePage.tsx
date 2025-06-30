@@ -5,7 +5,6 @@ import RankingTable from "../components/common/RankingTable";
 import { useHomePageData } from "../hooks/useHomePageData";
 import { getNHLTeamUrlSlug } from "../utils/nhlTeams";
 import { sleepersRankingsColumns } from "../components/rankingsPageTableColumns/sleepersColumns";
-import { useRankingsData } from "../hooks/useRankingsData";
 import { seasonRankingsColumns } from "../components/rankingsPageTableColumns/seasonColumns";
 import { dailyRankingsColumns } from "../components/rankingsPageTableColumns/dailysColumns";
 
@@ -18,9 +17,10 @@ const HomePage = () => {
     yesterdayRankings,
     yesterdayRankingsLoading,
     yesterdayRankingsError,
+    sleepersData,
+    sleepersLoading,
+    sleepersError,
   } = useHomePageData();
-
-  const { sleepersData, sleepersLoading, sleepersError } = useRankingsData();
 
   // Extract rankings from API response if needed
   let dailyRankingsData = [];

@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { api } from "../api/client";
 import {
-  toLocalDateString,
+  getFixedAnalysisDateString,
   dateStringToLocalDate,
   isSameLocalDay,
 } from "../utils/timezone";
@@ -22,14 +22,14 @@ export function useGamesData(dateParam?: string) {
     return !isNaN(date.getTime());
   };
 
-  // State for date selector - initialized from URL parameter if valid
+  // State for date selector - initialized from URL parameter if valid, otherwise use fixed analysis date
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     // If there's a valid date in the URL, use it
     if (dateParam && isValidDate(dateParam)) {
       return dateParam;
     }
-    // Otherwise, use today
-    return toLocalDateString(new Date());
+    // Otherwise, use the fixed analysis date (June 17, 2024)
+    return getFixedAnalysisDateString();
   });
 
   // State for tabs, filters, and game expansions
@@ -171,9 +171,9 @@ export function useGamesData(dateParam?: string) {
     ? filterTeam === "all"
       ? gamesData.games
       : gamesData.games.filter(
-          (game) =>
-            game.homeTeam === filterTeam || game.awayTeam === filterTeam,
-        )
+        (game) =>
+          game.homeTeam === filterTeam || game.awayTeam === filterTeam,
+      )
     : [];
 
   return {

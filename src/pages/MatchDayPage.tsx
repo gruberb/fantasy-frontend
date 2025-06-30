@@ -2,10 +2,9 @@ import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { useParams, useNavigate, Link } from "react-router-dom";
 import { api } from "../api/client";
-import DateHeader from "../components/common/DateHeader";
 import LoadingSpinner from "../components/common/LoadingSpinner";
 import ErrorMessage from "../components/common/ErrorMessage";
-import { toLocalDateString } from "../utils/timezone";
+import { getFixedAnalysisDateString } from "../utils/timezone";
 import { MatchDayResponse } from "../types/matchDay";
 
 const MatchDayPage = () => {
@@ -14,14 +13,14 @@ const MatchDayPage = () => {
   // Get date from URL parameter or use current date
   const { date: dateParam } = useParams<{ date?: string }>();
 
-  // Get current date in YYYY-MM-DD format for initial load
+  // Get fixed analysis date (June 17, 2024) for initial load
   const [selectedDate, setSelectedDate] = useState<string>(() => {
     // If there's a valid date in the URL, use it
     if (dateParam && /^\d{4}-\d{2}-\d{2}$/.test(dateParam)) {
       return dateParam;
     }
-    // Otherwise, use today
-    return toLocalDateString(new Date());
+    // Otherwise, use the fixed analysis date (June 17, 2024)
+    return getFixedAnalysisDateString();
   });
 
   // Fetch match day data
@@ -34,12 +33,6 @@ const MatchDayPage = () => {
     queryKey: ["matchDay"],
     queryFn: () => api.getMatchDay(),
   });
-
-  // Handler for date change
-  const handleDateChange = (newDate: string) => {
-    setSelectedDate(newDate);
-    navigate(`/match-day/${newDate}`);
-  };
 
   // Handler for refresh
   const handleRefresh = () => {
@@ -288,9 +281,9 @@ const GameCard = ({ game, getTeamPrimaryColor }) => {
               {/* Score */}
               <div className="px-4 text-center">
                 {game.awayScore !== undefined &&
-                game.awayScore !== null &&
-                game.homeScore !== undefined &&
-                game.homeScore !== null ? (
+                  game.awayScore !== null &&
+                  game.homeScore !== undefined &&
+                  game.homeScore !== null ? (
                   <div className="flex items-center">
                     <div className="text-2xl font-bold">{game.awayScore}</div>
                     <div className="mx-2 text-gray-300">-</div>
@@ -353,9 +346,8 @@ const GameCard = ({ game, getTeamPrimaryColor }) => {
       >
         {expanded ? "Hide" : "Show"} Game Details
         <svg
-          className={`ml-1 h-4 w-4 transform transition-transform duration-200 ${
-            expanded ? "rotate-180" : ""
-          }`}
+          className={`ml-1 h-4 w-4 transform transition-transform duration-200 ${expanded ? "rotate-180" : ""
+            }`}
           fill="none"
           viewBox="0 0 24 24"
           stroke="currentColor"
@@ -623,9 +615,8 @@ const FantasyTeamCard = ({ team, getTeamPrimaryColor }) => {
           className="bg-white/30 text-white p-2 rounded-full hover:bg-white/40 transition-colors"
         >
           <svg
-            className={`w-5 h-5 transform transition-transform ${
-              expanded ? "rotate-180" : ""
-            }`}
+            className={`w-5 h-5 transform transition-transform ${expanded ? "rotate-180" : ""
+              }`}
             fill="none"
             stroke="currentColor"
             viewBox="0 0 24 24"

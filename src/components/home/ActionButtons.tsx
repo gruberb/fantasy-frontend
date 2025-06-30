@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { toLocalDateString } from "../../utils/timezone";
+import { getFixedAnalysisDateString } from "../../utils/timezone";
 
 export default function ActionButtons() {
   return (
@@ -11,7 +11,7 @@ export default function ActionButtons() {
         View All Teams
       </Link>
       <Link
-        to={`/games/${toLocalDateString(new Date())}`}
+        to={`/games/${getFixedAnalysisDateString()}`}
         className="bg-[#041E42] hover:bg-[#0A2D5A] text-white py-3 px-4 rounded-md shadow-sm font-medium transition-colors text-center"
       >
         Game Center

@@ -1,4 +1,20 @@
 /**
+ * Gets a fixed date (June 17, 2024) as a string for end-of-season analysis
+ * This is used for the "yesterday's scores" on home page and default dates
+ * for match day and game center pages during offseason
+ */
+export function getFixedAnalysisDateString(): string {
+  return "2025-06-17";
+}
+
+/**
+ * Gets the fixed analysis date as a Date object (June 17, 2024)
+ */
+export function getFixedAnalysisDate(): Date {
+  return new Date(2025, 5, 17); // Month is 0-indexed, so 5 = June
+}
+
+/**
  * Gets the current date in the user's local timezone
  */
 export function getUserLocalDate(): Date {

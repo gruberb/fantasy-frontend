@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { NavLink, Link, useLocation } from "react-router-dom";
-import { toLocalDateString } from "../../utils/timezone";
+import { getFixedAnalysisDateString } from "../../utils/timezone";
 
 const NavBar = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -51,7 +51,7 @@ const NavBar = () => {
                 Fantasy
               </span>
               <span className="text-2xl font-extrabold text-yellow-400 tracking-wider">
-                NHL
+                NHL 2024
               </span>
             </Link>
           </div>
@@ -76,7 +76,7 @@ const NavBar = () => {
               Match Day
             </NavLink>
             <NavLink
-              to={`/games/${toLocalDateString(new Date())}`}
+              to={`/games/${getFixedAnalysisDateString()}`}
               className={({ isActive }) =>
                 isActive || isGamesRouteActive()
                   ? activeLinkClass
@@ -172,7 +172,7 @@ const NavBar = () => {
             </NavLink>
 
             <NavLink
-              to={`/games/${toLocalDateString(new Date())}`}
+              to={`/games/${getFixedAnalysisDateString()}`}
               onClick={() => setMobileOpen(false)}
               className={({ isActive }) =>
                 isActive || isGamesRouteActive()

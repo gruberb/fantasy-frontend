@@ -1,11 +1,11 @@
 import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
-import { getYesterdayString, dateStringToLocalDate } from "../utils/timezone";
+import { getFixedAnalysisDateString, dateStringToLocalDate } from "../utils/timezone";
 
 export function useHomePageData() {
   // Yesterday's date for rankings
-  const yesterdayString = getYesterdayString();
-  const yesterdayDate = dateStringToLocalDate(yesterdayString);
+  const analysisDateString = getFixedAnalysisDateString();
+  const analysisDate = dateStringToLocalDate(analysisDateString);
 
   // Rankings query
   const {
@@ -38,19 +38,29 @@ export function useHomePageData() {
     queryFn: () => api.getTopSkaters(10, 20242025, 3, 5),
   });
 
-  // Yesterday's rankings query
+  // Sleepers query
   const {
-    data: yesterdayRankings,
-    isLoading: yesterdayRankingsLoading,
-    error: yesterdayRankingsError,
+    data: sleepersData,
+    isLoading: sleepersLoading,
+    error: sleepersError,
   } = useQuery({
-    queryKey: ["dailyRankings", yesterdayString],
-    queryFn: () => api.getDailyFantasySummary(yesterdayString),
+    queryKey: ["sleepers"],
+    queryFn: () => api.getSleepers(),
+  });
+
+  // Analysis date rankings query (using June 17, 2024)
+  const {
+    data: analysisDateRankings,
+    isLoading: analysisDateRankingsLoading,
+    error: analysisDateRankingsError,
+  } = useQuery({
+    queryKey: ["dailyRankings", analysisDateString],
+    queryFn: () => api.getDailyFantasySummary(analysisDateString),
     retry: 1,
   });
 
   return {
-    yesterdayDate,
+    yesterdayDate: analysisDate, // Keep the old name for backwards compatibility
     rankings,
     rankingsLoading,
     rankingsError,
@@ -60,9 +70,12 @@ export function useHomePageData() {
     topSkatersData,
     topSkatersLoading,
     topSkatersError,
-    yesterdayRankings,
-    yesterdayRankingsLoading,
-    yesterdayRankingsError,
-    yesterdayString,
+    yesterdayRankings: analysisDateRankings, // Keep the old name for backwards compatibility
+    yesterdayRankingsLoading: analysisDateRankingsLoading,
+    yesterdayRankingsError: analysisDateRankingsError,
+    yesterdayString: analysisDateString, // Keep the old name for backwards compatibility
+    sleepersData,
+    sleepersLoading,
+    sleepersError,
   };
 }

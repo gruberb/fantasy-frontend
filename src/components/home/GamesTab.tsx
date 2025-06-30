@@ -3,7 +3,7 @@ import { GamesResponse } from "../../types/games";
 import LoadingSpinner from "../common/LoadingSpinner";
 import ErrorMessage from "../common/ErrorMessage";
 import GameCard from "../games/GameCard";
-import { toLocalDateString } from "../../utils/timezone";
+import { getFixedAnalysisDateString } from "../../utils/timezone";
 
 interface GamesTabProps {
   isLoading: boolean;
@@ -27,7 +27,7 @@ export default function GamesTab({ isLoading, error, data }: GamesTabProps) {
       <div className="bg-white rounded-lg shadow-sm p-6 text-center border border-gray-100">
         <p className="text-gray-500">No games scheduled for today.</p>
         <Link
-          to={`/games/${toLocalDateString(new Date())}`}
+          to={`/games/${getFixedAnalysisDateString()}`}
           className="inline-block mt-4 px-4 py-2 bg-[#6D4C9F] text-white rounded-md hover:bg-[#5A3A87] transition-colors"
         >
           View Games Calendar

@@ -3,18 +3,16 @@ import { useQuery } from "@tanstack/react-query";
 import { api } from "../api/client";
 import { APP_CONFIG } from "../config";
 import { usePlayoffsData } from "./usePlayoffsData";
-import { toLocalDateString, dateStringToLocalDate } from "../utils/timezone";
+import { getFixedAnalysisDateString, dateStringToLocalDate } from "../utils/timezone";
 import { PlayoffFantasyTeamRanking } from "../types/rankings";
 import { FantasyTeamPoints } from "../types/fantasyTeams";
 import { TeamStats } from "../types/teamStats";
 
 export function useRankingsData() {
-  // Default to yesterday's date
+  // State for date selector - initialized from URL parameter if valid, otherwise use fixed analysis date
   const [selectedDate, setSelectedDate] = useState<string>(() => {
-    const yesterday = new Date();
-    yesterday.setDate(yesterday.getDate() - 1);
-    // Return YYYY-MM-DD in **local** time
-    return toLocalDateString(yesterday);
+    // Otherwise, use the fixed analysis date (June 17, 2024)
+    return getFixedAnalysisDateString();
   });
 
   const { isTeamInPlayoffs } = usePlayoffsData();
